@@ -1,0 +1,15 @@
+<header class="header">
+  <h1 class="titulo">📍 Consulta Pública de Lotes</h1>
+  <p class="subtitulo">Sistema demostrativo — Los datos mostrados no tienen valor oficial</p>
+</header>
+
+<main class="contenido">
+  <section class="panel-mapa">
+    <app-buscador-ubicacion></app-buscador-ubicacion>
+    <app-mapa-lote (ubicacionSeleccionada)="onUbicacionSeleccionada($event)"></app-mapa-lote>
+  </section>
+
+  <aside class="panel-ficha">
+    <app-ficha-lote></app-ficha-lote>
+  </aside>
+</main>
