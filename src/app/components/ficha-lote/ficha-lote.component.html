@@ -1,0 +1,177 @@
+<ng-container *ngIf="estado$ | async as estado">
+<ng-container *ngIf="ficha$ | async as ficha; else noFicha">
+
+<div class="ficha-panel">
+
+  <!-- Ficha cargada -->
+  <ng-container *ngIf="estado === 'cargado'">
+
+    <!-- Advertencia general -->
+    <div class="advertencia">
+      ⚠️ {{ ficha.advertencia }}
+    </div>
+
+    <!-- Criterio de consulta -->
+    <div class="seccion criterio">
+      <span class="criterio-label">Consultado por:</span>
+      <span class="criterio-valor" *ngIf="ficha.criterioConsulta.tipo === 'IDENTIFICADOR'">
+        ID {{ ficha.criterioConsulta.identificador }}
+      </span>
+      <span class="criterio-valor" *ngIf="ficha.criterioConsulta.tipo !== 'IDENTIFICADOR'">
+        Coordenadas ({{ ficha.criterioConsulta.latitud }}, {{ ficha.criterioConsulta.longitud }})
+      </span>
+    </div>
+
+    <!-- Datos del lote -->
+    <div class="seccion">
+      <h3 class="seccion-titulo">
+        <span class="seccion-icono">🏠</span> Datos del lote
+      </h3>
+      <div class="seccion-contenido">
+        <div class="dato">
+          <span class="dato-label">Identificador</span>
+          <span class="dato-valor">{{ ficha.lote.identificador }}</span>
+        </div>
+        <div class="dato">
+          <span class="dato-label">Dirección aproximada</span>
+          <span class="dato-valor">{{ ficha.lote.direccionAproximada || 'Sin información disponible' }}</span>
+        </div>
+        <div class="dato">
+          <span class="dato-label">Departamento</span>
+          <span class="dato-valor">{{ ficha.lote.departamento || 'Sin información disponible' }}</span>
+        </div>
+        <div class="dato">
+          <span class="dato-label">Coordenadas</span>
+          <span class="dato-valor">
+            {{ ficha.lote.coordenadas.latitud }}, {{ ficha.lote.coordenadas.longitud }}
+          </span>
+        </div>
+        <app-badge-procedencia [procedencia]="ficha.lote.procedencia"></app-badge-procedencia>
+      </div>
+    </div>
+
+    <!-- Zonificación -->
+    <div class="seccion">
+      <h3 class="seccion-titulo">
+        <span class="seccion-icono">🏗️</span> Zonificación
+      </h3>
+      <div class="seccion-contenido">
+        <div class="dato">
+          <span class="dato-label">Descripción</span>
+          <span class="dato-valor">{{ ficha.zonificacion.descripcion || 'Sin información disponible' }}</span>
+        </div>
+        <div class="dato">
+          <span class="dato-label">Verificada</span>
+          <span class="dato-valor" [class.valor-si]="ficha.zonificacion.verificada" [class.valor-no]="!ficha.zonificacion.verificada">
+            {{ ficha.zonificacion.verificada ? 'Sí' : 'No' }}
+          </span>
+        </div>
+        <app-badge-procedencia [procedencia]="ficha.zonificacion.procedencia"></app-badge-procedencia>
+      </div>
+    </div>
+
+    <!-- Infraestructura eléctrica -->
+    <div class="seccion">
+      <h3 class="seccion-titulo">
+        <span class="seccion-icono">⚡</span> Infraestructura eléctrica
+      </h3>
+      <div class="seccion-contenido">
+        <div class="dato">
+          <span class="dato-label">Distancia a red eléctrica</span>
+          <span class="dato-valor" *ngIf="ficha.infraestructuraElectrica.distanciaRedElectricaMts !== null">
+            {{ ficha.infraestructuraElectrica.distanciaRedElectricaMts }} metros
+          </span>
+          <span class="dato-valor" *ngIf="ficha.infraestructuraElectrica.distanciaRedElectricaMts === null">
+            Sin información disponible
+          </span>
+        </div>
+        <div class="dato">
+          <span class="dato-label">Tiene acceso</span>
+          <span class="dato-valor" [class.valor-si]="ficha.infraestructuraElectrica.tieneAcceso" [class.valor-no]="!ficha.infraestructuraElectrica.tieneAcceso">
+            {{ ficha.infraestructuraElectrica.tieneAcceso ? 'Sí' : 'No' }}
+          </span>
+        </div>
+        <app-badge-procedencia [procedencia]="ficha.infraestructuraElectrica.procedencia"></app-badge-procedencia>
+      </div>
+    </div>
+
+    <!-- Cobertura de agua -->
+    <div class="seccion">
+      <h3 class="seccion-titulo">
+        <span class="seccion-icono">💧</span> Cobertura de agua
+      </h3>
+      <div class="seccion-contenido">
+        <div class="dato">
+          <span class="dato-label">Tiene cobertura</span>
+          <span class="dato-valor" [class.valor-si]="ficha.coberturaAgua.tieneCobertura" [class.valor-no]="!ficha.coberturaAgua.tieneCobertura">
+            {{ ficha.coberturaAgua.tieneCobertura ? 'Sí' : 'No' }}
+          </span>
+        </div>
+        <app-badge-procedencia [procedencia]="ficha.coberturaAgua.procedencia"></app-badge-procedencia>
+      </div>
+    </div>
+
+    <!-- Dónde consultar -->
+    <div class="seccion" *ngIf="ficha.dondeConsultar">
+      <h3 class="seccion-titulo">
+        <span class="seccion-icono">📋</span> Dónde consultar
+      </h3>
+      <div class="seccion-contenido">
+        <div class="dato">
+          <span class="dato-label">Departamento</span>
+          <span class="dato-valor">{{ ficha.dondeConsultar.departamento }}</span>
+        </div>
+        <div class="dato" *ngIf="ficha.dondeConsultar.contacto">
+          <span class="dato-label">Contacto</span>
+          <span class="dato-valor">{{ ficha.dondeConsultar.contacto }}</span>
+        </div>
+        <div class="dato" *ngIf="ficha.dondeConsultar.direccionOficina">
+          <span class="dato-label">Dirección de oficina</span>
+          <span class="dato-valor">{{ ficha.dondeConsultar.direccionOficina }}</span>
+        </div>
+        <div class="dato" *ngIf="ficha.dondeConsultar.comoConsultar">
+          <span class="dato-label">Cómo consultar</span>
+          <span class="dato-valor">{{ ficha.dondeConsultar.comoConsultar }}</span>
+        </div>
+        <app-badge-procedencia [procedencia]="ficha.dondeConsultar.procedencia"></app-badge-procedencia>
+      </div>
+    </div>
+
+  </ng-container>
+</div>
+
+</ng-container>
+</ng-container>
+
+<ng-template #noFicha>
+<div class="ficha-panel">
+  <ng-container *ngIf="estado$ | async as estado">
+    <!-- Estado vacío -->
+    <div class="estado-vacio" *ngIf="estado === 'vacio'">
+      <div class="icono-estado">📍</div>
+      <h3>Seleccioná una ubicación</h3>
+      <p>Hacé click en el mapa o usá el buscador para consultar la ficha de un lote.</p>
+    </div>
+
+    <!-- Cargando -->
+    <div class="estado-cargando" *ngIf="estado === 'cargando'">
+      <div class="spinner"></div>
+      <p>Consultando ficha del lote...</p>
+    </div>
+
+    <!-- Sin resultados -->
+    <div class="estado-sin-resultados" *ngIf="estado === 'sin-resultados'">
+      <div class="icono-estado">🔍</div>
+      <h3>Sin resultados</h3>
+      <p>No se encontró un lote demostrativo en la ubicación indicada.</p>
+    </div>
+
+    <!-- Error -->
+    <div class="estado-error" *ngIf="estado === 'error'">
+      <div class="icono-estado">❌</div>
+      <h3>Error en la consulta</h3>
+      <p>{{ (error$ | async) }}</p>
+    </div>
+  </ng-container>
+</div>
+</ng-template>

@@ -1,0 +1,69 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* === Header === */
+.header {
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: white;
+  padding: 14px 24px;
+  text-align: center;
+}
+
+.titulo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.subtitulo {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+/* === Layout principal === */
+.contenido {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  grid-template-rows: 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+.panel-mapa {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.panel-ficha {
+  background: #f8fafc;
+  border-left: 1px solid #e2e8f0;
+  overflow-y: auto;
+}
+
+/* === Responsive: Móvil === */
+@media (max-width: 768px) {
+  .contenido {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    overflow-y: auto;
+  }
+
+  .panel-mapa {
+    min-height: 350px;
+  }
+
+  .panel-ficha {
+    border-left: none;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .titulo {
+    font-size: 1.1rem;
+  }
+}

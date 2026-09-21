@@ -1,0 +1,33 @@
+F-01: Pantalla pública de consulta y mapa de lote #1
+Propósito académico
+Practicar el inicio de una aplicación web responsive, componentes de interfaz, estado local y datos simulados claramente identificados.
+Historia de usuario
+Como ciudadano, quiero seleccionar una ubicación en un mapa para visualizar una ficha demostrativa del lote.
+Actividades
+•	Inicializar la aplicación frontend en el repositorio.
+•	Crear una pantalla pública responsive con búsqueda por dirección o coordenadas.
+•	Incorporar un mapa interactivo o un adaptador visual de mapa.
+•	Mostrar un panel lateral con ficha demostrativa del lote.
+•	Usar datos locales temporales y señalizarlos como simulados.
+•	Preparar la interfaz para reemplazar esos mocks por una API.
+Criterios de aceptación académicos
+•	La interfaz se adapta a escritorio y móvil.
+•	El usuario puede seleccionar o ingresar una ubicación.
+•	Se muestra una ficha con zonificación, infraestructura y origen de datos.
+•	Los datos demostrativos se distinguen visualmente.
+•	No hay llamadas acopladas a una API aún inexistente.
+Fuera de alcance
+•	Login administrativo.
+•	Datos oficiales completos.
+•	Integración real con el backend.
+•	Desarrollo de un motor geográfico propio.
+Preguntas para responder en el Pull Request
+1.	¿Cómo separaste el estado de selección de ubicación del componente visual?
+2.	¿Qué decisión tomaste para que luego sea simple reemplazar los mocks?
+3.	¿Cómo resolviste la adaptación a pantallas pequeñas?
+Guía para Antigravity IDE
+1.	“Inspeccioná el repositorio vacío y proponé una estructura mínima para esta pantalla, sin editar archivos.”
+2.	“Implementá solo la pantalla pública y sus datos locales temporales; no agregues autenticación ni administración.”
+3.	“Verificá manualmente los estados de selección y el diseño responsive.”
+4.	“Revisá el diff y prepará un Pull Request con Refs #<n>.”
+
