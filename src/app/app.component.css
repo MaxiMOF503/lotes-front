@@ -67,3 +67,5 @@
     font-size: 1.1rem;
   }
 }
+
+.header nav{margin-top:12px;display:flex;gap:12px;justify-content:center}.header button{padding:8px 14px;border:1px solid white;border-radius:5px;background:transparent;color:white;cursor:pointer}

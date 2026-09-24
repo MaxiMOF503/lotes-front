@@ -8,7 +8,7 @@ import {
   ViewChild
 } from '@angular/core';
 import * as L from 'leaflet';
-import { LOTES_MOCK } from '../../mocks/lotes-data.mock';
+
 
 /* Corrige el problema de iconos de marcador en Leaflet con bundlers */
 const iconDefault = L.icon({
@@ -53,7 +53,7 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.inicializarMapa();
-    this.agregarMarcadoresDemo();
+
   }
 
   ngOnDestroy(): void {
@@ -99,16 +99,4 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private agregarMarcadoresDemo(): void {
-    LOTES_MOCK.forEach((lote) => {
-      const { latitud, longitud } = lote.lote.coordenadas;
-      L.marker([latitud, longitud])
-        .addTo(this.map)
-        .bindPopup(
-          `<strong>${lote.lote.identificador}</strong><br>` +
-          `${lote.lote.direccionAproximada ?? 'Sin dirección'}<br>` +
-          `<em style="color:#856404;">⚠ Dato simulado</em>`
-        );
-    });
-  }
 }

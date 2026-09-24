@@ -1,70 +1,40 @@
-# Frontend — Consulta Pública de Lotes (F-01)
+# Consulta de lotes, mantenedor y estadísticas
 
-Aplicación Angular 19 con mapa interactivo (Leaflet) para consultar fichas demostrativas de lotes.
+Frontend Angular 19 con Leaflet, conectado a la API de lotes-back.
 
-## Requisitos previos
+## Iniciar localmente
 
-- Node.js 18+ y npm
-- Angular CLI: `npm install -g @angular/cli`
+Requiere Node.js compatible con Angular 19 (se recomienda Node 22) y npm. Iniciar antes el backend en el puerto 8080 con MySQL y un administrador configurado mediante ADMIN_EMAIL y ADMIN_PASSWORD; consultar su guía docs/mantenedor-estadisticas.md.
 
-## Instalación y ejecución
-
-```bash
-npm install
-ng serve
+```powershell
+npm ci
+npm start
 ```
 
-Abrir `http://localhost:4200` en el navegador.
+Abrir http://localhost:4200. El archivo proxy.conf.json envía /api a http://127.0.0.1:8080. Si cambia el puerto del backend, actualizar ese archivo y reiniciar el frontend. No hace falta instalar Angular CLI globalmente.
 
-## Estructura del proyecto
+## Funcionalidades
 
-```
-src/app/
-├── components/
-│   ├── mapa-lote/            # Mapa interactivo con Leaflet
-│   ├── buscador-ubicacion/   # Búsqueda por ID o coordenadas
-│   ├── ficha-lote/           # Panel lateral con ficha del lote
-│   └── badge-procedencia/    # Indicador visual de datos simulados
-├── services/
-│   └── lote.service.ts       # Capa de acceso a datos (mocks → API)
-├── models/
-│   └── ficha-lote.model.ts   # Interfaces del contrato backend
-└── mocks/
-    └── lotes-data.mock.ts    # Datos locales temporales simulados
-```
+- Consulta pública por identificador o coordenadas exactas y selección en mapa, usando la API real.
+- Campos sin información y procedencia visible por sección: simulado, no verificado u oficial.
+- Administración: inicio/cierre de sesión, listado paginado, alta y edición de lotes, departamento y procedencia documental.
+- Validaciones del formulario y mensajes del servidor, incluidos identificadores repetidos.
+- Estadísticas: rango de fechas, totales y detalle diario de visitas, consultas, criterio y resultado.
 
-## Decisiones de diseño
+Una visita equivale a cargar la aplicación. Recargar suma otra; cambiar de panel no. Las estadísticas no identifican personas ni representan visitantes únicos. Los contadores se guardan en el backend. Los archivos de mocks anteriores ya no alimentan las pantallas.
 
-### Separación estado / vista
+La sección Administración requiere una cuenta con rol ADMIN. La cookie de sesión se gestiona desde el servidor; las escrituras solicitan un token CSRF. No se guardan contraseñas ni tokens en localStorage.
 
-`LoteService` gestiona todo el estado de la consulta mediante `BehaviorSubject` y expone observables. Los componentes se suscriben con el pipe `async` y no manejan estado interno.
+## Despliegue
 
-### Preparación para reemplazar mocks por API
-
-`LoteService` expone métodos con firma estable (`consultarPorIdentificador`, `consultarPorCoordenadas`). Actualmente resuelven desde datos locales en `lotes-data.mock.ts`. Para integrar la API real del backend (`GET /api/public/v1/lotes/ficha`), solo se reemplaza la implementación interna por `HttpClient.get()` sin modificar ningún componente.
-
-### Responsive
-
-CSS por componente con media queries. Desktop: grid de dos columnas (mapa + panel). Móvil (< 768px): una columna apilada.
-
-### Datos simulados distinguidos
-
-El componente `BadgeProcedencia` muestra un badge naranja "⚠ DATO SIMULADO" en cada sección donde `procedencia.oficial === false`.
-
-## Datos demostrativos incluidos
-
-| Lote | Dirección | Coordenadas | Departamento |
-|---|---|---|---|
-| LOT-DEMO-001 | Calle Demostración 123 | -32.8895, -68.8458 | Luján de Cuyo |
-| LOT-DEMO-002 | Av. San Martín 456 | -32.9100, -68.8350 | Godoy Cruz |
-| LOT-DEMO-003 | Sin dirección | -32.8750, -68.8600 | Sin departamento |
-
-Todos los datos son simulados y no tienen valor oficial. El tercer lote demuestra el manejo de datos parciales (campos null).
-
-## Build de producción
-
-```bash
-ng build
+```powershell
+npm run build
 ```
 
-Los archivos se generan en `dist/consulta-lotes-front/`.
+Publicar el contenido de dist/consulta-lotes-front/browser (comprobar outputPath en angular.json) y enrutar /api al backend en el mismo origen HTTPS. El proxy de desarrollo no se incluye en la compilación publicada. Configurar la cookie Secure en el backend al utilizar HTTPS.
+
+## Verificación
+
+La compilación de producción fue verificada. Leaflet conserva su advertencia CommonJS. Este proyecto no tiene configurado un ejecutor de pruebas automatizadas de frontend.
+
+Se probó en navegador contra MySQL temporal: acceso de administrador, creación de lote, lectura pública de sus datos y procedencia, rechazo de duplicados, edición, consulta de estadísticas y cierre de sesión. El backend incorpora pruebas automatizadas de estos contratos y permisos.

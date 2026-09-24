@@ -1,6 +1,6 @@
 <span class="badge" [class.simulado]="!procedencia.oficial" [class.oficial]="procedencia.oficial">
   <span class="icono" *ngIf="!procedencia.oficial">⚠</span>
-  <ng-container *ngIf="!procedencia.oficial">DATO SIMULADO</ng-container>
+  <ng-container *ngIf="!procedencia.oficial">{{ procedencia.tipo === 'SIMULADO' ? 'Dato simulado' : 'Dato no verificado' }}</ng-container>
   <ng-container *ngIf="procedencia.oficial">✓ Dato oficial</ng-container>
 </span>
 <span class="fuente" *ngIf="procedencia.fuente">Fuente: {{ procedencia.fuente }}</span>

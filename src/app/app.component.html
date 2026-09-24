@@ -1,9 +1,11 @@
 <header class="header">
   <h1 class="titulo">📍 Consulta Pública de Lotes</h1>
-  <p class="subtitulo">Sistema demostrativo — Los datos mostrados no tienen valor oficial</p>
+  <p class="subtitulo">Consultá la procedencia de cada dato antes de utilizarlo</p>
+<nav><button (click)="administracion=false">Consulta pública</button><button (click)="administracion=true">Administración</button></nav>
 </header>
 
-<main class="contenido">
+<app-admin *ngIf="administracion"></app-admin>
+<main class="contenido" *ngIf="!administracion">
   <section class="panel-mapa">
     <app-buscador-ubicacion></app-buscador-ubicacion>
     <app-mapa-lote (ubicacionSeleccionada)="onUbicacionSeleccionada($event)"></app-mapa-lote>
