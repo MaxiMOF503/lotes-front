@@ -5,12 +5,13 @@ import { Component, ViewChild } from '@angular/core';
 import { MapaLoteComponent } from './components/mapa-lote/mapa-lote.component';
 import { BuscadorUbicacionComponent } from './components/buscador-ubicacion/buscador-ubicacion.component';
 import { FichaLoteComponent } from './components/ficha-lote/ficha-lote.component';
+import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
 import { LoteService } from './services/lote.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, AdminComponent, MapaLoteComponent, BuscadorUbicacionComponent, FichaLoteComponent],
+  imports: [CommonModule, AdminComponent, MapaLoteComponent, BuscadorUbicacionComponent, FichaLoteComponent, SplashScreenComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
