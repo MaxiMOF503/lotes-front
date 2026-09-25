@@ -1,28 +1,44 @@
 <app-splash-screen></app-splash-screen>
 <header class="topbar">
   <a class="brand" href="#" (click)="administracion=false; $event.preventDefault()" aria-label="Ir a consulta pública">
-    <span class="brand-mark"><i></i><i></i><i></i></span>
-    <span><strong>LoteSeguro</strong><small>Información territorial</small></span>
+    <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><b>+</b></span>
+    <span><strong>LoteSeguro</strong><small>Orientación territorial</small></span>
   </a>
   <nav aria-label="Navegación principal">
     <button (click)="administracion=false" [attr.aria-current]="!administracion?'page':null"><span>⌖</span>Consulta pública</button>
-    <button (click)="administracion=true" [attr.aria-current]="administracion?'page':null"><span>◇</span>Área interna</button>
+    <button (click)="administracion=true" [attr.aria-current]="administracion?'page':null"><span>▦</span>Área interna</button>
   </nav>
-  <div class="trust"><span></span>Datos con trazabilidad</div>
+  <div class="trust"><span></span>Información con trazabilidad</div>
 </header>
-
 <app-admin *ngIf="administracion"></app-admin>
 <main class="public-page" *ngIf="!administracion">
   <section class="hero">
-    <div><span class="hero-kicker"><i></i> CONSULTA TERRITORIAL ABIERTA</span><h1>Conocé el lote.<br><em>Decidí con contexto.</em></h1><p>Consultá ubicación, servicios y procedencia de los datos en una experiencia clara, rápida y transparente.</p></div>
-    <div class="hero-stats" aria-label="Características del servicio"><article><strong>01</strong><span>Fuente visible<br>en cada dato</span></article><article><strong>02</strong><span>Consulta por ID<br>o coordenadas</span></article><article><strong>03</strong><span>Acceso público<br>sin registro</span></article></div>
+    <div class="hero-copy">
+      <span class="hero-kicker"><i></i> CONSULTA TERRITORIAL ABIERTA</span>
+      <h1>Conocé el lote.<br><em>Decidí con contexto.</em></h1>
+      <p>Ubicación, servicios y procedencia reunidos en una lectura territorial clara, rápida y responsable.</p>
+      <div class="coordinate-line"><span>32°53'22.2” S</span><i></i><span>68°50'44.9” O</span><i></i><span>MENDOZA · AR</span></div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="parcel parcel-a"><span>01</span></div><div class="parcel parcel-b"><span>02</span></div><div class="parcel parcel-c"><span>03</span></div>
+      <div class="map-pin"><i></i></div><div class="axis axis-x"></div><div class="axis axis-y"></div>
+    </div>
+    <div class="hero-stats" aria-label="Características del servicio">
+      <article><strong>01</strong><span>Fuente visible<small>en cada dato</small></span></article>
+      <article><strong>02</strong><span>Doble búsqueda<small>ID o coordenadas</small></span></article>
+      <article><strong>03</strong><span>Acceso abierto<small>sin registro</small></span></article>
+    </div>
   </section>
   <section class="content-shell">
     <div class="map-column">
       <app-buscador-ubicacion></app-buscador-ubicacion>
-      <div class="map-frame"><div class="map-label"><span></span>Mapa interactivo</div><app-mapa-lote (ubicacionSeleccionada)="onUbicacionSeleccionada($event)"></app-mapa-lote></div>
+      <div class="map-frame">
+        <div class="map-label"><span></span>MAPA INTERACTIVO <small>SELECCIONÁ UN PUNTO</small></div>
+        <div class="map-coordinates" aria-hidden="true">LAT ——— LNG</div>
+        <app-mapa-lote (ubicacionSeleccionada)="onUbicacionSeleccionada($event)"></app-mapa-lote>
+      </div>
     </div>
     <aside class="record-column"><app-ficha-lote></app-ficha-lote></aside>
   </section>
 </main>
-<footer><span>LoteSeguro · Consulta orientativa</span><span>Verificá los datos ante el organismo correspondiente.</span></footer>
+<footer><span><b>LoteSeguro</b> · Orientación territorial</span><span>La información es orientativa. Verificá los datos ante el organismo correspondiente.</span></footer>
