@@ -1,19 +1,28 @@
 <app-splash-screen></app-splash-screen>
-
-<header class="header">
-  <h1 class="titulo">📍 Consulta Pública de Lotes</h1>
-  <p class="subtitulo">Consultá la procedencia de cada dato antes de utilizarlo</p>
-<nav><button (click)="administracion=false">Consulta pública</button><button (click)="administracion=true">Administración</button></nav>
+<header class="topbar">
+  <a class="brand" href="#" (click)="administracion=false; $event.preventDefault()" aria-label="Ir a consulta pública">
+    <span class="brand-mark"><i></i><i></i><i></i></span>
+    <span><strong>LoteSeguro</strong><small>Información territorial</small></span>
+  </a>
+  <nav aria-label="Navegación principal">
+    <button (click)="administracion=false" [attr.aria-current]="!administracion?'page':null"><span>⌖</span>Consulta pública</button>
+    <button (click)="administracion=true" [attr.aria-current]="administracion?'page':null"><span>◇</span>Área interna</button>
+  </nav>
+  <div class="trust"><span></span>Datos con trazabilidad</div>
 </header>
 
 <app-admin *ngIf="administracion"></app-admin>
-<main class="contenido" *ngIf="!administracion">
-  <section class="panel-mapa">
-    <app-buscador-ubicacion></app-buscador-ubicacion>
-    <app-mapa-lote (ubicacionSeleccionada)="onUbicacionSeleccionada($event)"></app-mapa-lote>
+<main class="public-page" *ngIf="!administracion">
+  <section class="hero">
+    <div><span class="hero-kicker"><i></i> CONSULTA TERRITORIAL ABIERTA</span><h1>Conocé el lote.<br><em>Decidí con contexto.</em></h1><p>Consultá ubicación, servicios y procedencia de los datos en una experiencia clara, rápida y transparente.</p></div>
+    <div class="hero-stats" aria-label="Características del servicio"><article><strong>01</strong><span>Fuente visible<br>en cada dato</span></article><article><strong>02</strong><span>Consulta por ID<br>o coordenadas</span></article><article><strong>03</strong><span>Acceso público<br>sin registro</span></article></div>
   </section>
-
-  <aside class="panel-ficha">
-    <app-ficha-lote></app-ficha-lote>
-  </aside>
+  <section class="content-shell">
+    <div class="map-column">
+      <app-buscador-ubicacion></app-buscador-ubicacion>
+      <div class="map-frame"><div class="map-label"><span></span>Mapa interactivo</div><app-mapa-lote (ubicacionSeleccionada)="onUbicacionSeleccionada($event)"></app-mapa-lote></div>
+    </div>
+    <aside class="record-column"><app-ficha-lote></app-ficha-lote></aside>
+  </section>
 </main>
+<footer><span>LoteSeguro · Consulta orientativa</span><span>Verificá los datos ante el organismo correspondiente.</span></footer>
