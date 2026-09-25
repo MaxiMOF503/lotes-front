@@ -10,26 +10,13 @@ import {
 import * as L from 'leaflet';
 
 
-/* Corrige el problema de iconos de marcador en Leaflet con bundlers */
-const iconDefault = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-L.Marker.prototype.options.icon = iconDefault;
-
-const iconSeleccion = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [30, 49],
-  iconAnchor: [15, 49],
-  popupAnchor: [1, -40],
-  shadowSize: [49, 49]
+/* Marcador propio: evita dependencias de imágenes externas y acompaña la identidad territorial. */
+const iconSeleccion = L.divIcon({
+  className: 'territory-marker',
+  html: '<span aria-hidden="true"></span>',
+  iconSize: [34, 42],
+  iconAnchor: [17, 40],
+  popupAnchor: [0, -38]
 });
 
 /**

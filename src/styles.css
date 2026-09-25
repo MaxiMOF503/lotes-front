@@ -1,27 +1,3 @@
-/* === Estilos globales — Consulta Pública de Lotes === */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  color: #1e293b;
-  background-color: #f1f5f9;
-}
-
-a {
-  color: #2563eb;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{--ink:#3a281c;--ink-soft:#6b4a32;--muted:#75685c;--gold:#d9a441;--gold-dark:#b57a1d;--gold-soft:#f1d38a;--cream:#f7f2e8;--beige:#e9ddca;--paper:#fffdf8;--white:#fff;--line:#dfd2bf;--success:#55734c;--danger:#9d473b;--shadow-sm:0 10px 30px rgba(58,40,28,.07);--shadow-lg:0 24px 65px rgba(58,40,28,.12);--ease:cubic-bezier(.22,1,.36,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}html,body{min-height:100%;font-family:'Manrope','Segoe UI',sans-serif;font-size:16px;line-height:1.5;color:var(--ink);background:var(--cream)}body{overflow-x:hidden}button,input,select,textarea{font-family:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(217,164,65,.38);outline-offset:3px}button{touch-action:manipulation}::selection{background:var(--gold-soft);color:var(--ink)}::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:#f3ecdf}::-webkit-scrollbar-thumb{border:3px solid #f3ecdf;border-radius:999px;background:#bba88f}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}

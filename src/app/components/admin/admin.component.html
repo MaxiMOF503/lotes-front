@@ -1,57 +1,83 @@
-<section class="admin">
-  <h2>Administración de lotes</h2>
-  <p *ngIf="iniciando" role="status">Comprobando sesión…</p>
-  <p *ngIf="error" class="error" role="alert">{{error}}</p>
-  <p *ngIf="mensaje" class="exito" role="status">{{mensaje}}</p>
-  <form *ngIf="!usuario && !iniciando" (ngSubmit)="ingresar()" #login="ngForm" class="login">
-    <h3>Ingresar como administrador</h3>
-    <label>Correo<input type="email" name="email" [(ngModel)]="email" required autocomplete="username"></label>
-    <label>Contraseña<input type="password" name="password" [(ngModel)]="password" required autocomplete="current-password"></label>
-    <button [disabled]="ocupado || login.invalid">{{ocupado?'Ingresando…':'Ingresar'}}</button>
+<section class="admin-shell">
+  <div class="admin-heading">
+    <div><span class="eyebrow">ESPACIO SEGURO</span><h2>Gestión territorial</h2><p>Información centralizada, permisos claros y trazabilidad para cada dato.</p></div>
+    <div class="heading-orb" aria-hidden="true"><span></span><span></span><span></span></div>
+  </div>
+  <div class="notice loading" *ngIf="iniciando" role="status"><span class="mini-spinner"></span>Comprobando tu sesión…</div>
+  <div class="notice error" *ngIf="error" role="alert"><span>!</span>{{error}}</div>
+  <div class="notice success" *ngIf="mensaje" role="status"><span>✓</span>{{mensaje}}</div>
+
+  <form *ngIf="!sesion && !iniciando" (ngSubmit)="ingresar()" #login="ngForm" class="login-card">
+    <div class="login-copy"><span class="login-icon" aria-hidden="true">↗</span><div><span class="eyebrow">ACCESO INTERNO</span><h3>Ingresá a tu cuenta</h3></div></div>
+    <p>Administradores y usuarios autorizados acceden con permisos adaptados a su rol.</p>
+    <label>Correo electrónico<input type="email" name="email" [(ngModel)]="email" required autocomplete="username" placeholder="nombre@organizacion.com"></label>
+    <label>Contraseña<input type="password" name="password" [(ngModel)]="password" required autocomplete="current-password" placeholder="Ingresá tu contraseña"></label>
+    <button class="primary wide" [disabled]="ocupado || login.invalid">{{ocupado?'Ingresando…':'Ingresar al sistema'}} <span>→</span></button>
+    <small>La sesión se protege desde el servidor y se cierra de forma segura.</small>
   </form>
-  <ng-container *ngIf="usuario">
-    <div class="toolbar"><span>{{usuario}}</span><button (click)="salir()" [disabled]="ocupado">Cerrar sesión</button></div>
-    <nav aria-label="Administración"><button (click)="tab='lotes'" [attr.aria-pressed]="tab==='lotes'">Mantenedor</button><button (click)="tab='estadisticas'" [attr.aria-pressed]="tab==='estadisticas'">Estadísticas</button></nav>
-    <section *ngIf="tab==='lotes'" class="layout">
-      <aside>
-        <h3>Lotes registrados</h3><button (click)="nuevo()" [disabled]="ocupado">Nuevo lote</button>
-        <p *ngIf="!pagina.items.length">No hay lotes en esta página.</p>
-        <button class="lote" *ngFor="let lote of pagina.items" (click)="editar(lote.id)" [disabled]="ocupado">{{lote.identificador}}<small>{{lote.direccionAproximada || 'Sin dirección'}}</small></button>
-        <p>{{pagina.total}} lotes · Página {{pagina.pagina+1}}</p>
-        <button (click)="cambiarPagina(pagina.pagina-1)" [disabled]="ocupado || pagina.pagina===0">Anterior</button>
-        <button (click)="cambiarPagina(pagina.pagina+1)" [disabled]="ocupado || pagina.pagina+1>=pagina.totalPaginas">Siguiente</button>
+
+  <ng-container *ngIf="sesion as actual">
+    <div class="session-bar">
+      <div class="avatar">{{actual.nombre.charAt(0) || actual.email.charAt(0)}}</div>
+      <div class="identity"><strong>{{actual.nombre}}</strong><span>{{actual.email}}</span></div>
+      <span class="role" [class.role-admin]="esAdmin">{{esAdmin?'Administrador':'Solo lectura'}}</span>
+      <button class="ghost" (click)="salir()" [disabled]="ocupado">Cerrar sesión</button>
+    </div>
+    <div class="role-note" *ngIf="!esAdmin"><span>◉</span><div><strong>Acceso de consulta</strong><p>Podés revisar lotes y departamentos. La edición y las estadísticas están reservadas para administradores.</p></div></div>
+    <nav class="admin-tabs" aria-label="Área interna">
+      <button (click)="tab='lotes'" [attr.aria-pressed]="tab==='lotes'"><span>▦</span>{{esAdmin?'Mantenedor':'Lotes'}}</button>
+      <button *ngIf="esAdmin" (click)="tab='estadisticas'" [attr.aria-pressed]="tab==='estadisticas'"><span>↗</span>Estadísticas</button>
+    </nav>
+
+    <section *ngIf="tab==='lotes'" class="workspace">
+      <aside class="lot-list">
+        <div class="section-head"><div><span class="eyebrow">INVENTARIO</span><h3>Lotes registrados</h3></div><span class="count">{{pagina.total}}</span></div>
+        <button *ngIf="esAdmin" class="primary new-lot" (click)="nuevo()" [disabled]="ocupado"><span>＋</span> Nuevo lote</button>
+        <div class="empty-list" *ngIf="!pagina.items.length">No hay lotes en esta página.</div>
+        <button class="lot-card" *ngFor="let lote of pagina.items" (click)="editar(lote.id)" [class.selected]="id===lote.id" [disabled]="ocupado">
+          <span class="lot-dot"></span><span><strong>{{lote.identificador}}</strong><small>{{lote.direccionAproximada || 'Sin dirección registrada'}}</small></span><span class="chevron">›</span>
+        </button>
+        <div class="pagination"><span>Página {{pagina.pagina+1}} de {{pagina.totalPaginas || 1}}</span><div><button aria-label="Página anterior" (click)="cambiarPagina(pagina.pagina-1)" [disabled]="ocupado || pagina.pagina===0">←</button><button aria-label="Página siguiente" (click)="cambiarPagina(pagina.pagina+1)" [disabled]="ocupado || pagina.pagina+1>=pagina.totalPaginas">→</button></div></div>
       </aside>
-      <form (ngSubmit)="guardar()" #form="ngForm">
-        <h3>{{id===null?'Crear lote':'Editar lote'}}</h3>
-        <fieldset [disabled]="ocupado"><legend>Información de la ficha</legend>
-          <label>Identificador<input name="identificador" [(ngModel)]="datos.identificador" required maxlength="100"></label>
-          <div class="pares"><label>Latitud<input type="number" name="latitud" [(ngModel)]="datos.latitud" required min="-90" max="90" step="any"></label>
-          <label>Longitud<input type="number" name="longitud" [(ngModel)]="datos.longitud" required min="-180" max="180" step="any"></label></div>
-          <label>Departamento<select name="departamento" [(ngModel)]="datos.departamentoId"><option [ngValue]="null">Sin departamento</option><option *ngFor="let d of departamentos" [ngValue]="d.id">{{d.nombre}}</option></select></label>
-          <label>Dirección aproximada<input name="direccion" [(ngModel)]="datos.direccionAproximada" maxlength="255"></label>
-          <label>Zonificación<input name="zonificacion" [(ngModel)]="datos.zonificacion" maxlength="255"></label>
-          <label class="check"><input type="checkbox" name="verificada" [(ngModel)]="datos.zonificacionVerificada">Zonificación verificada</label>
-          <label>Distancia a la red eléctrica en metros<input type="number" name="distancia" [(ngModel)]="datos.distanciaRedElectricaMts" min="0" step="any"></label>
-          <label class="check"><input type="checkbox" name="electricidad" [(ngModel)]="datos.tieneAccesoElectricidad">Tiene acceso a electricidad</label>
-          <label class="check"><input type="checkbox" name="agua" [(ngModel)]="datos.tieneCoberturaAgua">Tiene cobertura de agua</label>
+
+      <form class="editor" (ngSubmit)="guardar()" #form="ngForm">
+        <div class="editor-head"><div><span class="eyebrow">{{esAdmin?'EDICIÓN':'DETALLE'}}</span><h3>{{id===null?(esAdmin?'Crear lote':'Seleccioná un lote'):(esAdmin?'Editar lote':'Ficha interna')}}</h3></div><span class="status-chip" *ngIf="id!==null">ID interno {{id}}</span></div>
+        <fieldset [disabled]="ocupado || !esAdmin"><legend>Información principal</legend>
+          <div class="form-grid">
+            <label class="span-2">Identificador<input name="identificador" [(ngModel)]="datos.identificador" required maxlength="100" placeholder="Ej. LOT-2026-001"></label>
+            <label>Latitud<input type="number" name="latitud" [(ngModel)]="datos.latitud" required min="-90" max="90" step="any"></label>
+            <label>Longitud<input type="number" name="longitud" [(ngModel)]="datos.longitud" required min="-180" max="180" step="any"></label>
+            <label>Departamento<select name="departamento" [(ngModel)]="datos.departamentoId"><option [ngValue]="null">Sin departamento</option><option *ngFor="let d of departamentos" [ngValue]="d.id">{{d.nombre}}</option></select></label>
+            <label>Dirección aproximada<input name="direccion" [(ngModel)]="datos.direccionAproximada" maxlength="255"></label>
+            <label class="span-2">Zonificación<input name="zonificacion" [(ngModel)]="datos.zonificacion" maxlength="255"></label>
+            <label>Distancia a red eléctrica (m)<input type="number" name="distancia" [(ngModel)]="datos.distanciaRedElectricaMts" min="0" step="any"></label>
+            <div class="toggles">
+              <label class="toggle"><input type="checkbox" name="verificada" [(ngModel)]="datos.zonificacionVerificada"><span></span>Zonificación verificada</label>
+              <label class="toggle"><input type="checkbox" name="electricidad" [(ngModel)]="datos.tieneAccesoElectricidad"><span></span>Acceso a electricidad</label>
+              <label class="toggle"><input type="checkbox" name="agua" [(ngModel)]="datos.tieneCoberturaAgua"><span></span>Cobertura de agua</label>
+            </div>
+          </div>
         </fieldset>
-        <fieldset *ngFor="let seccion of secciones" [disabled]="ocupado"><legend>Procedencia de {{seccion.label}}</legend>
-          <label>Tipo<select [name]="seccion.key+'tipo'" [(ngModel)]="datos[seccion.key].tipo"><option value="NO_VERIFICADO">No verificado</option><option value="SIMULADO">Simulado</option><option value="OFICIAL">Oficial</option></select></label>
-          <label>Fuente<input [name]="seccion.key+'fuente'" [(ngModel)]="datos[seccion.key].fuente" required maxlength="255"></label>
-          <label>Referencia documental {{datos[seccion.key].tipo==='OFICIAL'?'(obligatoria)':'(opcional)'}}<textarea [name]="seccion.key+'referencia'" [(ngModel)]="datos[seccion.key].referencia" [required]="datos[seccion.key].tipo==='OFICIAL'" maxlength="1000"></textarea></label>
-        </fieldset>
-        <p>Los campos opcionales vacíos se conservan sin información. La fuente oficial debe contar con respaldo documental.</p>
-        <button [disabled]="ocupado || form.invalid">{{ocupado?'Guardando…':'Guardar lote'}}</button>
+        <div class="provenance-grid">
+          <fieldset *ngFor="let seccion of secciones" [disabled]="ocupado || !esAdmin"><legend>{{seccion.label}}</legend>
+            <label>Procedencia<select [name]="seccion.key+'tipo'" [(ngModel)]="datos[seccion.key].tipo"><option value="NO_VERIFICADO">No verificado</option><option value="SIMULADO">Simulado</option><option value="OFICIAL">Oficial</option></select></label>
+            <label>Fuente<input [name]="seccion.key+'fuente'" [(ngModel)]="datos[seccion.key].fuente" required maxlength="255"></label>
+            <label>Referencia {{datos[seccion.key].tipo==='OFICIAL'?'obligatoria':'opcional'}}<textarea [name]="seccion.key+'referencia'" [(ngModel)]="datos[seccion.key].referencia" [required]="datos[seccion.key].tipo==='OFICIAL'" maxlength="1000"></textarea></label>
+          </fieldset>
+        </div>
+        <div class="editor-footer" *ngIf="esAdmin"><p>Los datos oficiales requieren una referencia documental.</p><button class="primary" [disabled]="ocupado || form.invalid">{{ocupado?'Guardando…':'Guardar cambios'}} <span>✓</span></button></div>
       </form>
     </section>
-    <section *ngIf="tab==='estadisticas'">
-      <h3>Uso de la página pública</h3><p>Una visita es una carga de página. Las consultas no representan personas únicas.</p>
-      <form class="filtros" (ngSubmit)="consultarEstadisticas()" #filtro="ngForm"><label>Desde<input type="date" name="desde" [(ngModel)]="desde" required></label><label>Hasta<input type="date" name="hasta" [(ngModel)]="hasta" required></label><button [disabled]="ocupado || filtro.invalid">{{ocupado?'Consultando…':'Consultar estadísticas'}}</button></form>
-      <ng-container *ngIf="estadisticas as e">
-        <div class="totales"><p><strong>{{e.visitas}}</strong> visitas</p><p><strong>{{e.consultas}}</strong> consultas</p></div>
-        <p>Zona horaria: {{e.zona}}</p><p *ngIf="e.visitas===0 && e.consultas===0">No hay actividad registrada en este período.</p>
-        <div class="tabla"><table><caption>Actividad diaria por criterio y resultado</caption><thead><tr><th>Fecha</th><th>Visitas</th><th>Consultas</th><th>ID</th><th>Coordenadas</th><th>Criterio inválido</th><th>Exitosas</th><th>Inválidas</th><th>Sin resultados</th><th>Error técnico</th></tr></thead><tbody><tr *ngFor="let dia of e.dias"><td>{{dia.fecha}}</td><td>{{dia.visitas}}</td><td>{{dia.consultas}}</td><td>{{dia.porIdentificador}}</td><td>{{dia.porCoordenadas}}</td><td>{{dia.sinCriterioValido}}</td><td>{{dia.exitosas}}</td><td>{{dia.invalidas}}</td><td>{{dia.sinResultados}}</td><td>{{dia.erroresTecnicos}}</td></tr></tbody></table></div>
+
+    <section *ngIf="tab==='estadisticas' && esAdmin" class="analytics">
+      <div class="analytics-head"><div><span class="eyebrow">ANÁLISIS DE ACTIVIDAD</span><h3>Uso de la consulta pública</h3><p>Métricas agregadas y anónimas. Una visita representa una carga de página.</p></div>
+        <form class="date-filter" (ngSubmit)="consultarEstadisticas()" #filtro="ngForm"><label>Desde<input type="date" name="desde" [(ngModel)]="desde" required></label><label>Hasta<input type="date" name="hasta" [(ngModel)]="hasta" required></label><button class="primary" [disabled]="ocupado || filtro.invalid">{{ocupado?'Consultando…':'Actualizar'}}</button></form>
+      </div>
+      <ng-container *ngIf="estadisticas as e; else analyticsEmpty">
+        <div class="metrics"><article><span class="metric-icon purple">◉</span><div><small>VISITAS</small><strong>{{e.visitas}}</strong><p>Cargas de la página</p></div></article><article><span class="metric-icon cyan">↗</span><div><small>CONSULTAS</small><strong>{{e.consultas}}</strong><p>Búsquedas realizadas</p></div></article><article><span class="metric-icon orange">✓</span><div><small>ÉXITOS</small><strong>{{exitosasTotales(e)}}</strong><p>Resultados encontrados</p></div></article></div>
+        <div class="table-card"><div class="table-title"><h4>Actividad diaria</h4><span>{{e.zona}}</span></div><div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Visitas</th><th>Consultas</th><th>ID</th><th>Coordenadas</th><th>Inválidas</th><th>Exitosas</th><th>Sin resultados</th><th>Error técnico</th></tr></thead><tbody><tr *ngFor="let dia of e.dias"><td>{{dia.fecha}}</td><td>{{dia.visitas}}</td><td>{{dia.consultas}}</td><td>{{dia.porIdentificador}}</td><td>{{dia.porCoordenadas}}</td><td>{{dia.invalidas}}</td><td><span class="success-value">{{dia.exitosas}}</span></td><td>{{dia.sinResultados}}</td><td>{{dia.erroresTecnicos}}</td></tr></tbody></table></div></div>
       </ng-container>
+      <ng-template #analyticsEmpty><div class="analytics-empty"><span>↗</span><h4>Elegí un período</h4><p>Consultá el rango para visualizar la actividad registrada.</p></div></ng-template>
     </section>
   </ng-container>
 </section>
