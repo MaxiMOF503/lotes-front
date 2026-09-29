@@ -1,14 +1,15 @@
 <div class="buscador">
+  <div class="buscador-title"><span>⌕</span><div><strong>Encontrá un lote</strong><small>Elegí cómo querés buscar</small></div></div>
   <div class="modo-toggle">
     <button
       [class.activo]="modoBusqueda === 'identificador'"
       (click)="modoBusqueda = 'identificador'">
-      Por identificador
+      <span>▤</span> Por identificador
     </button>
     <button
       [class.activo]="modoBusqueda === 'coordenadas'"
       (click)="modoBusqueda = 'coordenadas'">
-      Por coordenadas
+      <span>⌖</span> Por coordenadas
     </button>
   </div>
 
@@ -46,7 +47,7 @@
     </div>
 
     <div class="acciones">
-      <button type="submit" class="btn-buscar">Buscar</button>
+      <button type="submit" class="btn-buscar">Buscar lote <span>→</span></button>
       <button type="button" class="btn-limpiar" (click)="limpiar()">Limpiar</button>
     </div>
   </form>
