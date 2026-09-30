@@ -1,7 +1,7 @@
 <section class="admin-shell">
   <div class="admin-heading">
-    <div><span class="eyebrow">ESPACIO SEGURO</span><h2>Gestión territorial</h2><p>Información centralizada, permisos claros y trazabilidad para cada dato.</p></div>
-    <div class="heading-orb" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="heading-copy"><span class="eyebrow">CENTRO DE OPERACIONES</span><h2>Gestión territorial</h2><p>Administrá lotes, procedencia y actividad desde un único espacio seguro.</p><div class="heading-meta"><span><i></i>Datos trazables</span><span><i></i>Control por roles</span><span><i></i>Actualización directa</span></div></div>
+    <div class="admin-visual" aria-hidden="true"><span class="visual-label">LUJÁN DE CUYO · MENDOZA</span><div class="admin-pin"><div class="admin-pin-face"><i></i></div></div><div class="admin-pin-shadow"></div></div>
   </div>
   <div class="notice loading" *ngIf="iniciando" role="status"><span class="mini-spinner"></span>Comprobando tu sesión…</div>
   <div class="notice error" *ngIf="error" role="alert"><span>!</span>{{error}}</div>
@@ -19,7 +19,7 @@
   <ng-container *ngIf="sesion as actual">
     <div class="session-bar">
       <div class="avatar">{{actual.nombre.charAt(0) || actual.email.charAt(0)}}</div>
-      <div class="identity"><strong>{{actual.nombre}}</strong><span>{{actual.email}}</span></div>
+      <div class="identity"><small>SESIÓN ACTIVA</small><strong>{{actual.nombre}}</strong><span>{{actual.email}}</span></div>
       <span class="role" [class.role-admin]="esAdmin">{{esAdmin?'Administrador':'Solo lectura'}}</span>
       <button class="ghost" (click)="salir()" [disabled]="ocupado">Cerrar sesión</button>
     </div>

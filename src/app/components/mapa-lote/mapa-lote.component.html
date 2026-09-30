@@ -1,1 +1,18 @@
-<div #mapaContainer class="mapa"></div>
+<div class="map-shell">
+  <div #mapaContainer class="mapa"></div>
+  <button type="button" class="layers-trigger" (click)="alternarPanel()" [attr.aria-expanded]="panelCapasAbierto">
+    <span class="layers-icon" aria-hidden="true"><i></i><i></i><i></i></span> Capas del territorio <b>{{ panelCapasAbierto ? '×' : '+' }}</b>
+  </button>
+  <aside class="layers-panel" [class.is-open]="panelCapasAbierto" aria-label="Capas territoriales">
+    <header><span>Datos territoriales</span><strong>Elegí qué información querés ver</strong></header>
+    <div class="layers-list">
+      <button *ngFor="let capa of capas" type="button" class="layer-row" [class.is-active]="capa.estado === 'active'" [class.is-loading]="capa.estado === 'loading'" [class.is-disabled]="!capa.disponible" (click)="alternarCapa(capa)" [disabled]="!capa.disponible">
+        <i class="layer-swatch" [style.--layer-color]="capa.color"></i>
+        <span><strong>{{ capa.nombre }}</strong><small>{{ capa.estado === 'loading' ? 'Cargando…' : capa.detalle }}</small><em *ngIf="capa.nota">{{ capa.nota }}</em></span>
+        <b>{{ capa.estado === 'active' ? '✓' : capa.estado === 'error' ? '!' : !capa.disponible ? 'Próximamente' : '+' }}</b>
+      </button>
+    </div>
+    <footer>Hacé clic sobre una zona del mapa para ver su información.</footer>
+  </aside>
+  <div class="map-hint"><span></span> Seleccioná un punto para consultar</div>
+</div>
