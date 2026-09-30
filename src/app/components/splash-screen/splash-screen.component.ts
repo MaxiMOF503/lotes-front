@@ -19,7 +19,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './splash-screen.component.css'
 })
 export class SplashScreenComponent implements OnInit, OnDestroy {
-  @Input() imagenFondo = 'assets/splash-lotes-seguro.jpg';
+  @Input() imagenFondo = 'assets/mendoza-cordillera.jpg';
   @Input() duracionMs = 1800;
   @Output() finalizado = new EventEmitter<void>();
 
