@@ -1,0 +1,12 @@
+.estado-opciones { padding: 18px 4px; color: var(--ink); }
+.opciones-kicker { color: var(--gold-dark); font-size: .64rem; font-weight: 800; letter-spacing: .13em; }
+.estado-opciones h3 { margin: 8px 0 5px; font-size: 1.14rem; }
+.estado-opciones p { margin: 0 0 14px; color: var(--muted); font-size: .76rem; line-height: 1.5; }
+.lista-opciones { display: grid; gap: 8px; }
+.opcion-lote { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); color: var(--ink); cursor: pointer; text-align: left; transition: border-color .18s, transform .18s, box-shadow .18s; }
+.opcion-lote:hover, .opcion-lote:focus-visible { border-color: var(--gold); transform: translateY(-1px); box-shadow: 0 8px 20px rgba(58,40,28,.09); outline: none; }
+.opcion-lote strong, .opcion-lote small { display: block; }
+.opcion-lote strong { font-size: .79rem; }
+.opcion-lote small { margin-top: 4px; color: var(--muted); font-size: .68rem; }
+.opcion-lote em { display: inline-block; margin-top: 7px; padding: 3px 7px; border-radius: 5px; background: #fff2d6; color: #76521a; font-size: .62rem; font-style: normal; font-weight: 700; }
+.estado-opciones .mas-opciones { margin-top: 13px; font-size: .68rem; }

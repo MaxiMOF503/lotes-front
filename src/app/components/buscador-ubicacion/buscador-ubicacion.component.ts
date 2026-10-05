@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { LoteService } from '../../services/lote.service';
 
 /**
- * Buscador con dos modos: por identificador o por coordenadas.
+ * Buscador público por identificador o dirección. El mapa conserva la consulta por coordenadas.
  * Llama directamente al LoteService para realizar la consulta.
  */
 @Component({
@@ -12,14 +12,13 @@ import { LoteService } from '../../services/lote.service';
   standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './buscador-ubicacion.component.html',
-  styleUrl: './buscador-ubicacion.component.css'
+  styleUrls: ['./buscador-ubicacion.component.css', './buscador-ubicacion-layout.component.css']
 })
 export class BuscadorUbicacionComponent {
 
-  modoBusqueda: 'identificador' | 'coordenadas' = 'identificador';
+  modoBusqueda: 'identificador' | 'direccion' = 'identificador';
   identificador = '';
-  latitud = '';
-  longitud = '';
+  direccion = '';
 
   constructor(private loteService: LoteService) {}
 
@@ -29,19 +28,14 @@ export class BuscadorUbicacionComponent {
       if (id) {
         this.loteService.consultarPorIdentificador(id);
       }
-    } else {
-      const lat = parseFloat(this.latitud);
-      const lng = parseFloat(this.longitud);
-      if (!isNaN(lat) && !isNaN(lng)) {
-        this.loteService.consultarPorCoordenadas(lat, lng);
-      }
+    } else if (this.direccion.trim().length >= 3) {
+      this.loteService.consultarPorDireccion(this.direccion.trim());
     }
   }
 
   limpiar(): void {
     this.identificador = '';
-    this.latitud = '';
-    this.longitud = '';
+    this.direccion = '';
     this.loteService.limpiar();
   }
 }

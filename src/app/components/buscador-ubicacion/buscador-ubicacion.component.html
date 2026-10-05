@@ -7,9 +7,9 @@
       <span>▤</span> Por identificador
     </button>
     <button
-      [class.activo]="modoBusqueda === 'coordenadas'"
-      (click)="modoBusqueda = 'coordenadas'">
-      <span>⌖</span> Por coordenadas
+      [class.activo]="modoBusqueda === 'direccion'"
+      (click)="modoBusqueda = 'direccion'">
+      <span>⌖</span> Por dirección
     </button>
   </div>
 
@@ -25,25 +25,11 @@
         maxlength="100">
     </div>
 
-    <div class="campo-grupo" *ngIf="modoBusqueda === 'coordenadas'">
-      <div class="campo">
-        <label for="latitud">Latitud</label>
-        <input
-          id="latitud"
-          type="text"
-          [(ngModel)]="latitud"
-          name="latitud"
-          placeholder="Ej: -32.8895">
-      </div>
-      <div class="campo">
-        <label for="longitud">Longitud</label>
-        <input
-          id="longitud"
-          type="text"
-          [(ngModel)]="longitud"
-          name="longitud"
-          placeholder="Ej: -68.8458">
-      </div>
+    <div class="campo" *ngIf="modoBusqueda === 'direccion'">
+      <label for="direccion">Dirección aproximada</label>
+      <input id="direccion" type="search" [(ngModel)]="direccion" name="direccion"
+        placeholder="Ej: Calle Demostración 123, Mendoza" minlength="3" maxlength="255">
+      <small>Ingresá al menos 3 caracteres. Si hay varios lotes, podrás elegir uno.</small>
     </div>
 
     <div class="acciones">
