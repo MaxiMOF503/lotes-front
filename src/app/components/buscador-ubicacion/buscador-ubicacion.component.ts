@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { LoteService } from '../../services/lote.service';
+import { AsistenteService } from '../../services/asistente.service';
 
 /**
  * Buscador con dos modos: por identificador o por coordenadas.
@@ -21,19 +22,21 @@ export class BuscadorUbicacionComponent {
   latitud = '';
   longitud = '';
 
-  constructor(private loteService: LoteService) {}
+  constructor(private loteService: LoteService, private asistente: AsistenteService) {}
 
   buscar(): void {
     if (this.modoBusqueda === 'identificador') {
       const id = this.identificador.trim();
       if (id) {
         this.loteService.consultarPorIdentificador(id);
+        this.asistente.activarBusqueda();
       }
     } else {
       const lat = parseFloat(this.latitud);
       const lng = parseFloat(this.longitud);
       if (!isNaN(lat) && !isNaN(lng)) {
         this.loteService.consultarPorCoordenadas(lat, lng);
+        this.asistente.activarBusqueda();
       }
     }
   }

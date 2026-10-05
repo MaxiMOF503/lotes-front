@@ -1,4 +1,5 @@
-<app-splash-screen></app-splash-screen>
+<app-splash-screen (finalizado)="onSplashFinalizado()"></app-splash-screen>
+<app-asistente *ngIf="!administracion"></app-asistente>
 <header class="topbar">
   <a class="brand" href="#" (click)="administracion=false; $event.preventDefault()" aria-label="Ir a consulta pública">
     <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><b>+</b></span>
@@ -33,8 +34,6 @@
     <div class="map-column">
       <app-buscador-ubicacion></app-buscador-ubicacion>
       <div class="map-frame">
-        <div class="map-label"><span></span>MAPA INTERACTIVO <small>SELECCIONÁ UN PUNTO</small></div>
-        <div class="map-coordinates" aria-hidden="true">LAT ——— LNG</div>
         <app-mapa-lote (ubicacionSeleccionada)="onUbicacionSeleccionada($event)"></app-mapa-lote>
       </div>
     </div>

@@ -1,7 +1,9 @@
-import { Component, AfterViewInit, OnDestroy, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, Output, EventEmitter, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
+import { AsistenteService } from '../../services/asistente.service';
 
+const ESPERA_ASISTENTE_MS = 5000;
 const iconSeleccion = L.divIcon({ className: 'territory-marker', html: '<span class="marker-body" aria-hidden="true"><i class="marker-face"><b></b></i></span>', iconSize: [46, 58], iconAnchor: [23, 56], popupAnchor: [0, -52] });
 type EstadoCapa = 'idle' | 'loading' | 'active' | 'error';
 interface CapaTerritorial { id: string; nombre: string; detalle: string; archivo?: string; color: string; estado: EstadoCapa; disponible: boolean; nota?: string; layer?: L.GeoJSON; }
@@ -22,11 +24,31 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
   ];
   private map!: L.Map;
   private marcadorSeleccion: L.Marker | null = null;
+  private timeoutAsistente?: ReturnType<typeof setTimeout>;
+
+  constructor(private asistente: AsistenteService) {}
 
   ngAfterViewInit(): void { this.inicializarMapa(); }
-  ngOnDestroy(): void { if (this.map) this.map.remove(); }
+  ngOnDestroy(): void {
+    if (this.map) this.map.remove();
+    if (this.timeoutAsistente) clearTimeout(this.timeoutAsistente);
+  }
   centrarEn(lat: number, lng: number): void { if (this.map) { this.map.setView([lat, lng], 15); this.colocarMarcadorSeleccion(lat, lng); } }
   alternarPanel(): void { this.panelCapasAbierto = !this.panelCapasAbierto; }
+
+  /** Si el cursor se queda sobre el mapa 5 segundos, el asistente muestra su animación de búsqueda. */
+  @HostListener('mouseenter')
+  onMouseEnter(): void {
+    this.timeoutAsistente = setTimeout(() => this.asistente.activarBusqueda(), ESPERA_ASISTENTE_MS);
+  }
+
+  @HostListener('mouseleave')
+  onMouseLeave(): void {
+    if (this.timeoutAsistente) {
+      clearTimeout(this.timeoutAsistente);
+      this.timeoutAsistente = undefined;
+    }
+  }
 
   async alternarCapa(capa: CapaTerritorial): Promise<void> {
     if (!capa.disponible || capa.estado === 'loading') return;

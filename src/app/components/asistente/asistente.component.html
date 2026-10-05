@@ -1,0 +1,48 @@
+<ng-container *ngIf="estado$ | async as estado">
+
+  <!-- Introducción guiada: aparece una sola vez, recién cuando terminó de cargar la página -->
+  <ng-container *ngIf="estado === 'intro' && (paginaLista$ | async)">
+    <div class="velo"></div>
+    <div
+      class="ventana-foco"
+      *ngIf="ventanaFoco"
+      [style.top]="ventanaFoco.top"
+      [style.left]="ventanaFoco.left"
+      [style.width]="ventanaFoco.width"
+      [style.height]="ventanaFoco.height"
+      [style.border-radius]="ventanaFoco.radius"></div>
+    <div class="intro-tarjeta" role="dialog" aria-label="Presentación del asistente" [style.top]="posicionTarjeta.top" [style.left]="posicionTarjeta.left">
+      <div class="intro-texto">
+        <h3>{{ pasos[paso].titulo }}</h3>
+        <p>{{ pasos[paso].texto }}</p>
+      </div>
+      <div class="intro-pasos">
+        <i *ngFor="let p of pasos; let i = index" [class.on]="i === paso"></i>
+      </div>
+      <div class="intro-acciones">
+        <button type="button" class="btn-texto" (click)="omitir()">Omitir</button>
+        <button type="button" class="btn-primario" (click)="siguiente()">
+          {{ paso < pasos.length - 1 ? 'Siguiente →' : 'Entendido' }}
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Pin fijo: recién visible al scrollear más allá de la portada -->
+  <button
+    type="button"
+    class="pin-fijo"
+    *ngIf="estado === 'activo' && mostrarPinFijo"
+    [class.buscando]="buscando$ | async"
+    aria-label="Asistente de LoteSeguro">
+    <span class="globo">¿Necesitás ayuda?</span>
+    <div class="pin-escala">
+      <div class="map-pin">
+        <div class="pin-body"><span class="pin-face"><i></i></span></div>
+        <div class="pin-shadow"></div>
+        <div class="lupa"><span class="lente"></span><span class="mango"></span></div>
+      </div>
+    </div>
+  </button>
+
+</ng-container>
