@@ -169,7 +169,7 @@
       <div class="lista-opciones">
         <button type="button" class="opcion-lote" *ngFor="let opcion of resultado.opciones"
           (click)="seleccionarOpcion(opcion.identificador)">
-          <span><strong>{{ opcion.direccionAproximada }}</strong><small>{{ opcion.departamento || 'Departamento sin informar' }} · {{ opcion.identificador }}</small></span>
+          <span><strong>{{ opcion.direccionAproximada }}</strong><small>{{ opcion.departamento || 'Departamento sin informar' }} · {{ opcion.identificador }}</small><em *ngIf="opcion.datoSimulado">Dato simulado · No oficial</em></span>
           <span aria-hidden="true">→</span>
         </button>
       </div>
