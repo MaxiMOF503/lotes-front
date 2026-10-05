@@ -15,10 +15,23 @@ export interface FichaLoteResponse {
 }
 
 export interface CriterioConsultaResponse {
-  tipo: string;                 // 'IDENTIFICADOR' | 'COORDENADAS'
+  tipo: string;                 // 'IDENTIFICADOR' | 'DIRECCION' | 'COORDENADAS'
   identificador: string | null;
   latitud: number | null;
   longitud: number | null;
+  direccion?: string | null;
+}
+
+export interface BusquedaDireccionResponse {
+  opciones: OpcionDireccion[];
+  hayMas: boolean;
+}
+
+export interface OpcionDireccion {
+  identificador: string;
+  direccionAproximada: string | null;
+  departamento: string | null;
+  datoSimulado: boolean;
 }
 
 export interface DatosLoteResponse {
@@ -81,4 +94,4 @@ export interface DetalleError {
 }
 
 /** Estados posibles de la consulta en el frontend */
-export type EstadoConsulta = 'vacio' | 'cargando' | 'cargado' | 'error' | 'sin-resultados';
+export type EstadoConsulta = 'vacio' | 'cargando' | 'cargado' | 'opciones' | 'error' | 'sin-resultados';
