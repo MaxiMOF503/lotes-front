@@ -1,0 +1,38 @@
+:host { display: block; min-width: 0; container-type: inline-size; }
+
+.buscador {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 18px;
+}
+
+.buscador-title { display: flex; padding-right: 0; border-right: 0; }
+.modo-toggle { max-width: 100%; }
+.modo-toggle button { white-space: nowrap; }
+
+.formulario {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+  min-width: 0;
+}
+
+.campo { min-width: 0; }
+.campo small { display: block; margin-top: 6px; color: var(--muted); font-size: .68rem; line-height: 1.4; }
+.acciones { align-self: end; }
+
+@container (max-width: 620px) {
+  .buscador { grid-template-columns: minmax(0, 1fr); }
+  .buscador-title { display: none; }
+  .modo-toggle { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  .modo-toggle button { justify-content: center; padding-inline: 6px; }
+  .formulario { grid-template-columns: minmax(0, 1fr); }
+  .acciones { display: grid; grid-template-columns: minmax(0, 1fr) auto; width: 100%; }
+  .acciones button { justify-content: center; }
+}
+
+@container (max-width: 360px) {
+  .modo-toggle button { font-size: .68rem; }
+}

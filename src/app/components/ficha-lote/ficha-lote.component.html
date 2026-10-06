@@ -17,7 +17,10 @@
       <span class="criterio-valor" *ngIf="ficha.criterioConsulta.tipo === 'IDENTIFICADOR'">
         ID {{ ficha.criterioConsulta.identificador }}
       </span>
-      <span class="criterio-valor" *ngIf="ficha.criterioConsulta.tipo !== 'IDENTIFICADOR'">
+      <span class="criterio-valor" *ngIf="ficha.criterioConsulta.tipo === 'DIRECCION'">
+        Dirección {{ ficha.criterioConsulta.direccion }}
+      </span>
+      <span class="criterio-valor" *ngIf="ficha.criterioConsulta.tipo === 'COORDENADAS'">
         Coordenadas ({{ ficha.criterioConsulta.latitud }}, {{ ficha.criterioConsulta.longitud }})
       </span>
     </div>
@@ -159,11 +162,26 @@
       <p>Consultando ficha del lote...</p>
     </div>
 
+    <div class="estado-opciones" *ngIf="estado === 'opciones' && (opciones$ | async) as resultado">
+      <span class="opciones-kicker">COINCIDENCIAS POR DIRECCIÓN</span>
+      <h3>Elegí el lote que buscás</h3>
+      <p>Encontramos varios lotes con esa dirección aproximada. Revisá el departamento antes de abrir la ficha.</p>
+      <div class="lista-opciones">
+        <button type="button" class="opcion-lote" *ngFor="let opcion of resultado.opciones"
+          (click)="seleccionarOpcion(opcion.identificador)">
+          <span><strong>{{ opcion.direccionAproximada }}</strong><small>{{ opcion.departamento || 'Departamento sin informar' }} · {{ opcion.identificador }}</small><em *ngIf="opcion.datoSimulado">Dato simulado · No oficial</em></span>
+          <span aria-hidden="true">→</span>
+        </button>
+      </div>
+      <p class="mas-opciones" *ngIf="resultado.hayMas">Hay más coincidencias. Escribí una dirección más precisa para acotar la búsqueda.</p>
+      <p class="mas-opciones">La información puede ser demostrativa. Verificá siempre la procedencia de la ficha.</p>
+    </div>
+
     <!-- Sin resultados -->
     <div class="estado-sin-resultados" *ngIf="estado === 'sin-resultados'">
       <div class="icono-estado">🔍</div>
       <h3>Sin resultados</h3>
-      <p>No se encontró un lote para el criterio indicado. La búsqueda por coordenadas requiere una coincidencia exacta.</p>
+      <p>No se encontró un lote para el criterio indicado. Probá otra dirección o identificador. Si usaste el mapa, la coincidencia por coordenadas debe ser exacta.</p>
     </div>
 
     <!-- Error -->

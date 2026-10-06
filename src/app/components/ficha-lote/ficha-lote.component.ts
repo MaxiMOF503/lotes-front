@@ -12,12 +12,17 @@ import { BadgeProcedenciaComponent } from '../badge-procedencia/badge-procedenci
   standalone: true,
   imports: [CommonModule, BadgeProcedenciaComponent],
   templateUrl: './ficha-lote.component.html',
-  styleUrl: './ficha-lote.component.css'
+  styleUrls: ['./ficha-lote.component.css', './ficha-lote-opciones.component.css']
 })
 export class FichaLoteComponent {
   private loteService = inject(LoteService);
 
   readonly ficha$ = this.loteService.ficha$;
+  readonly opciones$ = this.loteService.opciones$;
   readonly estado$ = this.loteService.estado$;
   readonly error$ = this.loteService.error$;
+
+  seleccionarOpcion(identificador: string): void {
+    this.loteService.seleccionarOpcion(identificador);
+  }
 }
