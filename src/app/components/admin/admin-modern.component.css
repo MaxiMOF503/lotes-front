@@ -8,3 +8,47 @@
 
 @media(max-width:1000px){.admin-heading{min-height:240px}.admin-visual{display:block;width:210px}.workspace{grid-template-columns:1fr}.lot-list{position:static}.lot-card small{max-width:none}}
 @media(max-width:680px){.admin-shell{padding:14px 11px 40px}.admin-heading{min-height:430px;padding:30px 23px;align-items:flex-start}.admin-heading::before{background-image:linear-gradient(180deg,rgba(20,31,38,.98) 0%,rgba(20,31,38,.88) 56%,rgba(20,31,38,.2)),url('/assets/mendoza-cordillera.jpg');background-position:60% center}.admin-heading h2{font-size:2.9rem}.heading-meta{gap:6px}.heading-meta span{font-size:.59rem}.admin-visual{position:absolute;right:13px;bottom:25px;width:180px;height:140px}.visual-label{display:none}.admin-pin{right:38px;top:7px;transform:rotate(-45deg) scale(.78)}.admin-pin-shadow{right:33px;bottom:0;width:110px}.session-bar{padding:13px}.identity{max-width:170px}.role{order:4}.workspace{gap:13px}.lot-list,.editor,.analytics{border-radius:15px}.editor{padding:19px}.admin-tabs{position:sticky;z-index:20;top:73px}.admin-tabs button{min-width:0}}
+
+.registration-card{max-width:560px}
+.registration-back{display:inline-flex;align-items:center;gap:9px;align-self:flex-start;margin:0 0 22px;padding:10px 14px;border:1px solid #d9dfdc;border-radius:9px;background:#f6f7f4;color:#142028;font:inherit;font-size:.82rem;font-weight:800;cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.registration-back span{font-size:1.15rem;line-height:1}
+.registration-back:hover:not(:disabled){border-color:#eebd20;background:#fff3c4;transform:translateX(-2px)}
+.registration-back:focus-visible{outline:3px solid #eebd20;outline-offset:2px}
+.registration-back:disabled{opacity:.55;cursor:wait}
+.registration-card label + label{margin-top:15px}
+.registration-card .password-hint{margin-top:8px;padding:0;color:#68777d}
+.registration-card .field-error{margin-top:7px;padding:0;color:#b32626;font-weight:750}
+.account-switch{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:19px;color:#65737a;font-size:.82rem}
+.account-link{padding:5px 7px;border:0;border-radius:6px;background:transparent;color:#142028;font:inherit;font-weight:850;text-decoration:underline;text-decoration-color:#eebd20;text-decoration-thickness:2px;text-underline-offset:4px;cursor:pointer}
+.account-link:hover,.account-link:focus-visible{background:#fff3c4;outline:2px solid transparent}
+
+.editor-intro{max-width:680px;margin:8px 0 0;color:#66747a;font-size:.82rem;line-height:1.5}
+.editor-feedback{margin:18px 0 0;padding:13px 15px;border-radius:10px;font-size:.83rem;font-weight:700;line-height:1.5}
+.editor-feedback.success{border:1px solid #bed5bf;background:#edf7ee;color:#205c38}
+.editor-feedback.error{border:1px solid #e9bab0;background:#fff0ed;color:#9b3026}
+.editor-dirty{margin:17px 0 0;color:#865716;font-size:.75rem;font-weight:800}
+.section-help{margin:0 0 16px;color:#6a777c;font-size:.78rem;line-height:1.5}
+.required-badge{display:inline-block;margin-left:5px;padding:2px 6px;border-radius:5px;background:#fff1c3;color:#6a4a00;font-size:.62rem;font-weight:800;vertical-align:middle}
+.editor .field-hint,.editor .field-validation{display:block;margin:6px 0 0;font-size:.7rem;font-weight:600;line-height:1.4}
+.editor .field-hint{color:#6a777c}
+.editor .field-validation{color:#a92820}
+.editor input[aria-invalid=true]{border-color:#c84236;background:#fffaf9;box-shadow:0 0 0 3px rgba(200,66,54,.1)}
+.provenance-heading{margin-top:27px;padding-bottom:2px}
+.provenance-heading h4{font-size:1.05rem;color:#142028}
+.provenance-heading p{margin-top:4px;color:#6a777c;font-size:.78rem;line-height:1.5}
+.discard-overlay{position:fixed;z-index:2000;inset:0;display:grid;place-items:center;padding:20px;background:rgba(14,26,32,.67);backdrop-filter:blur(5px)}
+.discard-dialog{width:min(100%,430px);padding:28px;border-radius:18px;background:#fff;box-shadow:0 25px 65px rgba(0,0,0,.24)}
+.discard-icon{display:grid;place-items:center;width:38px;height:38px;margin-bottom:14px;border-radius:10px;background:#fff0c9;color:#7d5300;font-weight:900}
+.discard-dialog h3{color:#142028;font-size:1.3rem}
+.discard-dialog p{margin-top:9px;color:#526269;font-size:.87rem;line-height:1.6}
+.discard-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:9px;margin-top:24px}
+.discard-actions button{min-height:42px;padding:9px 13px;border-radius:9px;font:inherit;font-size:.78rem;font-weight:800;cursor:pointer}
+.discard-confirm{border:1px solid #ac3a31;background:#ac3a31;color:#fff}
+.discard-confirm:hover{background:#8d2923}
+.editor-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.delete-lot{min-height:45px;padding:10px 15px;border:1px solid #d8aaa5;border-radius:10px;background:#fff8f7;color:#9b3026;font:inherit;font-size:.8rem;font-weight:800;cursor:pointer;transition:background .18s,border-color .18s}
+.delete-lot:hover:not(:disabled){border-color:#ac3a31;background:#ffebe8}
+.delete-lot:focus-visible,.discard-confirm:focus-visible{outline:3px solid #f0bd17;outline-offset:2px}
+.delete-lot:disabled,.discard-confirm:disabled{opacity:.55;cursor:not-allowed}
+.delete-unsaved{margin-top:12px!important;padding:10px 12px;border-radius:8px;background:#fff4df;color:#76520e!important;font-weight:750}
+@media(max-width:680px){.editor-actions{width:100%;flex-direction:column-reverse;align-items:stretch}.editor-actions button{width:100%}.discard-actions button{flex:1}}
