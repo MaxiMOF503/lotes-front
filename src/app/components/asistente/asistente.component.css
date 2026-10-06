@@ -1,0 +1,63 @@
+:host{position:fixed;z-index:2000;left:22px;bottom:22px;pointer-events:none}
+
+/* --- Pin: mismas reglas que el de la portada, reescaladas con transform --- */
+.map-pin{position:relative;width:150px;height:185px;animation:pinFloat 3.2s ease-in-out infinite}
+.pin-body{position:absolute;left:18px;top:5px;width:114px;height:114px;border:1px solid rgba(113,72,0,.28);border-radius:56% 54% 54% 50%;background:radial-gradient(circle at 31% 24%,#fff0a6 0 4%,transparent 5%),linear-gradient(145deg,#ffe36b 4%,#ffc51a 45%,#e89a00 100%);box-shadow:inset 10px 10px 18px rgba(255,255,255,.44),inset -15px -18px 22px rgba(155,91,0,.2),0 15px 24px rgba(18,29,36,.28);transform:rotate(45deg)}
+.pin-body::after{content:"";position:absolute;right:-15px;bottom:-15px;width:64px;height:64px;border-radius:0 0 15px 0;background:linear-gradient(135deg,transparent 0 49%,#e89a00 50% 100%);transform:skew(9deg,9deg)}
+.pin-face{position:absolute;z-index:2;left:18px;top:18px;width:76px;height:76px;border:1px solid rgba(139,93,16,.2);border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff 0 7%,#fff9dc 8% 42%,#f2d48b 100%);box-shadow:inset 7px 7px 12px rgba(255,255,255,.75),inset -8px -9px 15px rgba(151,99,12,.18),0 2px 4px rgba(89,54,0,.2);transform:rotate(-45deg)}
+.pin-face::before,.pin-face::after{content:"";position:absolute;top:25px;width:9px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff 0 12%,#172127 16% 100%);box-shadow:0 2px 2px rgba(48,30,0,.28)}
+.pin-face::before{left:19px}
+.pin-face::after{right:19px}
+.pin-face i{position:absolute;left:25px;top:43px;width:26px;height:14px;border-bottom:3px solid #704900;border-radius:50%}
+.pin-shadow{position:absolute;left:25px;bottom:4px;width:100px;height:22px;border-radius:50%;background:radial-gradient(ellipse,rgba(18,29,36,.28),rgba(18,29,36,0) 70%);filter:blur(2px)}
+@keyframes pinFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* --- Lupa (oculta salvo en "buscando") --- */
+.lupa{position:absolute;z-index:3;left:96px;top:96px;width:44px;height:44px;transform:rotate(14deg) scale(0);opacity:0;transition:transform .25s var(--ease,ease),opacity .25s}
+.lupa .lente{position:absolute;left:0;top:0;width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#fff,#eef3f6 60%,#c9d4da);border:3px solid #52575d}
+.lupa .mango{position:absolute;left:20px;top:20px;width:6px;height:18px;border-radius:4px;background:linear-gradient(135deg,#52575d,#272a2e)}
+
+/* --- Velo: bloquea los clics sobre el resto de la página mientras dura la introducción.
+   No tiene fondo propio: el oscurecido visual lo hace .ventana-foco (ver abajo), así el
+   elemento real señalado se ve con su brillo natural, sin ningún recorte superpuesto. --- */
+.velo{position:fixed;inset:0;z-index:2989;background:transparent;pointer-events:auto}
+
+/* --- Ventana de foco: un "agujero" con forma y tamaño reales del elemento señalado,
+   calculado en TS a partir de su getBoundingClientRect(). Vive en el stacking context
+   del propio asistente (no se toca el elemento señalado ni sus ancestros), así el
+   agujero se ve siempre por encima del resto de la página sin depender de su z-index. --- */
+.ventana-foco{position:fixed;z-index:2990;pointer-events:none;box-shadow:0 0 0 9999px rgba(14,20,24,.6),0 0 0 3px rgba(245,185,20,.9),0 0 26px 6px rgba(245,185,20,.35);transition:top .4s var(--ease,ease),left .4s var(--ease,ease),width .4s var(--ease,ease),height .4s var(--ease,ease),border-radius .4s var(--ease,ease);animation:veloAparece .3s var(--ease,ease)}
+@keyframes veloAparece{from{opacity:0}to{opacity:1}}
+
+/* --- Tarjeta de introducción: se posiciona junto al elemento real de cada paso --- */
+.intro-tarjeta{pointer-events:auto;position:fixed;z-index:3000;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(320px,calc(100vw - 44px));padding:18px 22px 20px;border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:var(--shadow-lg);animation:asistenteAparece .32s var(--ease,ease);text-align:center;transition:top .4s var(--ease,ease),left .4s var(--ease,ease)}
+.intro-texto h3{margin:4px 0 6px;font-size:1rem;letter-spacing:-.01em;color:var(--ink)}
+.intro-texto p{margin:0;color:var(--muted);font-size:.84rem;line-height:1.55}
+.intro-pasos{display:flex;gap:5px;margin:12px 0 2px}
+.intro-pasos i{width:16px;height:3px;border-radius:2px;background:var(--line)}
+.intro-pasos i.on{background:var(--yellow)}
+.intro-acciones{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px}
+.btn-primario{padding:10px 16px;border:0;border-radius:10px;background:var(--yellow);color:var(--ink);font:inherit;font-size:.82rem;font-weight:800;cursor:pointer;transition:transform .18s var(--ease,ease),background .18s}
+.btn-primario:hover{background:var(--yellow-dark);transform:translateY(-1px)}
+.btn-texto{padding:8px 4px;border:0;background:none;color:var(--muted);font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.btn-texto:hover{color:var(--ink)}
+
+/* --- Pin fijo en la esquina --- */
+/* La escala va en un wrapper aparte: .map-pin ya usa "transform" para flotar,
+   y un transform no se puede combinar con otro en el mismo elemento. */
+.pin-fijo{pointer-events:auto;position:relative;display:block;width:64px;height:78px;border:0;background:none;cursor:pointer;animation:asistenteAparece .4s var(--ease,ease)}
+.pin-escala{transform:scale(.42);transform-origin:top left;transition:transform .3s var(--ease,ease)}
+.pin-fijo:hover .pin-escala,.pin-fijo:focus-visible .pin-escala{transform:scale(.44) translateY(-6px)}
+
+.globo{position:absolute;left:70px;bottom:28px;padding:7px 12px;border-radius:10px;background:var(--ink);color:#fff;font-size:.72rem;font-weight:700;white-space:nowrap;opacity:0;transform:translateX(-6px);transition:opacity .2s var(--ease,ease),transform .2s var(--ease,ease);pointer-events:none}
+.globo::after{content:"";position:absolute;left:-5px;bottom:14px;width:9px;height:9px;background:var(--ink);transform:rotate(45deg)}
+.pin-fijo:hover .globo,.pin-fijo:focus-visible .globo{opacity:1;transform:translateX(0)}
+
+/* --- Estado "buscando": guiña un ojo y muestra la lupa un par de segundos --- */
+.pin-fijo.buscando .pin-face::after{content:"";top:29px;height:3px;border-radius:2px;background:#172127;box-shadow:none}
+.pin-fijo.buscando .lupa{transform:rotate(0) scale(1);opacity:1}
+
+@keyframes asistenteAparece{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+@media(max-width:680px){:host{left:14px;bottom:14px}.intro-tarjeta{width:min(290px,calc(100vw - 28px))}.globo{display:none}}
+@media(prefers-reduced-motion:reduce){.map-pin{animation:none!important}}

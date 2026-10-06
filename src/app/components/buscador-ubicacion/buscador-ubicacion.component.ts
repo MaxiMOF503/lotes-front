@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { LoteService } from '../../services/lote.service';
+import { AsistenteService } from '../../services/asistente.service';
 
 /**
  * Buscador público por identificador o dirección. El mapa conserva la consulta por coordenadas.
@@ -20,16 +21,18 @@ export class BuscadorUbicacionComponent {
   identificador = '';
   direccion = '';
 
-  constructor(private loteService: LoteService) {}
+  constructor(private loteService: LoteService, private asistente: AsistenteService) {}
 
   buscar(): void {
     if (this.modoBusqueda === 'identificador') {
       const id = this.identificador.trim();
       if (id) {
         this.loteService.consultarPorIdentificador(id);
+        this.asistente.activarBusqueda();
       }
     } else if (this.direccion.trim().length >= 3) {
       this.loteService.consultarPorDireccion(this.direccion.trim());
+      this.asistente.activarBusqueda();
     }
   }
 
