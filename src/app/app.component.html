@@ -1,12 +1,12 @@
 <app-splash-screen (finalizado)="onSplashFinalizado()"></app-splash-screen>
 <app-asistente *ngIf="!administracion"></app-asistente>
 <header class="topbar">
-  <a class="brand" href="#" (click)="administracion=false; $event.preventDefault()" aria-label="Ir a consulta pública">
+  <a class="brand" href="#" (click)="irAConsultaPublica(); $event.preventDefault()" aria-label="Ir a consulta pública">
     <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><b>+</b></span>
     <span><strong>LoteSeguro</strong><small>Orientación territorial</small></span>
   </a>
   <nav aria-label="Navegación principal">
-    <button (click)="administracion=false" [attr.aria-current]="!administracion?'page':null"><span>⌖</span>Consulta pública</button>
+    <button (click)="irAConsultaPublica()" [attr.aria-current]="!administracion?'page':null"><span>⌖</span>Consulta pública</button>
     <button (click)="administracion=true" [attr.aria-current]="administracion?'page':null"><span>▦</span>Área interna</button>
   </nav>
   <div class="trust"><span></span>Información con trazabilidad</div>
@@ -33,7 +33,7 @@
   <section class="content-shell">
     <div class="map-column">
       <app-buscador-ubicacion></app-buscador-ubicacion>
-      <div class="map-frame">
+      <div class="map-frame" role="region" aria-label="Mapa interactivo para seleccionar un punto">
         <app-mapa-lote (ubicacionSeleccionada)="onUbicacionSeleccionada($event)"></app-mapa-lote>
       </div>
     </div>

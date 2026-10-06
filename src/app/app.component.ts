@@ -20,10 +20,16 @@ import { LoteService } from './services/lote.service';
 export class AppComponent {
 
   @ViewChild(MapaLoteComponent) mapaComponent!: MapaLoteComponent;
+  @ViewChild(AdminComponent) adminComponent?: AdminComponent;
 
   administracion=false;
   constructor(private loteService: LoteService,api:ApiService,private asistente:AsistenteService) {
     api.write('POST','/public/v1/visitas').catch(()=>{});
+  }
+
+  irAConsultaPublica(): void {
+    if(this.adminComponent)this.adminComponent.confirmarNavegacion(()=>{this.administracion=false;});
+    else this.administracion=false;
   }
 
   onUbicacionSeleccionada(coords: { lat: number; lng: number }): void {
