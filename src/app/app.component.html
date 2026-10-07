@@ -5,9 +5,19 @@
     <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><b>+</b></span>
     <span><strong>LoteSeguro</strong><small>Orientación territorial</small></span>
   </a>
-  <nav aria-label="Navegación principal">
+  <button type="button" class="menu-toggle" (click)="alternarMenu()" [attr.aria-expanded]="menuAbierto" aria-controls="menu-principal" aria-label="Abrir menú de navegación">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="menu-overlay" *ngIf="menuAbierto" (click)="cerrarMenu()" aria-hidden="true"></div>
+  <nav id="menu-principal" aria-label="Navegación principal" [class.abierto]="menuAbierto">
+    <button type="button" class="menu-close" (click)="cerrarMenu()" aria-label="Cerrar menú de navegación">✕</button>
     <button (click)="irAConsultaPublica()" [attr.aria-current]="!administracion?'page':null"><span>⌖</span>Consulta pública</button>
-    <button (click)="administracion=true" [attr.aria-current]="administracion?'page':null"><span>▦</span>Área interna</button>
+    <button (click)="irAAreaInterna()" [attr.aria-current]="administracion?'page':null"><span>▦</span>Área interna</button>
+    <div class="nav-perfil" *ngIf="sesion && !administracion">
+      <span class="nav-avatar">{{sesion.nombre.charAt(0) || sesion.email.charAt(0)}}</span>
+      <span class="nav-identidad"><strong>{{sesion.nombre}}</strong><small [class.rol-admin]="esAdmin">{{esAdmin?'Administrador':'Solo lectura'}}</small></span>
+      <button type="button" class="nav-logout" (click)="cerrarSesionDesdeNav()">Cerrar sesión</button>
+    </div>
   </nav>
   <div class="trust"><span></span>Información con trazabilidad</div>
 </header>

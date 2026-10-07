@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from '../../services/api.service';
+import { SesionService } from '../../services/sesion.service';
 import { LoteEdicion,LoteDetalle,PaginaLotes,Estadisticas,SesionUsuario,nuevoLote } from '../../models/admin.model';
 @Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
 export class AdminComponent implements OnInit {
-  private api=inject(ApiService);private cd=inject(ChangeDetectorRef);
+  private api=inject(ApiService);private cd=inject(ChangeDetectorRef);private sesionService=inject(SesionService);
   @ViewChild('form') editorForm?:NgForm;
   sesion:SesionUsuario|null=null;email='';password='';error='';mensaje='';ocupado=false;iniciando=true;
   modoAcceso:'ingreso'|'registro'='ingreso';
@@ -27,10 +28,14 @@ export class AdminComponent implements OnInit {
   avisarAntesDeSalir(event:BeforeUnloadEvent){if(this.hayCambios){event.preventDefault();event.returnValue='';}}
   @HostListener('document:keydown.escape')
   cerrarConfirmacionConEscape(){if(this.loteAEliminar)this.cancelarEliminacion();else if(this.accionPendiente)this.cancelarDescarte();}
-  async ngOnInit(){
+  ngOnInit(){
+    this.sesionService.sesion$.subscribe(s => { this.sesion=s; this.cd.markForCheck(); });
+    this.inicializar();
+  }
+  private async inicializar(){
     try {
-      this.sesion=await this.api.get<SesionUsuario>('/me');
-      await this.cargar();
+      await this.sesionService.cargar();
+      if(this.sesion) await this.cargar();
     } catch(e) {
       if (!(e instanceof HttpErrorResponse) || e.status!==401) this.error=this.api.error(e);
     } finally {
@@ -38,7 +43,7 @@ export class AdminComponent implements OnInit {
       this.cd.markForCheck();
     }
   }
-  async ingresar(){await this.operar(async()=>{this.sesion=await this.api.login(this.email,this.password);this.password='';this.tab='lotes';await this.cargar();});this.password='';}
+  async ingresar(){await this.operar(async()=>{await this.sesionService.ingresar(this.email,this.password);this.password='';this.tab='lotes';await this.cargar();});this.password='';}
   mostrarRegistro(){this.modoAcceso='registro';this.error='';this.mensaje='';this.password='';}
   mostrarIngreso(){this.modoAcceso='ingreso';this.error='';this.registroPassword='';this.registroConfirmacion='';}
   async registrar(){
@@ -53,7 +58,7 @@ export class AdminComponent implements OnInit {
       this.mensaje='Cuenta creada. Ya podés iniciar sesión con tu correo y contraseña.';
     });
   }
-  salir(){this.solicitarDescarte(()=>{void this.operar(async()=>{await this.api.write('POST','/logout');this.sesion=null;this.tab='lotes';this.reiniciarEditor();this.estadisticas=null;});});}
+  salir(){this.solicitarDescarte(()=>{void this.operar(async()=>{await this.sesionService.salir();this.tab='lotes';this.reiniciarEditor();this.estadisticas=null;});});}
   async cargar(pagina=0){
     [this.pagina,this.departamentos]=await Promise.all([this.api.get<PaginaLotes>('/admin/lotes?pagina='+pagina),this.api.get<{id:number;nombre:string}[]>('/admin/departamentos')]);
   }

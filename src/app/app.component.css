@@ -5,3 +5,29 @@
 
 .hero{isolation:isolate;background:#fff}.hero::before{z-index:-2;inset:0;width:auto;background-image:linear-gradient(90deg,#fff 0%,rgba(255,255,255,.98) 34%,rgba(255,255,255,.62) 55%,rgba(20,32,40,.08) 100%),url('/assets/mendoza-ciudad-andes.jpg');background-position:center;background-size:cover}.hero::after{z-index:-1;right:0;bottom:0;width:48%;height:100%;clip-path:none;background:linear-gradient(90deg,rgba(255,255,255,.42),transparent 45%),linear-gradient(0deg,rgba(19,31,39,.2),transparent 42%);opacity:1}.hero-copy{padding:8px 0}.hero-visual{height:300px}.map-pin{right:70px;bottom:18px;width:150px;height:185px;background:none;clip-path:none;filter:none;animation:pinFloat 3.2s ease-in-out infinite}.pin-body{position:absolute;left:18px;top:5px;width:114px;height:114px;border:1px solid rgba(113,72,0,.28);border-radius:56% 54% 54% 50%;background:radial-gradient(circle at 31% 24%,#fff0a6 0 4%,transparent 5%),linear-gradient(145deg,#ffe36b 4%,#ffc51a 45%,#e89a00 100%);box-shadow:inset 10px 10px 18px rgba(255,255,255,.44),inset -15px -18px 22px rgba(155,91,0,.2),0 15px 24px rgba(18,29,36,.28);transform:rotate(45deg)}.pin-body::after{content:"";position:absolute;right:-15px;bottom:-15px;width:64px;height:64px;border-radius:0 0 15px 0;background:linear-gradient(135deg,transparent 0 49%,#e89a00 50% 100%);transform:skew(9deg,9deg)}.pin-face{position:absolute;z-index:2;left:18px;top:18px;width:76px;height:76px;border:1px solid rgba(139,93,16,.2);border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff 0 7%,#fff9dc 8% 42%,#f2d48b 100%);box-shadow:inset 7px 7px 12px rgba(255,255,255,.75),inset -8px -9px 15px rgba(151,99,12,.18),0 2px 4px rgba(89,54,0,.2);transform:rotate(-45deg)}.pin-face::before,.pin-face::after{content:"";position:absolute;top:25px;width:9px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff 0 12%,#172127 16% 100%);box-shadow:0 2px 2px rgba(48,30,0,.28)}.pin-face::before{left:19px}.pin-face::after{right:19px}.pin-face i{position:absolute;left:25px;top:43px;width:26px;height:14px;border-bottom:3px solid #704900;border-radius:50%}.pin-shadow{position:absolute;left:25px;bottom:4px;width:100px;height:22px;border-radius:50%;background:radial-gradient(ellipse,rgba(18,29,36,.28),rgba(18,29,36,0) 70%);filter:blur(2px)}footer{align-items:center}.photo-credit{font-size:.58rem;color:#7f8b8f}
 @media(max-width:680px){.hero::before{background-image:linear-gradient(180deg,rgba(255,255,255,.98) 0 43%,rgba(255,255,255,.25) 72%,rgba(20,32,40,.05)),url('/assets/mendoza-ciudad-andes.jpg');background-position:60% center;opacity:1}.hero::after{top:49%;width:100%;height:51%}.hero-visual{height:210px}.map-pin{right:18px;width:125px;height:160px;transform:scale(.85);transform-origin:bottom right}}
+
+/* Menú de navegación: hamburguesa plegable en mobile + perfil/rol/logout */
+.menu-toggle{display:none;flex-direction:column;justify-content:center;gap:4px;width:38px;height:38px;padding:0;border:1px solid #e6e7e4;border-radius:10px;background:#fff;cursor:pointer}
+.menu-toggle span{display:block;width:18px;height:2px;margin:0 auto;background:var(--ink);transition:.2s var(--ease)}
+#menu-principal .menu-close{display:none}
+.menu-overlay{display:none}
+.nav-perfil{display:flex;align-items:center;gap:9px;margin-left:6px;padding-left:10px;border-left:1px solid #e0e2de}
+.nav-avatar{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-size:.72rem;font-weight:800}
+.nav-identidad{display:flex;flex-direction:column;line-height:1.15}
+.nav-identidad strong{font-size:.75rem;color:var(--ink)}
+.nav-identidad small{font-size:.6rem;color:#8a9296;font-weight:700;letter-spacing:.04em}
+.nav-identidad small.rol-admin{color:var(--yellow-dark)}
+#menu-principal .nav-logout{padding:6px 11px;border:1px solid #e0e2de;border-radius:999px;background:#fff;color:#687377;font:inherit;font-size:.68rem;font-weight:800;cursor:pointer;transition:.2s var(--ease)}
+#menu-principal .nav-logout:hover{color:var(--ink);border-color:#c9cdc8}
+
+@media(max-width:680px){
+  .topbar{backdrop-filter:none}
+  .menu-toggle{display:flex}
+  .menu-overlay{display:block;position:fixed;inset:0;z-index:1001;background:rgba(24,37,45,.42)}
+  #menu-principal{position:fixed;top:0;right:0;bottom:0;z-index:1002;display:flex;flex-direction:column;align-items:stretch;width:min(78vw,300px);gap:6px;padding:68px 18px 22px;border-radius:0;background:#fff;box-shadow:-14px 0 34px rgba(24,37,45,.18);transform:translateX(100%);transition:transform .26s var(--ease);order:unset;margin-top:0}
+  #menu-principal.abierto{transform:translateX(0)}
+  #menu-principal button{width:100%;flex:none}
+  #menu-principal .menu-close{display:flex;position:absolute;top:16px;right:16px;width:34px;height:34px;align-items:center;justify-content:center;padding:0;border:1px solid #e6e7e4;border-radius:10px;background:#f6f6f4;color:var(--ink);font-size:.9rem;cursor:pointer}
+  .nav-perfil{flex-direction:column;align-items:flex-start;margin:8px 0 0;padding:14px 0 0;border-left:0;border-top:1px solid #e6e7e4}
+  #menu-principal .nav-logout{margin-top:4px;width:100%}
+}
