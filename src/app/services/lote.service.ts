@@ -25,6 +25,7 @@ export class LoteService {
     });
   }
   seleccionarOpcion(identificador:string) {this.consultar({identificador});}
+  sugerirDirecciones(direccion:string) {return this.http.get<BusquedaDireccionResponse>('/api/public/v1/lotes/opciones',{params:{direccion}});}
   private consultar(params:Record<string,string|number>) {
     this.iniciarConsulta();
     this.request=this.http.get<FichaLoteResponse>('/api/public/v1/lotes/ficha',{params}).subscribe({
