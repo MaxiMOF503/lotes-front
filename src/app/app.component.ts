@@ -9,6 +9,7 @@ import { SplashScreenComponent } from './components/splash-screen/splash-screen.
 import { AsistenteComponent } from './components/asistente/asistente.component';
 import { AsistenteService } from './services/asistente.service';
 import { LoteService } from './services/lote.service';
+import { SesionService } from './services/sesion.service';
 import { SesionUsuario } from './models/admin.model';
 
 @Component({
@@ -27,16 +28,13 @@ export class AppComponent implements OnInit {
   menuAbierto=false;
   sesion: SesionUsuario | null = null;
 
-  constructor(private loteService: LoteService,private api:ApiService,private asistente:AsistenteService) {
+  constructor(private loteService: LoteService,private api:ApiService,private asistente:AsistenteService,private sesionService:SesionService) {
     api.write('POST','/public/v1/visitas').catch(()=>{});
   }
 
-  async ngOnInit(): Promise<void> {
-    try {
-      this.sesion = await this.api.get<SesionUsuario>('/me');
-    } catch {
-      this.sesion = null;
-    }
+  ngOnInit(): void {
+    this.sesionService.sesion$.subscribe(s => this.sesion = s);
+    this.sesionService.cargar().catch(()=>{});
   }
 
   get esAdmin(): boolean {
@@ -69,8 +67,7 @@ export class AppComponent implements OnInit {
 
   async cerrarSesionDesdeNav(): Promise<void> {
     this.cerrarMenu();
-    await this.api.write('POST','/logout').catch(()=>{});
-    this.sesion=null;
+    await this.sesionService.salir();
     this.administracion=false;
   }
 
