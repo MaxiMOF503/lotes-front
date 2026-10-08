@@ -8,7 +8,7 @@
     <div class="layers-list">
       <button *ngFor="let capa of capas" type="button" class="layer-row" [class.is-active]="capa.estado === 'active'" [class.is-loading]="capa.estado === 'loading'" [class.is-disabled]="!capa.disponible" (click)="alternarCapa(capa)" [disabled]="!capa.disponible">
         <i class="layer-swatch" [style.--layer-color]="capa.color"></i>
-        <span><strong>{{ capa.nombre }}</strong><small>{{ capa.estado === 'loading' ? 'Cargando…' : capa.detalle }}</small><em *ngIf="capa.nota">{{ capa.nota }}</em></span>
+        <span><strong>{{ capa.nombre }}</strong><small *ngIf="capa.estado === 'loading'">Cargando…</small><em *ngIf="capa.nota">{{ capa.nota }}</em></span>
         <b>{{ capa.estado === 'active' ? '✓' : capa.estado === 'error' ? '!' : !capa.disponible ? 'Próximamente' : '+' }}</b>
       </button>
     </div>
