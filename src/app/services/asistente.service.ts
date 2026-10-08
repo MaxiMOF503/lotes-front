@@ -32,6 +32,10 @@ export class AsistenteService {
     this.estadoSubject.next('activo');
   }
 
+  abrirIntro(): void {
+    this.estadoSubject.next('intro');
+  }
+
   /** Dispara unos segundos de animación "buscando" y vuelve sola a la cara normal. */
   activarBusqueda(): void {
     if (this.timeoutBusqueda) {

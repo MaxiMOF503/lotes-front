@@ -1,6 +1,6 @@
 <ng-container *ngIf="estado$ | async as estado">
 
-  <!-- Introducción guiada: aparece una sola vez, recién cuando terminó de cargar la página -->
+  <!-- Introducción guiada: automática en la primera visita y repetible desde el pin -->
   <ng-container *ngIf="estado === 'intro' && (paginaLista$ | async)">
     <div class="velo"></div>
     <div
@@ -21,6 +21,7 @@
       </div>
       <div class="intro-acciones">
         <button type="button" class="btn-texto" (click)="omitir()">Omitir</button>
+        <button type="button" class="btn-texto" *ngIf="paso > 0" (click)="anterior()">Anterior</button>
         <button type="button" class="btn-primario" (click)="siguiente()">
           {{ paso < pasos.length - 1 ? 'Siguiente →' : 'Entendido' }}
         </button>
@@ -34,7 +35,8 @@
     class="pin-fijo"
     *ngIf="estado === 'activo' && mostrarPinFijo"
     [class.buscando]="buscando$ | async"
-    aria-label="Asistente de LoteSeguro">
+    (click)="abrirIntro()"
+    aria-label="Volver a abrir el tutorial de LoteSeguro">
     <span class="globo">¿Necesitás ayuda?</span>
     <div class="pin-escala">
       <div class="map-pin">

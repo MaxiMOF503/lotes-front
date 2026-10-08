@@ -75,6 +75,9 @@ export class AsistenteComponent implements AfterViewInit, OnDestroy {
 
     // La intro espera a que termine el splash: recién ahí se posiciona sobre el pin real.
     this.suscripcion = combineLatest([this.estado$, this.paginaLista$]).subscribe(([estado, lista]) => {
+      if (estado === 'activo') {
+        this.introYaPosicionada = false;
+      }
       if (estado === 'intro' && lista && !this.introYaPosicionada) {
         this.introYaPosicionada = true;
         this.paso = 0;
@@ -105,6 +108,17 @@ export class AsistenteComponent implements AfterViewInit, OnDestroy {
       this.ventanaFoco = null;
       this.asistente.cerrarIntro();
     }
+  }
+
+  anterior(): void {
+    if (this.paso > 0) {
+      this.paso--;
+      this.posicionarPaso();
+    }
+  }
+
+  abrirIntro(): void {
+    this.asistente.abrirIntro();
   }
 
   omitir(): void {
