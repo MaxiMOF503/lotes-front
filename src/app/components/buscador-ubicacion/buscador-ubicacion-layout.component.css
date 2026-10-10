@@ -23,6 +23,11 @@
 .campo small { display: block; margin-top: 6px; color: var(--muted); font-size: .68rem; line-height: 1.4; }
 .acciones { align-self: end; }
 
+.campo input.con-aviso { border-color: var(--gold-dark); }
+.campo input.con-aviso:focus { box-shadow: 0 0 0 4px rgba(217,164,65,.14); }
+.aviso-busqueda { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 0; color: var(--ink-soft); font-size: .72rem; line-height: 1.4; overflow-wrap: anywhere; }
+.aviso-busqueda span { flex-shrink: 0; color: var(--gold-dark); }
+
 @container (max-width: 620px) {
   .buscador { grid-template-columns: minmax(0, 1fr); }
   .buscador-title { display: none; }

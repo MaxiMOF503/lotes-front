@@ -5,15 +5,18 @@ import { BusquedaDireccionResponse, FichaLoteResponse, EstadoConsulta } from '..
 import { ApiService } from './api.service';
 @Injectable({providedIn:'root'})
 export class LoteService {
+  codigoErrorHttp: number | null = null;
+  revisionConsulta = 0;
   private http=inject(HttpClient);private api=inject(ApiService);private request?:Subscription;
   private fichaSubject=new BehaviorSubject<FichaLoteResponse|null>(null);
   private opcionesSubject=new BehaviorSubject<BusquedaDireccionResponse|null>(null);
   private estadoSubject=new BehaviorSubject<EstadoConsulta>('vacio');
   private errorSubject=new BehaviorSubject<string|null>(null);
   readonly ficha$=this.fichaSubject.asObservable();readonly opciones$=this.opcionesSubject.asObservable();readonly estado$=this.estadoSubject.asObservable();readonly error$=this.errorSubject.asObservable();
-  consultarPorIdentificador(identificador:string) {this.consultar({identificador});}
-  consultarPorCoordenadas(latitud:number,longitud:number) {this.consultar({latitud,longitud});}
+  consultarPorIdentificador(identificador:string) {this.revisionConsulta++;this.consultar({identificador});}
+  consultarPorCoordenadas(latitud:number,longitud:number) {this.revisionConsulta++;this.consultar({latitud,longitud});}
   consultarPorDireccion(direccion:string) {
+    this.revisionConsulta++;
     this.iniciarConsulta();
     this.request=this.http.get<BusquedaDireccionResponse>('/api/public/v1/lotes/opciones',{params:{direccion}}).subscribe({
       next:resultado=>{
@@ -24,7 +27,7 @@ export class LoteService {
       error:(e:HttpErrorResponse)=>this.registrarError(e)
     });
   }
-  seleccionarOpcion(identificador:string) {this.consultar({identificador});}
+  seleccionarOpcion(identificador:string) {this.revisionConsulta++;this.consultar({identificador});}
   sugerirDirecciones(direccion:string) {return this.http.get<BusquedaDireccionResponse>('/api/public/v1/lotes/opciones',{params:{direccion}});}
   private consultar(params:Record<string,string|number>) {
     this.iniciarConsulta();
@@ -33,7 +36,7 @@ export class LoteService {
       error:(e:HttpErrorResponse)=>this.registrarError(e)
     });
   }
-  private iniciarConsulta(){this.request?.unsubscribe();this.fichaSubject.next(null);this.opcionesSubject.next(null);this.errorSubject.next(null);this.estadoSubject.next('cargando');}
-  private registrarError(e:HttpErrorResponse){this.errorSubject.next(this.api.error(e));this.estadoSubject.next(e.status===404?'sin-resultados':'error');}
-  limpiar(){this.request?.unsubscribe();this.fichaSubject.next(null);this.opcionesSubject.next(null);this.estadoSubject.next('vacio');this.errorSubject.next(null);}
+  private iniciarConsulta(){this.codigoErrorHttp=null;this.request?.unsubscribe();this.fichaSubject.next(null);this.opcionesSubject.next(null);this.errorSubject.next(null);this.estadoSubject.next('cargando');}
+  private registrarError(e:HttpErrorResponse){this.codigoErrorHttp=e.status;this.errorSubject.next(this.api.error(e));this.estadoSubject.next(e.status===404?'sin-resultados':'error');}
+  limpiar(){this.revisionConsulta++;this.codigoErrorHttp=null;this.request?.unsubscribe();this.fichaSubject.next(null);this.opcionesSubject.next(null);this.estadoSubject.next('vacio');this.errorSubject.next(null);}
 }

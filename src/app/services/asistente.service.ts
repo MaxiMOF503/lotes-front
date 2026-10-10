@@ -17,6 +17,12 @@ export class AsistenteService {
   private buscandoSubject = new BehaviorSubject<boolean>(false);
   private paginaListaSubject = new BehaviorSubject<boolean>(false);
   private timeoutBusqueda?: ReturnType<typeof setTimeout>;
+  private bloqueoInteraccionesSubject = new BehaviorSubject<boolean>(false);
+  readonly bloqueoInteracciones$ = this.bloqueoInteraccionesSubject.asObservable();
+
+  bloquearInteracciones(bloquear: boolean): void {
+    this.bloqueoInteraccionesSubject.next(bloquear);
+  }
 
   readonly estado$ = this.estadoSubject.asObservable();
   readonly buscando$ = this.buscandoSubject.asObservable();
