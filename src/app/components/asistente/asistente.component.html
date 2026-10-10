@@ -11,7 +11,7 @@
       [style.width]="ventanaFoco.width"
       [style.height]="ventanaFoco.height"
       [style.border-radius]="ventanaFoco.radius"></div>
-    <div class="intro-tarjeta" role="dialog" aria-label="Presentación del asistente" [style.top]="posicionTarjeta.top" [style.left]="posicionTarjeta.left">
+    <div class="intro-tarjeta" role="dialog" aria-modal="true" tabindex="-1" aria-label="Presentación del asistente" [style.top]="posicionTarjeta.top" [style.left]="posicionTarjeta.left">
       <div class="intro-texto">
         <h3>{{ pasos[paso].titulo }}</h3>
         <p>{{ pasos[paso].texto }}</p>

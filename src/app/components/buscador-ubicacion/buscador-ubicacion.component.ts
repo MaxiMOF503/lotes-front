@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostListener, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Subject, Subscription, of } from 'rxjs';
+import { Subject, Subscription, combineLatest, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { LoteService } from '../../services/lote.service';
 import { AsistenteService } from '../../services/asistente.service';
@@ -24,6 +24,10 @@ export class BuscadorUbicacionComponent implements OnDestroy {
   modoBusqueda: 'identificador' | 'direccion' = 'identificador';
   identificador = '';
   direccion = '';
+  aviso: string | null = null;
+  entradaInvalida = false;
+  private consultaDelCampo = false;
+  private revisionConsultaDelCampo = 0;
 
   sugerencias: OpcionDireccion[] = [];
   hayMasSugerencias = false;
@@ -51,6 +55,19 @@ export class BuscadorUbicacionComponent implements OnDestroy {
       this.indiceActivo = -1;
       this.mostrarSugerencias = this.sugerencias.length > 0;
     });
+    this.suscripcion.add(combineLatest([this.loteService.estado$, this.loteService.error$]).subscribe(([estado, error]) => {
+      if (estado === 'cargando' || estado === 'cargado' || estado === 'opciones' || estado === 'vacio') {
+        this.aviso = null;
+        this.entradaInvalida = false;
+      }
+      if (!this.consultaDelCampo || this.revisionConsultaDelCampo !== this.loteService.revisionConsulta) return;
+      if (estado === 'sin-resultados') {
+        this.aviso = 'No se encontraron lotes para esta búsqueda';
+      } else if (estado === 'error') {
+        this.entradaInvalida = this.loteService.codigoErrorHttp === 400;
+        this.aviso = this.entradaInvalida && error ? error : 'No se pudo realizar la búsqueda. Intentá nuevamente';
+      }
+    }));
   }
 
   ngOnDestroy(): void {
@@ -58,6 +75,7 @@ export class BuscadorUbicacionComponent implements OnDestroy {
   }
 
   onDireccionEscrita(): void {
+    this.onCampoEditado();
     const texto = this.direccion.trim();
     if (texto.length >= 3) {
       this.direccionInput$.next(texto);
@@ -85,8 +103,11 @@ export class BuscadorUbicacionComponent implements OnDestroy {
   }
 
   elegirSugerencia(opcion: OpcionDireccion): void {
+    this.onCampoEditado();
     this.direccion = opcion.direccionAproximada || this.direccion;
     this.cerrarSugerencias();
+    this.consultaDelCampo = true;
+    this.revisionConsultaDelCampo = this.loteService.revisionConsulta + 1;
     this.loteService.seleccionarOpcion(opcion.identificador);
     this.asistente.activarBusqueda();
   }
@@ -104,20 +125,44 @@ export class BuscadorUbicacionComponent implements OnDestroy {
   }
 
   buscar(): void {
+    this.onCampoEditado();
     this.cerrarSugerencias();
     if (this.modoBusqueda === 'identificador') {
       const id = this.identificador.trim();
       if (id) {
+        this.consultaDelCampo = true;
+        this.revisionConsultaDelCampo = this.loteService.revisionConsulta + 1;
         this.loteService.consultarPorIdentificador(id);
         this.asistente.activarBusqueda();
+      } else {
+        this.aviso = 'Ingresá un identificador del lote';
+        this.entradaInvalida = true;
       }
     } else if (this.direccion.trim().length >= 3) {
+      this.consultaDelCampo = true;
+      this.revisionConsultaDelCampo = this.loteService.revisionConsulta + 1;
       this.loteService.consultarPorDireccion(this.direccion.trim());
       this.asistente.activarBusqueda();
+    } else {
+      this.aviso = 'Ingresá al menos 3 caracteres para buscar por dirección';
+      this.entradaInvalida = true;
     }
   }
 
+  onCampoEditado(): void {
+    this.aviso = null;
+    this.entradaInvalida = false;
+    this.consultaDelCampo = false;
+  }
+
+  cambiarModo(modo: 'identificador' | 'direccion'): void {
+    this.onCampoEditado();
+    this.cerrarSugerencias();
+    this.modoBusqueda = modo;
+  }
+
   limpiar(): void {
+    this.onCampoEditado();
     this.identificador = '';
     this.direccion = '';
     this.cerrarSugerencias();

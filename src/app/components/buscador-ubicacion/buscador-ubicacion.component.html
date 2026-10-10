@@ -3,12 +3,12 @@
   <div class="modo-toggle">
     <button
       [class.activo]="modoBusqueda === 'identificador'"
-      (click)="modoBusqueda = 'identificador'">
+      (click)="cambiarModo('identificador')">
       <span>▤</span> Por identificador
     </button>
     <button
       [class.activo]="modoBusqueda === 'direccion'"
-      (click)="modoBusqueda = 'direccion'">
+      (click)="cambiarModo('direccion')">
       <span>⌖</span> Por dirección
     </button>
   </div>
@@ -20,9 +20,14 @@
         id="identificador"
         type="text"
         [(ngModel)]="identificador"
+        (ngModelChange)="onCampoEditado()"
+        [class.con-aviso]="aviso"
+        [attr.aria-invalid]="entradaInvalida ? 'true' : null"
+        [attr.aria-describedby]="aviso ? 'aviso-identificador' : null"
         name="identificador"
         placeholder="Ej: LOT-DEMO-001"
         maxlength="100">
+      <p *ngIf="aviso" id="aviso-identificador" class="aviso-busqueda" role="status"><span aria-hidden="true">⚠</span>{{ aviso }}</p>
     </div>
 
     <div class="campo campo-direccion" *ngIf="modoBusqueda === 'direccion'">
@@ -30,6 +35,9 @@
       <input id="direccion" type="search" [(ngModel)]="direccion" name="direccion"
         placeholder="Ej: Calle Demostración 123, Mendoza" minlength="3" maxlength="255"
         autocomplete="off"
+        [class.con-aviso]="aviso"
+        [attr.aria-invalid]="entradaInvalida ? 'true' : null"
+        [attr.aria-describedby]="aviso ? 'ayuda-direccion aviso-direccion' : 'ayuda-direccion'"
         (ngModelChange)="onDireccionEscrita()"
         (keydown)="onTeclaEnCampo($event)"
         (focus)="sugerencias.length && (mostrarSugerencias = true)"
@@ -39,7 +47,8 @@
         [attr.aria-expanded]="mostrarSugerencias"
         aria-controls="lista-sugerencias-direccion"
         [attr.aria-activedescendant]="indiceActivo >= 0 ? 'sugerencia-' + indiceActivo : null">
-      <small>Ingresá al menos 3 caracteres. Si hay varios lotes, podrás elegir uno.</small>
+      <small id="ayuda-direccion">Ingresá al menos 3 caracteres. Si hay varios lotes, podrás elegir uno.</small>
+      <p *ngIf="aviso" id="aviso-direccion" class="aviso-busqueda" role="status"><span aria-hidden="true">⚠</span>{{ aviso }}</p>
 
       <ul
         id="lista-sugerencias-direccion"

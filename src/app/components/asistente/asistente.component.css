@@ -61,3 +61,7 @@
 
 @media(max-width:680px){:host{left:14px;bottom:14px}.intro-tarjeta{width:min(290px,calc(100vw - 28px))}.globo{display:none}}
 @media(prefers-reduced-motion:reduce){.map-pin{animation:none!important}}
+
+/* El texto largo puede desplazarse sin transferir el gesto al fondo. */
+.intro-tarjeta{max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain}
+.ventana-foco{transition:none}

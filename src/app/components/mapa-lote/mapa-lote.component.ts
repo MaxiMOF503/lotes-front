@@ -1,6 +1,7 @@
 import { Component, AfterViewInit, OnDestroy, Output, EventEmitter, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
+import { Subscription } from 'rxjs';
 import { AsistenteService } from '../../services/asistente.service';
 
 const ESPERA_ASISTENTE_MS = 5000;
@@ -25,13 +26,33 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
   private map!: L.Map;
   private marcadorSeleccion: L.Marker | null = null;
   private timeoutAsistente?: ReturnType<typeof setTimeout>;
+  private bloqueoSuscripcion?: Subscription;
+  private interaccionesPrevias: L.Handler[] | null = null;
 
   constructor(private asistente: AsistenteService) {}
 
-  ngAfterViewInit(): void { this.inicializarMapa(); }
+  ngAfterViewInit(): void {
+    this.inicializarMapa();
+    this.bloqueoSuscripcion = this.asistente.bloqueoInteracciones$.subscribe(bloquear => {
+      if (bloquear && !this.interaccionesPrevias) {
+        const handlers = [this.map.dragging, this.map.scrollWheelZoom, this.map.touchZoom,
+          this.map.doubleClickZoom, this.map.boxZoom, this.map.keyboard];
+        this.interaccionesPrevias = handlers.filter(handler => handler.enabled());
+        handlers.forEach(handler => handler.disable());
+      } else if (!bloquear) {
+        this.restaurarInteracciones();
+      }
+    });
+  }
   ngOnDestroy(): void {
+    this.bloqueoSuscripcion?.unsubscribe();
+    this.restaurarInteracciones();
     if (this.map) this.map.remove();
     if (this.timeoutAsistente) clearTimeout(this.timeoutAsistente);
+  }
+  private restaurarInteracciones(): void {
+    this.interaccionesPrevias?.forEach(handler => handler.enable());
+    this.interaccionesPrevias = null;
   }
   centrarEn(lat: number, lng: number): void { if (this.map) { this.map.setView([lat, lng], 15); this.colocarMarcadorSeleccion(lat, lng); } }
   alternarPanel(): void { this.panelCapasAbierto = !this.panelCapasAbierto; }

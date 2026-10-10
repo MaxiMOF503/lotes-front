@@ -68,6 +68,85 @@ export class AsistenteComponent implements AfterViewInit, OnDestroy {
   private suscripcion?: Subscription;
   private introYaPosicionada = false;
   private heroEl: HTMLElement | null = null;
+  private recorridoActivo = false;
+  private frame?: number;
+  private inicioPaso?: ReturnType<typeof setTimeout>;
+  private focoAnterior: HTMLElement | null = null;
+  private fondos: Array<{ elemento: HTMLElement; inert: boolean }> = [];
+  private ultimoToqueY = 0;
+
+  private bloquearRueda = (evento: WheelEvent): void => {
+    if (!this.puedeDesplazarTarjeta(evento.target, evento.deltaY) || evento.ctrlKey) evento.preventDefault();
+  };
+  private iniciarToque = (evento: TouchEvent): void => {
+    this.ultimoToqueY = evento.touches[0]?.clientY ?? 0;
+  };
+  private bloquearToque = (evento: TouchEvent): void => {
+    const y = evento.touches[0]?.clientY ?? this.ultimoToqueY;
+    const delta = this.ultimoToqueY - y;
+    this.ultimoToqueY = y;
+    if (evento.touches.length !== 1 || !this.puedeDesplazarTarjeta(evento.target, delta)) evento.preventDefault();
+  };
+  private bloquearTecla = (evento: KeyboardEvent): void => {
+    const tarjeta = document.querySelector<HTMLElement>('.intro-tarjeta');
+    if (evento.key === 'Escape') { evento.preventDefault(); this.omitir(); return; }
+    if (evento.key === 'Tab' && tarjeta) {
+      const botones = Array.from(tarjeta.querySelectorAll<HTMLButtonElement>('button'));
+      const primero = botones[0], ultimo = botones[botones.length - 1];
+      if (evento.shiftKey && (document.activeElement === primero || document.activeElement === tarjeta)) {
+        evento.preventDefault(); ultimo?.focus({ preventScroll: true });
+      } else if (!evento.shiftKey && document.activeElement === ultimo) {
+        evento.preventDefault(); primero?.focus({ preventScroll: true });
+      }
+    }
+    const direcciones: Record<string, number> = { ArrowDown: 1, ArrowUp: -1, ArrowLeft: -1,
+      ArrowRight: 1, PageDown: 1, PageUp: -1, Home: -1, End: 1, ' ': evento.shiftKey ? -1 : 1 };
+    if (!(evento.key in direcciones)) return;
+    // Espacio activa los botones; Enter y Tab mantienen su comportamiento accesible.
+    if (evento.key === ' ' && evento.target instanceof Element && evento.target.closest('.intro-tarjeta button')) return;
+    if (!this.puedeDesplazarTarjeta(evento.target, direcciones[evento.key])) evento.preventDefault();
+  };
+
+  private puedeDesplazarTarjeta(target: EventTarget | null, delta: number): boolean {
+    const tarjeta = target instanceof Element ? target.closest<HTMLElement>('.intro-tarjeta') : null;
+    if (!tarjeta || delta === 0) return false;
+    return delta < 0 ? tarjeta.scrollTop > 0 : tarjeta.scrollTop + tarjeta.clientHeight < tarjeta.scrollHeight - 1;
+  }
+
+  private bloquearInteracciones(): void {
+    if (this.recorridoActivo) return;
+    this.recorridoActivo = true;
+    this.focoAnterior = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    this.fondos = Array.from(document.querySelectorAll<HTMLElement>('header, main, footer')).map(elemento => ({ elemento, inert: elemento.inert }));
+    this.fondos.forEach(({ elemento }) => elemento.inert = true);
+    document.addEventListener('wheel', this.bloquearRueda, { capture: true, passive: false });
+    document.addEventListener('touchstart', this.iniciarToque, { capture: true, passive: true });
+    document.addEventListener('touchmove', this.bloquearToque, { capture: true, passive: false });
+    document.addEventListener('keydown', this.bloquearTecla, true);
+    this.asistente.bloquearInteracciones(true);
+    const seguirElemento = () => {
+      if (!this.recorridoActivo) return;
+      this.actualizarPosicion();
+      this.frame = requestAnimationFrame(seguirElemento);
+    };
+    this.frame = requestAnimationFrame(seguirElemento);
+  }
+
+  private restaurarInteracciones(): void {
+    if (!this.recorridoActivo) return;
+    this.recorridoActivo = false;
+    if (this.inicioPaso) clearTimeout(this.inicioPaso);
+    if (this.frame !== undefined) cancelAnimationFrame(this.frame);
+    document.removeEventListener('wheel', this.bloquearRueda, true);
+    document.removeEventListener('touchstart', this.iniciarToque, true);
+    document.removeEventListener('touchmove', this.bloquearToque, true);
+    document.removeEventListener('keydown', this.bloquearTecla, true);
+    this.fondos.forEach(({ elemento, inert }) => elemento.inert = inert);
+    this.fondos = [];
+    this.asistente.bloquearInteracciones(false);
+    if (this.focoAnterior?.isConnected) this.focoAnterior.focus({ preventScroll: true });
+    this.focoAnterior = null;
+  }
 
   ngAfterViewInit(): void {
     this.heroEl = document.querySelector('.hero');
@@ -76,18 +155,24 @@ export class AsistenteComponent implements AfterViewInit, OnDestroy {
     // La intro espera a que termine el splash: recién ahí se posiciona sobre el pin real.
     this.suscripcion = combineLatest([this.estado$, this.paginaLista$]).subscribe(([estado, lista]) => {
       if (estado === 'activo') {
+        this.restaurarInteracciones();
         this.introYaPosicionada = false;
       }
       if (estado === 'intro' && lista && !this.introYaPosicionada) {
         this.introYaPosicionada = true;
         this.paso = 0;
-        setTimeout(() => this.posicionarPaso(), 50);
+        this.bloquearInteracciones();
+        this.inicioPaso = setTimeout(() => {
+          this.posicionarPaso();
+          document.querySelector<HTMLElement>('.intro-tarjeta')?.focus({ preventScroll: true });
+        }, 50);
       }
     });
   }
 
   ngOnDestroy(): void {
     this.suscripcion?.unsubscribe();
+    this.restaurarInteracciones();
   }
 
   /** Pin chico recién visible una vez pasado el 50% de la portada. */
@@ -128,10 +213,18 @@ export class AsistenteComponent implements AfterViewInit, OnDestroy {
 
   @HostListener('window:resize')
   onResize(): void {
-    this.posicionarPaso();
+    if (this.recorridoActivo) this.posicionarPaso();
   }
 
   private posicionarPaso(): void {
+    if (!this.recorridoActivo) return;
+    const selector = this.pasos[this.paso].selector;
+    const el = selector ? document.querySelector(selector) : null;
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    this.actualizarPosicion();
+  }
+
+  private actualizarPosicion(): void {
     const def = this.pasos[this.paso];
     const el = def.selector ? document.querySelector(def.selector) : null;
 
@@ -141,9 +234,6 @@ export class AsistenteComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    setTimeout(() => {
       const rect = el.getBoundingClientRect();
 
       if (def.circular) {
@@ -170,9 +260,10 @@ export class AsistenteComponent implements AfterViewInit, OnDestroy {
 
       const debajo = rect.bottom + 260 < window.innerHeight;
       const top = debajo ? rect.bottom + 16 : Math.max(16, rect.top - 190);
-      let left = rect.left + rect.width / 2 - 160;
-      left = Math.min(Math.max(left, 16), window.innerWidth - 336);
+      const tarjeta = document.querySelector<HTMLElement>('.intro-tarjeta');
+      const ancho = tarjeta?.offsetWidth ?? 320;
+      let left = rect.left + rect.width / 2 - ancho / 2;
+      left = Math.min(Math.max(left, 16), window.innerWidth - ancho - 16);
       this.posicionTarjeta = { top: `${top}px`, left: `${left}px` };
-    }, 380);
   }
 }
