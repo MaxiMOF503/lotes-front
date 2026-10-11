@@ -4,7 +4,7 @@ Angular 19 con Leaflet, conectado al backend lotes-back. Conserva consulta públ
 
 ## Instalar en otra PC
 
-Seguir la [guía del backend](https://github.com/MaxiMOF503/lotes-back/blob/codex/datos-territoriales-reales/docs/instalacion-local.md): incluye la descarga de ambos repositorios, base MySQL, importación y cuentas de prueba.
+Seguir la [guía del backend](https://github.com/MaxiMOF503/lotes-back/blob/area-interna-parcelas-reales/docs/instalacion-local.md): incluye la descarga de ambos repositorios, base MySQL, importación y cuentas de prueba.
 
 Requiere Node.js 22 con npm. Iniciar primero el backend en el puerto 8080; luego, desde esta carpeta:
 
