@@ -1,5 +1,5 @@
 <div class="buscador">
-  <div class="buscador-title"><span>⌕</span><div><strong>Encontrá un lote</strong><small>Elegí cómo querés buscar</small></div></div>
+  <div class="buscador-title"><span>⌕</span><div><strong>Encontrá un lote</strong><small>Lotes registrados · Datos catastrales al tocar el mapa</small></div></div>
   <div class="modo-toggle">
     <button
       [class.activo]="modoBusqueda === 'identificador'"
@@ -25,7 +25,7 @@
         [attr.aria-invalid]="entradaInvalida ? 'true' : null"
         [attr.aria-describedby]="aviso ? 'aviso-identificador' : null"
         name="identificador"
-        placeholder="Ej: LOT-DEMO-001"
+        placeholder="Identificador de un lote registrado"
         maxlength="100">
       <p *ngIf="aviso" id="aviso-identificador" class="aviso-busqueda" role="status"><span aria-hidden="true">⚠</span>{{ aviso }}</p>
     </div>
@@ -33,7 +33,7 @@
     <div class="campo campo-direccion" *ngIf="modoBusqueda === 'direccion'">
       <label for="direccion">Dirección aproximada</label>
       <input id="direccion" type="search" [(ngModel)]="direccion" name="direccion"
-        placeholder="Ej: Calle Demostración 123, Mendoza" minlength="3" maxlength="255"
+        placeholder="Dirección de un lote registrado" minlength="3" maxlength="255"
         autocomplete="off"
         [class.con-aviso]="aviso"
         [attr.aria-invalid]="entradaInvalida ? 'true' : null"
