@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
   @ViewChild(MapaLoteComponent) mapaComponent!: MapaLoteComponent;
   @ViewChild(AdminComponent) adminComponent?: AdminComponent;
 
+  puntoMapa:{latitud:number;longitud:number}|null=null;
   administracion=false;
   menuAbierto=false;
   sesion: SesionUsuario | null = null;
@@ -70,6 +71,15 @@ export class AppComponent implements OnInit {
     this.cerrarMenu();
     await this.sesionService.salir();
     this.administracion=false;
+  }
+
+  abrirMapa(punto:{latitud:number;longitud:number}|null): void {
+    this.puntoMapa=punto;
+    this.administracion=false;
+    if(punto){
+      this.loteService.limpiar();
+      this.territorio.consultar(punto.latitud,punto.longitud);
+    }
   }
 
   onUbicacionSeleccionada(coords: { lat: number; lng: number }): void {

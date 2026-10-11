@@ -1,3 +1,7 @@
+import { GestionParcelasComponent } from '../gestion-parcelas/gestion-parcelas.component';
+import { ActividadParcelasComponent } from '../actividad-parcelas/actividad-parcelas.component';
+import { Output, EventEmitter, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, OnInit, inject, ChangeDetectorRef, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
@@ -5,8 +9,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from '../../services/api.service';
 import { SesionService } from '../../services/sesion.service';
 import { LoteEdicion,LoteDetalle,PaginaLotes,Estadisticas,SesionUsuario,nuevoLote } from '../../models/admin.model';
-@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
+@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule,GestionParcelasComponent,ActividadParcelasComponent],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
 export class AdminComponent implements OnInit {
+  @Output() mapaSolicitado=new EventEmitter<{latitud:number;longitud:number}|null>();
+  @ViewChild(GestionParcelasComponent) gestionParcelas?:GestionParcelasComponent;
+  private destroyRef=inject(DestroyRef);
+
   private api=inject(ApiService);private cd=inject(ChangeDetectorRef);private sesionService=inject(SesionService);
   @ViewChild('form') editorForm?:NgForm;
   sesion:SesionUsuario|null=null;email='';password='';error='';mensaje='';ocupado=false;iniciando=true;
@@ -16,26 +24,26 @@ export class AdminComponent implements OnInit {
   accionPendiente:(()=>void)|null=null;
   loteAEliminar:{id:number;identificador:string}|null=null;eliminarError='';
   private datosGuardados=JSON.stringify(nuevoLote());
-  tab:'lotes'|'estadisticas'='lotes';id:number|null=null;datos:LoteEdicion=nuevoLote();
+  tab:'parcelas'|'guardadas'|'historial'|'comparar'|'lotes'|'estadisticas'='parcelas';id:number|null=null;datos:LoteEdicion=nuevoLote();
   departamentos:{id:number;nombre:string}[]=[];pagina:PaginaLotes={items:[],pagina:0,totalPaginas:0,total:0};
   desde=new Date(Date.now()-6*86400000).toLocaleDateString('en-CA');hasta=new Date().toLocaleDateString('en-CA');
   estadisticas:Estadisticas|null=null;
   secciones=[{key:'procedenciaLote' as const,label:'Datos del lote'},{key:'procedenciaZonificacion' as const,label:'Zonificación'},
     {key:'procedenciaElectricidad' as const,label:'Electricidad'},{key:'procedenciaAgua' as const,label:'Agua'}];
   get esAdmin(){return this.sesion?.rol==='ADMIN';}
-  get hayCambios(){return this.esAdmin && JSON.stringify(this.datos)!==this.datosGuardados;}
+  get hayCambios(){return this.esAdmin && (JSON.stringify(this.datos)!==this.datosGuardados || !!this.gestionParcelas?.hayCambios);}
   @HostListener('window:beforeunload', ['$event'])
   avisarAntesDeSalir(event:BeforeUnloadEvent){if(this.hayCambios){event.preventDefault();event.returnValue='';}}
   @HostListener('document:keydown.escape')
   cerrarConfirmacionConEscape(){if(this.loteAEliminar)this.cancelarEliminacion();else if(this.accionPendiente)this.cancelarDescarte();}
   ngOnInit(){
-    this.sesionService.sesion$.subscribe(s => { this.sesion=s; this.cd.markForCheck(); });
+    this.sesionService.sesion$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(s => { this.sesion=s; this.cd.markForCheck(); });
     this.inicializar();
   }
   private async inicializar(){
     try {
       await this.sesionService.cargar();
-      if(this.sesion) await this.cargar();
+      if(this.sesion){this.tab=this.esAdmin?'parcelas':'guardadas';}
     } catch(e) {
       if (!(e instanceof HttpErrorResponse) || e.status!==401) this.error=this.api.error(e);
     } finally {
@@ -43,7 +51,7 @@ export class AdminComponent implements OnInit {
       this.cd.markForCheck();
     }
   }
-  async ingresar(){await this.operar(async()=>{await this.sesionService.ingresar(this.email,this.password);this.password='';this.tab='lotes';await this.cargar();});this.password='';}
+  async ingresar(){await this.operar(async()=>{await this.sesionService.ingresar(this.email,this.password);this.password='';this.tab=this.esAdmin?'parcelas':'guardadas';});this.password='';}
   mostrarRegistro(){this.modoAcceso='registro';this.error='';this.mensaje='';this.password='';}
   mostrarIngreso(){this.modoAcceso='ingreso';this.error='';this.registroPassword='';this.registroConfirmacion='';}
   async registrar(){
@@ -58,16 +66,17 @@ export class AdminComponent implements OnInit {
       this.mensaje='Cuenta creada. Ya podés iniciar sesión con tu correo y contraseña.';
     });
   }
-  salir(){this.solicitarDescarte(()=>{void this.operar(async()=>{await this.sesionService.salir();this.tab='lotes';this.reiniciarEditor();this.estadisticas=null;});});}
+  salir(){this.solicitarDescarte(()=>{void this.operar(async()=>{await this.sesionService.salir();this.tab='parcelas';this.reiniciarEditor();this.estadisticas=null;});});}
   async cargar(pagina=0){
     [this.pagina,this.departamentos]=await Promise.all([this.api.get<PaginaLotes>('/admin/lotes?pagina='+pagina),this.api.get<{id:number;nombre:string}[]>('/admin/departamentos')]);
   }
   async cambiarPagina(pagina:number){await this.operar(()=>this.cargar(pagina));}
   nuevo(){if(!this.esAdmin)return;this.solicitarDescarte(()=>this.reiniciarEditor());}
   editar(id:number){if(id===this.id)return;this.solicitarDescarte(()=>{void this.operar(async()=>{const lote=await this.api.get<LoteDetalle>('/admin/lotes/'+id);this.id=lote.id;this.datos=lote.datos;this.marcarGuardado();this.limpiarEstadoEditor();});});}
-  cambiarTab(tab:'lotes'|'estadisticas'){if(tab===this.tab)return;this.solicitarDescarte(()=>{if(tab==='estadisticas' && this.hayCambios)this.reiniciarEditor();this.tab=tab;});}
-  confirmarDescarte(){const accion=this.accionPendiente;this.accionPendiente=null;accion?.();}
+  cambiarTab(tab:'parcelas'|'guardadas'|'historial'|'comparar'|'lotes'|'estadisticas'){if(!this.esAdmin && (tab==='parcelas'||tab==='estadisticas'))return;if(tab===this.tab)return;this.solicitarDescarte(()=>{if(tab==='estadisticas' && this.hayCambios)this.reiniciarEditor();this.tab=tab;if(tab==='lotes')void this.operar(()=>this.cargar());});}
+  confirmarDescarte(){const accion=this.accionPendiente;this.accionPendiente=null;this.gestionParcelas?.descartarCambios();if(JSON.stringify(this.datos)!==this.datosGuardados)this.reiniciarEditor();accion?.();}
   cancelarDescarte(){this.accionPendiente=null;}
+  abrirMapa(punto:{latitud:number;longitud:number}|null){this.solicitarDescarte(()=>this.mapaSolicitado.emit(punto));}
   confirmarNavegacion(accion:()=>void){this.solicitarDescarte(accion);}
   private solicitarDescarte(accion:()=>void){if(this.ocupado)return;if(this.hayCambios){this.accionPendiente=accion;return;}accion();}
   private reiniciarEditor(){this.id=null;this.datos=nuevoLote();this.marcarGuardado();this.limpiarEstadoEditor();this.mensaje='';this.error='';}

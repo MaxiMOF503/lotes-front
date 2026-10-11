@@ -19,6 +19,7 @@
           <div><dt>FOS máximo publicado</dt><dd>{{ valorParcela(parcela, 'fos_max') }}</dd></div>
           <div><dt>Ordenanza de referencia</dt><dd>{{ valorParcela(parcela, 'ordenanza') }}</dd></div>
         </dl><p class="territorial-note">La fuente no informa titularidad ni carácter fiscal o privado de esta parcela.</p>
+        <app-acciones-parcela [parcela]="parcela" [consulta]="datos" (areaSolicitada)="areaSolicitada.emit()"></app-acciones-parcela>
       </section>
       <p class="territorial-overlap" *ngIf="datos.hayMasParcelas">Hay más de cinco parcelas coincidentes. Seleccioná un punto más preciso.</p>
       <section class="territorial-service"><header><span class="service-icon water" aria-hidden="true">≈</span><div><small>AYSAM</small><h3>Área de servicio de agua</h3></div></header>

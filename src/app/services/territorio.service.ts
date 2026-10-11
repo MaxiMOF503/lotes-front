@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription, from, catchError, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { SesionService } from './sesion.service';
 import { ApiService } from './api.service';
 import { CapaResponse, ConsultaTerritorial, EstadoTerritorial, FuenteTerritorial } from '../models/territorio.model';
 
@@ -8,6 +10,7 @@ import { CapaResponse, ConsultaTerritorial, EstadoTerritorial, FuenteTerritorial
 export class TerritorioService {
   private http = inject(HttpClient);
   private api = inject(ApiService);
+  private sesion = inject(SesionService);
   private consulta?: Subscription;
   private ultimoPunto?: { latitud: number; longitud: number };
   private estadoSubject = new BehaviorSubject<EstadoTerritorial>({ estado: 'vacio', datos: null, error: null });
@@ -22,8 +25,12 @@ export class TerritorioService {
     this.ultimoPunto = { latitud, longitud };
     this.consulta?.unsubscribe();
     this.estadoSubject.next({ estado: 'cargando', datos: null, error: null });
-    this.consulta = this.http.get<ConsultaTerritorial>('/api/public/v1/territorio/consulta',
-      { params: { latitud, longitud } }).subscribe({
+    const publica = this.http.get<ConsultaTerritorial>('/api/public/v1/territorio/consulta', { params: { latitud, longitud } });
+    const peticion = this.sesion.actual
+      ? from(this.api.write<ConsultaTerritorial>('POST','/mi-espacio/consultas',{latitud,longitud})).pipe(
+          catchError(error => error instanceof HttpErrorResponse && error.status===401 ? publica : throwError(()=>error)))
+      : publica;
+    this.consulta = peticion.subscribe({
         next: datos => this.estadoSubject.next({ estado: 'cargado', datos, error: null }),
         error: error => this.estadoSubject.next({ estado: 'error', datos: null, error: this.api.error(error) })
       });

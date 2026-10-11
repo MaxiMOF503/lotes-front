@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, Output, EventEmitter, ElementRef, ViewChild, HostListener } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, Input, Output, EventEmitter, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Subscription } from 'rxjs';
@@ -12,6 +12,7 @@ interface CapaTerritorial { id: string; nombre: string; detalle: string; archivo
 
 @Component({ selector: 'app-mapa-lote', standalone: true, imports: [CommonModule], templateUrl: './mapa-lote.component.html', styleUrl: './mapa-lote.component.css' })
 export class MapaLoteComponent implements AfterViewInit, OnDestroy {
+  @Input() puntoInicial:{latitud:number;longitud:number}|null=null;
   @Output() ubicacionSeleccionada = new EventEmitter<{ lat: number; lng: number }>();
   @ViewChild('mapaContainer', { static: true }) mapaContainer!: ElementRef<HTMLDivElement>;
   panelCapasAbierto = false;
@@ -38,6 +39,7 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.inicializarMapa();
+    if(this.puntoInicial)this.centrarEn(this.puntoInicial.latitud,this.puntoInicial.longitud);
     this.fuentesSuscripcion = this.territorio.fuentes().subscribe({
       next: fuentes => fuentes.forEach(f => {
         const capa = this.capas.find(c => c.id === f.capa);

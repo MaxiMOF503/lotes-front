@@ -52,3 +52,6 @@
 .delete-lot:disabled,.discard-confirm:disabled{opacity:.55;cursor:not-allowed}
 .delete-unsaved{margin-top:12px!important;padding:10px 12px;border-radius:8px;background:#fff4df;color:#76520e!important;font-weight:750}
 @media(max-width:680px){.editor-actions{width:100%;flex-direction:column-reverse;align-items:stretch}.editor-actions button{width:100%}.discard-actions button{flex:1}}
+
+.admin-tabs{flex-wrap:wrap;max-width:100%;gap:4px}.admin-tabs button{white-space:normal}
+@media(max-width:600px){.admin-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.admin-tabs button{min-height:46px}}

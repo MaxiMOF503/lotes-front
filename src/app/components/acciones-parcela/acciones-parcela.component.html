@@ -1,0 +1,19 @@
+<section class="aportes" *ngIf="ficha as f">
+ <span class="tag">INFORMACIÓN COMPLEMENTARIA · EQUIPO</span>
+ <h4>Datos relevados</h4>
+ <dl><div *ngIf="f.direccion"><dt>Dirección relevada</dt><dd>{{f.direccion}}</dd></div>
+ <div *ngIf="f.observaciones"><dt>Observaciones</dt><dd class="multiline">{{f.observaciones}}</dd></div>
+ <div><dt>Fuente</dt><dd>{{f.fuente}}</dd></div><div><dt>Referencia documental</dt><dd class="multiline">{{f.referencia}}</dd></div></dl>
+ <small>Actualizado: {{f.actualizadoEn | date:'dd/MM/yyyy HH:mm'}}. Aporte independiente de los atributos originales del catastro.</small>
+</section>
+<p class="feedback" *ngIf="cargando" role="status">Consultando información complementaria…</p>
+<p class="feedback error" *ngIf="errorFicha" role="status">{{errorFicha}}</p>
+<div class="actions" *ngIf="sesion$ | async as usuario; else ingresar">
+ <small class="history-hint">Al consultar el mapa con sesión iniciada, los resultados se conservan en tu historial privado.</small>
+ <button type="button" class="save" (click)="guardar()" [disabled]="ocupado">{{ocupado?'Guardando…':'☆ Guardar consulta'}}</button>
+ <button type="button" *ngIf="usuario.rol==='ADMIN'" (click)="gestionar()">Gestionar parcela →</button>
+ <button type="button" *ngIf="usuario.rol!=='ADMIN'" (click)="areaSolicitada.emit()">Mi espacio →</button>
+</div>
+<ng-template #ingresar><div class="save-invite"><p>Guardá esta parcela para consultarla después.</p><button type="button" (click)="areaSolicitada.emit()">Ingresar para guardar →</button></div></ng-template>
+<p class="feedback success" *ngIf="mensaje" role="status">{{mensaje}}</p>
+<p class="feedback error" *ngIf="error" role="alert">{{error}}</p>

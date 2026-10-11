@@ -22,6 +22,8 @@ proxy.conf.json envía /api a http://127.0.0.1:8080. Si cambia el puerto del bac
 
 ## Funcionalidades
 
+El área interna abre Mi espacio para usuarios (consultas guardadas en su cuenta) y Parcelas reales para administradores (búsqueda por nomenclatura y fichas complementarias con fuente, referencia y control de versión). Registros anteriores conserva el mantenedor original. La documentación del backend en docs/area-interna-real.md explica los contratos.
+
 - Consulta pública por identificador o dirección de lotes registrados.
 - Selección de parcelas reales en el mapa, con nomenclatura y atributos publicados, radio general de AYSAM y cercanía de tramos eléctricos.
 - Capas reales de catastro, electricidad y agua, limitadas a la ventana visible. Catastro requiere zoom 15 y electricidad zoom 12. Si falta información o hay demasiados elementos, la interfaz lo indica.
@@ -48,3 +50,9 @@ Publicar dist/consulta-lotes-front/browser y enrutar /api al backend en el mismo
 ## Verificación
 
 La compilación de producción y la consulta territorial en navegador fueron verificadas. Leaflet conserva su advertencia CommonJS y el paquete inicial supera el umbral de advertencia de 500 kB; la compilación termina correctamente. No hay ejecutor de tests de frontend configurado. El backend incorpora pruebas unitarias, de contratos, permisos y consultas espaciales sobre MySQL.
+
+### Historial, comparación e informes
+
+Las consultas del mapa con sesión iniciada generan un historial privado en MySQL. Mi espacio permite revisar copias históricas, comparar dos o tres parcelas guardadas con fuentes actuales y exportar informes HTML/JSON o imprimirlos como PDF desde el navegador. Las guardadas incluyen Ver informe. Las consultas anónimas siguen disponibles sin registro personal. No se modifican datos catastrales ni registros anteriores.
+
+Validar exportación: `node --test scripts/test-informe.cjs`. Compilar: `npm.cmd run build`.

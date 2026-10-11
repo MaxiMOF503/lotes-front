@@ -19,7 +19,7 @@ export class ApiService {
   error(error:unknown):string {
     if(error instanceof HttpErrorResponse) {
       if(error.status===0) return 'No se pudo conectar con el servidor. Intentá nuevamente.';
-      if(error.status===401) return 'No pudimos iniciar sesión. Revisá el correo y la contraseña.';
+      if(error.status===401) return error.error?.codigo==='CREDENCIALES_INVALIDAS' ? 'No pudimos iniciar sesión. Revisá el correo y la contraseña.' : 'Tu sesión terminó. Volvé a ingresar para continuar.';
       if(error.status===403) return 'Tu cuenta no tiene permiso para realizar esta acción.';
       const details=error.error?.errores?.map((e:{campo:string;mensaje:string}) => `${e.campo}: ${e.mensaje}`).join('. ');
       return details || error.error?.mensaje || 'No se pudo completar la operación.';
