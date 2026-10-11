@@ -1,40 +1,58 @@
-# Consulta de lotes, mantenedor y estadísticas
+# LoteSeguro · frontend
 
-Frontend Angular 19 con Leaflet, conectado a la API de lotes-back.
+Angular 19 con Leaflet, conectado al backend lotes-back. Conserva consulta pública, registro, sesiones, permisos, mantenedor y estadísticas, y agrega consulta de las capas territoriales reales desde el mapa existente.
 
-## Iniciar localmente
+## Instalar en otra PC
 
-Requiere Node.js compatible con Angular 19 (se recomienda Node 22) y npm. Iniciar antes el backend en el puerto 8080 con MySQL y un administrador configurado mediante ADMIN_EMAIL y ADMIN_PASSWORD; consultar su guía docs/mantenedor-estadisticas.md.
+Seguir la [guía del backend](https://github.com/MaxiMOF503/lotes-back/blob/area-interna-parcelas-reales/docs/instalacion-local.md): incluye la descarga de ambos repositorios, base MySQL, importación y cuentas de prueba.
+
+Requiere Node.js 22 con npm. Iniciar primero el backend en el puerto 8080; luego, desde esta carpeta:
 
 ```powershell
-npm ci
-npm start
+.\iniciar-front.cmd
 ```
 
-Abrir http://localhost:4200. El archivo proxy.conf.json envía /api a http://127.0.0.1:8080. Si cambia el puerto del backend, actualizar ese archivo y reiniciar el frontend. No hace falta instalar Angular CLI globalmente.
+El asistente usa npm.cmd ci para instalar package-lock.json y arranca en http://localhost:4200. No requiere Angular CLI global. Si las dependencias ya están instaladas:
+
+```powershell
+npm.cmd start -- --host 127.0.0.1 --port 4200
+```
+
+proxy.conf.json envía /api a http://127.0.0.1:8080. Si cambia el puerto del backend, actualizar ese archivo y reiniciar el frontend. Angular nunca accede directamente a MySQL.
 
 ## Funcionalidades
 
-- Consulta pública por identificador o coordenadas exactas y selección en mapa, usando la API real.
-- Campos sin información y procedencia visible por sección: simulado, no verificado u oficial.
-- Administración: inicio/cierre de sesión, listado paginado, alta y edición de lotes, departamento y procedencia documental.
-- Validaciones del formulario y mensajes del servidor, incluidos identificadores repetidos.
-- Estadísticas: rango de fechas, totales y detalle diario de visitas, consultas, criterio y resultado.
+El área interna abre Mi espacio para usuarios (consultas guardadas en su cuenta) y Parcelas reales para administradores (búsqueda por nomenclatura y fichas complementarias con fuente, referencia y control de versión). Registros anteriores conserva el mantenedor original. La documentación del backend en docs/area-interna-real.md explica los contratos.
 
-Una visita equivale a cargar la aplicación. Recargar suma otra; cambiar de panel no. Las estadísticas no identifican personas ni representan visitantes únicos. Los contadores se guardan en el backend. Los archivos de mocks anteriores ya no alimentan las pantallas.
+- Consulta pública por identificador o dirección de lotes registrados.
+- Selección de parcelas reales en el mapa, con nomenclatura y atributos publicados, radio general de AYSAM y cercanía de tramos eléctricos.
+- Capas reales de catastro, electricidad y agua, limitadas a la ventana visible. Catastro requiere zoom 15 y electricidad zoom 12. Si falta información o hay demasiados elementos, la interfaz lo indica.
+- Procedencia y límites visibles: el radio de agua y una línea eléctrica próxima no confirman conexión ni factibilidad; los datos catastrales no acreditan titularidad.
+- Registro de usuarios normales, inicio/cierre de sesión y lectura interna según rol.
+- Administración: listado paginado, alta, edición y eliminación/desactivación según el contrato existente, departamentos y procedencia documental.
+- Validaciones y errores del servidor, incluidos identificadores repetidos.
+- Estadísticas por fechas, totales y detalle diario de visitas y consultas.
 
-La sección Administración requiere una cuenta con rol ADMIN. La cookie de sesión se gestiona desde el servidor; las escrituras solicitan un token CSRF. No se guardan contraseñas ni tokens en localStorage.
+El mapa trabaja con la captura importada en la base local. El buscador por dirección y el mantenedor trabajan con lotes registrados; las parcelas no contienen domicilios fiables ni se convierten automáticamente en registros del mantenedor. Una instalación nueva puede tener el mantenedor vacío y las capas reales completas.
 
-## Despliegue
+Las estadísticas no identifican personas ni representan visitantes únicos. Una visita corresponde a cargar la aplicación; las consultas territoriales cuentan como consultas por coordenadas. Mover el mapa o activar capas no aumenta las consultas.
+
+La cookie de sesión la gestiona el servidor; las escrituras usan CSRF. No se guardan contraseñas ni tokens en localStorage. La cuenta ADMIN de clase es demo.admin@loteseguro.invalid y la de lectura demo.usuario@loteseguro.invalid; cada persona elige sus contraseñas al iniciar el backend.
+
+## Compilación y despliegue
 
 ```powershell
-npm run build
+npm.cmd run build
 ```
 
-Publicar el contenido de dist/consulta-lotes-front/browser (comprobar outputPath en angular.json) y enrutar /api al backend en el mismo origen HTTPS. El proxy de desarrollo no se incluye en la compilación publicada. Configurar la cookie Secure en el backend al utilizar HTTPS.
+Publicar dist/consulta-lotes-front/browser y enrutar /api al backend en el mismo origen HTTPS. El proxy de desarrollo no forma parte de esa compilación. Configurar la cookie Secure en el backend al utilizar HTTPS.
 
 ## Verificación
 
-La compilación de producción fue verificada. Leaflet conserva su advertencia CommonJS. Este proyecto no tiene configurado un ejecutor de pruebas automatizadas de frontend.
+La compilación de producción y la consulta territorial en navegador fueron verificadas. Leaflet conserva su advertencia CommonJS y el paquete inicial supera el umbral de advertencia de 500 kB; la compilación termina correctamente. No hay ejecutor de tests de frontend configurado. El backend incorpora pruebas unitarias, de contratos, permisos y consultas espaciales sobre MySQL.
 
-Se probó en navegador contra MySQL temporal: acceso de administrador, creación de lote, lectura pública de sus datos y procedencia, rechazo de duplicados, edición, consulta de estadísticas y cierre de sesión. El backend incorpora pruebas automatizadas de estos contratos y permisos.
+### Historial, comparación e informes
+
+Las consultas del mapa con sesión iniciada generan un historial privado en MySQL. Mi espacio permite revisar copias históricas, comparar dos o tres parcelas guardadas con fuentes actuales y exportar informes HTML/JSON o imprimirlos como PDF desde el navegador. Las guardadas incluyen Ver informe. Las consultas anónimas siguen disponibles sin registro personal. No se modifican datos catastrales ni registros anteriores.
+
+Validar exportación: `node --test scripts/test-informe.cjs`. Compilar: `npm.cmd run build`.

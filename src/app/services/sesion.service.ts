@@ -14,6 +14,7 @@ export class SesionService {
   private api = inject(ApiService);
   private sesionSubject = new BehaviorSubject<SesionUsuario | null>(null);
   readonly sesion$ = this.sesionSubject.asObservable();
+  get actual():SesionUsuario|null { return this.sesionSubject.value; }
 
   async cargar(): Promise<SesionUsuario | null> {
     try {

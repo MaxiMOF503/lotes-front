@@ -1,0 +1,24 @@
+import {InformeTerritorial} from '../../models/espacio-territorial.model';
+import {ElementoTerritorial} from '../../models/territorio.model';
+export const etiquetas:Record<string,string>={nomenclatu:'Nomenclatura',zonificaci:'Zonificación publicada',suptotal:'Superficie publicada (m²)',frenmetros:'Frente publicado (m)',fos_max:'FOS máximo',codigo:'Código de zona',ordenanza:'Ordenanza'};
+export function parcelasInforme(i:InformeTerritorial):ElementoTerritorial[]{return i.parcelaId ? i.consulta.parcelas.filter(p=>String(p.id)===i.parcelaId) : i.consulta.parcelas;}
+export function filasParcela(p:ElementoTerritorial){
+ const orden=Object.keys(etiquetas);
+ return Object.entries(p.properties).sort(([a],[b])=>{
+  const ai=orden.indexOf(a),bi=orden.indexOf(b);return (ai<0?100:ai)-(bi<0?100:bi);
+ }).map(([k,v])=>({key:k,etiqueta:etiquetas[k]||k,valor:v===null||v===''?'Sin información publicada':String(v)}));
+}
+export function principalesParcela(p:ElementoTerritorial){return filasParcela(p).filter(f=>!!etiquetas[f.key]);}
+export function adicionalesParcela(p:ElementoTerritorial){return filasParcela(p).filter(f=>!etiquetas[f.key]);}
+export function fechaInforme(v:string):string{return new Date(v).toLocaleString('es-AR');}
+export function escapeHtml(v:unknown):string{return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));}
+export function documentoInforme(informes:InformeTerritorial[],imprimir=false):string{
+ const e=escapeHtml;
+ const secciones=informes.map((i,n)=>{
+  const c=i.consulta;
+  const parcelas=parcelasInforme(i).map(p=>`<section><h3>Parcela ${e(p.properties['nomenclatu']||p.id)}</h3><table><tbody>${filasParcela(p).map(f=>`<tr><th>${e(f.etiqueta)}</th><td>${e(f.valor)}</td></tr>`).join('')}</tbody></table></section>`).join('');
+  const aportes=i.aportes.filter(a=>!i.parcelaId||a.parcelaId===i.parcelaId).map(a=>`<section class="aporte"><h3>Información complementaria del equipo · ${e(a.parcelaId)}</h3><p>${e(a.ficha.direccion||'Sin dirección relevada')}</p><p class="multiline">${e(a.ficha.observaciones)}</p><p><b>Fuente:</b> ${e(a.ficha.fuente)}</p><p><b>Referencia:</b> ${e(a.ficha.referencia)}</p><p>Actualización: ${e(fechaInforme(a.ficha.actualizadoEn))}</p></section>`).join('');
+  return `<article><h2>${informes.length>1?'Comparación · '+(n+1):'Consulta territorial'}</h2><p class="meta">${i.historico?'Copia histórica':'Datos consultados al generar el informe'} · Consulta: ${e(fechaInforme(i.fechaConsulta))}<br>Documento generado: ${e(fechaInforme(i.generadoEn))}</p><p>Punto WGS84: ${e(c.latitud.toFixed(6))}, ${e(c.longitud.toFixed(6))}</p>${parcelas||'<p>Sin parcela identificada en el punto consultado.</p>'}${c.hayMasParcelas?'<p>Hay más coincidencias que las incluidas en esta consulta. Elegí un punto interior para precisar la parcela.</p>':''}<h3>Información de servicios en el punto</h3><table><tbody><tr><th>Radio general AYSAM</th><td>${c.dentroRadioAgua?'Dentro del radio publicado':'Fuera del radio publicado'}</td></tr><tr><th>Red eléctrica publicada</th><td>${c.electricidad.distanciaMetros===null?'Sin tramo encontrado dentro del radio':e(c.electricidad.distanciaMetros.toFixed(1))+' m al tramo más cercano'} · Radio: ${e(c.electricidad.radioBusquedaMetros)} m · Tipo: ${e(c.electricidad.tipo||'No informado')}</td></tr></tbody></table><p>${e(c.electricidad.alcance)}</p>${aportes}<h3>Fuentes y versión de la importación</h3><ul>${c.fuentes.map(f=>`<li><b>${e(f.capa)} · ${e(f.fuente)}</b><br>${e(f.url)}<br>Importado: ${e(f.importadoEn)}</li>`).join('')}</ul><aside>${e(c.advertencia)}</aside></article>`;
+ }).join('');
+ return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LoteSeguro · Informe territorial</title><style>body{font:15px/1.6 Arial,sans-serif;color:#1c3037;max-width:900px;margin:40px auto;padding:0 24px}header{border-bottom:3px solid #e3b932;padding-bottom:18px}h1{font-size:28px}h2{font-size:22px;margin-top:32px}h3{font-size:16px;margin-top:25px}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border-bottom:1px solid #dde5de;text-align:left;padding:9px;overflow-wrap:anywhere;vertical-align:top}th{width:37%;background:#f4f7f2}p,li{overflow-wrap:anywhere}.meta{font-size:12px;color:#62746a}.multiline{white-space:pre-wrap}aside,.aporte{padding:14px;background:#f8f4e7;border-left:3px solid #d9b342;margin:24px 0}li{margin:14px 0}@page{size:A4;margin:18mm}@media print{body{margin:0;padding:0;font-size:10pt}article+article{break-before:page}h2,h3{break-after:avoid}tr{break-inside:avoid}a{color:inherit}}</style></head><body><header><h1>LoteSeguro</h1><p>Informe de orientación territorial · Luján de Cuyo</p><small>No acredita dominio, habilitación ni factibilidad de servicios.</small></header>${secciones}${imprimir?'<script>window.addEventListener("load",()=>window.print());</script>':''}</body></html>`;
+}

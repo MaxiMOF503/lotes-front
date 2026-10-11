@@ -1,0 +1,54 @@
+<div class="notice error" *ngIf="error" role="alert">{{error}}</div>
+<div class="notice success" *ngIf="mensaje" role="status">{{mensaje}}</div>
+<div class="workspace" *ngIf="modo==='gestion'; else espacioUsuario">
+ <aside class="explorer">
+  <span class="eyebrow">CATASTRO REAL</span><h3>Encontrá una parcela</h3>
+  <p>Buscá por nomenclatura o seleccioná una parcela en el mapa público.</p>
+  <form (ngSubmit)="buscar()"><label for="nomenclatura">Nomenclatura catastral<input id="nomenclatura" name="nomenclatura" [(ngModel)]="consulta" inputmode="numeric" minlength="3" maxlength="30" placeholder="Ej. 060406" [disabled]="ocupado"></label><button class="primary" [disabled]="ocupado">{{ocupado?'Consultando…':'Buscar parcelas'}}</button></form>
+  <button type="button" class="link" (click)="irAlMapa()" [disabled]="ocupado">Seleccionar en el mapa ↗</button>
+  <div *ngIf="busco"><small class="list-caption">RESULTADOS · {{resultados.length}} EN ESTA PÁGINA</small>
+   <p class="empty" *ngIf="!resultados.length">Sin parcelas válidas con esa nomenclatura.</p>
+   <button type="button" class="result" *ngFor="let p of resultados" (click)="seleccionar(''+p.id)" [disabled]="ocupado" [class.selected]="parcela?.id===p.id"><span>⌖</span><div><strong>{{p.properties['nomenclatu'] || 'Sin nomenclatura'}}</strong><small>{{p.properties['zonificaci'] || 'Sin zonificación publicada'}}</small></div><span>›</span></button>
+   <div class="pagination"><button type="button" (click)="buscar(paginaBusqueda-1)" [disabled]="ocupado || !paginaBusqueda">← Anterior</button><span>{{paginaBusqueda+1}}</span><button type="button" (click)="buscar(paginaBusqueda+1)" [disabled]="ocupado || !hayMas">Siguiente →</button></div>
+  </div>
+  <div class="recent"><small class="list-caption">FICHAS COMPLEMENTARIAS · {{recientes.total}}</small>
+   <p class="empty" *ngIf="cargando">Cargando fichas…</p>
+   <p class="empty" *ngIf="!cargando && !recientes.items.length">Todavía no hay fichas trabajadas. Elegí una parcela real para comenzar.</p>
+   <button type="button" class="result" *ngFor="let f of recientes.items" (click)="seleccionar(f.parcelaId)" [disabled]="ocupado"><span>▤</span><div><strong>{{f.direccion || f.nomenclatura}}</strong><small>{{f.actualizadoEn | date:'dd/MM/yyyy HH:mm'}}</small></div></button>
+   <div class="pagination" *ngIf="recientes.totalPaginas>1"><button (click)="cargarLista(recientes.pagina-1)" [disabled]="cargando || !recientes.pagina">←</button><span>{{recientes.pagina+1}} / {{recientes.totalPaginas}}</span><button (click)="cargarLista(recientes.pagina+1)" [disabled]="cargando || recientes.pagina+1>=recientes.totalPaginas">→</button></div>
+  </div>
+ </aside>
+ <section class="detail" *ngIf="parcela as p; else seleccionVacia">
+  <header class="detail-head"><div><span class="eyebrow">PARCELA DE LA FUENTE IMPORTADA</span><h3>{{valor('nomenclatu')}}</h3><p>Los atributos originales se conservan sin modificaciones.</p></div><button type="button" (click)="irAlMapa()" [disabled]="ocupado">Ver en mapa ↗</button></header>
+  <div class="source-detail"><svg viewBox="0 0 300 190" role="img" aria-label="Contorno real de la parcela seleccionada"><path [attr.d]="contorno" fill-rule="evenodd"></path></svg>
+   <dl><div><dt>Zonificación publicada</dt><dd>{{valor('zonificaci')}}</dd></div><div><dt>Superficie publicada (m²)</dt><dd>{{valor('suptotal')}}</dd></div><div><dt>Frente publicado (m)</dt><dd>{{valor('frenmetros')}}</dd></div><div><dt>Ordenanza</dt><dd>{{valor('ordenanza')}}</dd></div><div><dt>FOS máximo</dt><dd>{{valor('fos_max')}}</dd></div><div><dt>Código de zona</dt><dd>{{valor('codigo')}}</dd></div></dl>
+  </div>
+  <form *ngIf="ficha as f" (ngSubmit)="guardar(editor)" #editor="ngForm" class="complement" novalidate>
+   <div class="form-heading"><span class="eyebrow">APORTE DEL EQUIPO</span><h4>Ficha complementaria</h4><p>Agregá información relevada y su respaldo. Este aporte aparece separado del catastro en la consulta pública.</p></div>
+   <p class="dirty" *ngIf="hayCambios">● Cambios sin guardar</p>
+   <fieldset [disabled]="ocupado">
+    <label>Dirección relevada<input name="direccion" [(ngModel)]="f.direccion" maxlength="255" placeholder="Calle, altura, barrio o referencia"></label>
+    <label>Observaciones<textarea name="observaciones" [(ngModel)]="f.observaciones" maxlength="2000" rows="4" placeholder="Información que aporte contexto a la consulta"></textarea><small>Se publicará en la ficha. Incluí solo información territorial pertinente.</small></label>
+    <div class="form-grid"><label>Fuente del aporte <span>Obligatoria</span><input name="fuente" [(ngModel)]="f.fuente" required maxlength="255" #fuente="ngModel" placeholder="Organismo, documento o relevamiento"><small class="error" *ngIf="fuente.touched && fuente.invalid">Completá la fuente.</small></label>
+     <label>Referencia documental <span>Obligatoria</span><textarea name="referencia" [(ngModel)]="f.referencia" required maxlength="1000" rows="2" #referencia="ngModel" placeholder="Expediente, enlace o referencia verificable"></textarea><small class="error" *ngIf="referencia.touched && referencia.invalid">Completá la referencia.</small></label></div>
+   </fieldset>
+   <div class="audit" *ngIf="f.actualizadoEn"><strong>Última actualización</strong><span>{{f.actualizadoEn | date:'dd/MM/yyyy HH:mm'}} · {{f.actualizadoPor}}</span></div>
+   <div class="form-actions"><button type="button" (click)="recargarFicha()" [disabled]="ocupado">Recargar ficha</button><button class="primary" [disabled]="ocupado || !hayCambios">{{ocupado?'Guardando…':'Guardar ficha complementaria'}}</button></div>
+  </form>
+ </section>
+ <ng-template #seleccionVacia><section class="detail empty-selection"><span class="compass">⌖</span><span class="eyebrow">GESTIÓN SOBRE DATOS REALES</span><h3>Empezá por una parcela</h3><p>Buscá su nomenclatura o abrila desde el mapa. Acá podés completar información sin reemplazar lo que publicó el catastro.</p><button type="button" class="primary" (click)="irAlMapa()" [disabled]="ocupado">Abrir mapa territorial →</button></section></ng-template>
+</div>
+<ng-template #espacioUsuario>
+ <section class="saved">
+  <header class="saved-head"><div><span class="eyebrow">TU ESPACIO PERSONAL</span><h3>Consultas guardadas <span class="count">{{guardadas.total}}</span></h3><p>Volvé a las parcelas que te interesan. Guardarlas no indica propiedad ni reserva.</p></div><button type="button" class="primary" (click)="irAlMapa()">Explorar el mapa →</button></header>
+  <p class="empty" *ngIf="cargando" role="status">Cargando tus guardadas…</p>
+  <div class="saved-empty" *ngIf="!cargando && !guardadas.items.length"><span>☆</span><h4>Tu próxima consulta puede quedar acá</h4><p>Seleccioná una parcela real en el mapa y presioná “Guardar consulta”. Se conservará en tu cuenta aunque cierres el navegador.</p></div>
+  <div class="saved-grid"><article *ngFor="let g of guardadas.items"><div class="saved-icon">⌖</div><small>PARCELA GUARDADA</small><h4>{{g.etiqueta || g.nomenclatura}}</h4><p>Nomenclatura {{g.nomenclatura}}</p><span>{{g.latitud | number:'1.5-5'}}, {{g.longitud | number:'1.5-5'}}</span><small>Guardada el {{g.creadaEn | date:'dd/MM/yyyy'}}</small><div class="saved-actions"><button type="button" (click)="abrirGuardada(g)">Consultar en mapa ↗</button><button type="button" (click)="abrirInforme(g)" [disabled]="ocupado">Ver informe</button><button type="button" class="remove" (click)="quitarPendiente=g" [disabled]="ocupado">Quitar</button></div></article></div>
+  <div class="pagination" *ngIf="guardadas.totalPaginas>1"><button (click)="cargarLista(guardadas.pagina-1)" [disabled]="cargando || !guardadas.pagina">← Anterior</button><span>{{guardadas.pagina+1}} / {{guardadas.totalPaginas}}</span><button (click)="cargarLista(guardadas.pagina+1)" [disabled]="cargando || guardadas.pagina+1>=guardadas.totalPaginas">Siguiente →</button></div>
+  <button type="button" class="link" (click)="cargarLista(guardadas.pagina)" [disabled]="cargando">Actualizar mis guardadas</button>
+ </section>
+</ng-template>
+<div class="modal-overlay" *ngIf="pendiente"><section class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="parcela-discard"><h3 id="parcela-discard">¿Descartar los cambios de la ficha?</h3><p>Todavía no guardaste este aporte. La información original del catastro se conserva.</p><div><button (click)="pendiente=null">Seguir editando</button><button class="primary" (click)="confirmar()">Descartar y continuar</button></div></section></div>
+<div class="modal-overlay" *ngIf="quitarPendiente"><section class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="guardada-quitar"><h3 id="guardada-quitar">¿Quitar esta consulta de tus guardadas?</h3><p>La parcela seguirá disponible en el mapa.</p><p class="error" role="alert" *ngIf="error">{{error}}</p><div><button (click)="quitarPendiente=null" [disabled]="ocupado">Cancelar</button><button class="primary" (click)="confirmarQuitar()" [disabled]="ocupado">Quitar de mis guardadas</button></div></section></div>
+
+<app-informe-parcelas *ngIf="informes as lista" [informes]="lista" (cerrar)="informes=null"></app-informe-parcelas>

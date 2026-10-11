@@ -1,3 +1,43 @@
+<ng-container *ngIf="territorial$ | async as consulta">
+  <section class="ficha-panel territorial-panel" *ngIf="consulta.estado !== 'vacio'" aria-live="polite" [attr.aria-busy]="consulta.estado === 'cargando'">
+    <header class="territorial-heading"><span>LUJÁN DE CUYO · DATOS PUBLICADOS</span><h2>Tu consulta territorial</h2><p>La parcela y su entorno, desde las fuentes del proyecto.</p></header>
+    <div class="estado-cargando" *ngIf="consulta.estado === 'cargando'"><div class="spinner"></div><p>Buscando la parcela y cruzando los servicios…</p></div>
+    <div class="territorial-error" *ngIf="consulta.estado === 'error'"><h3>No pudimos consultar este punto</h3><p>{{ consulta.error }}</p><button type="button" (click)="reintentarTerritorio()">Reintentar consulta</button></div>
+    <ng-container *ngIf="consulta.datos as datos">
+      <div class="territorial-coords"><span>PUNTO SELECCIONADO</span><strong>{{ datos.latitud | number:'1.5-5' }}, {{ datos.longitud | number:'1.5-5' }}</strong></div>
+      <div class="territorial-empty" *ngIf="!datos.parcelas.length"><h3>Sin parcela identificable</h3><p>Este punto no coincide con una parcela de geometría válida en el archivo importado. Probá dentro de los límites de una parcela; esto no indica que el terreno no exista.</p></div>
+      <p class="territorial-overlap" *ngIf="datos.parcelas.length > 1">Este punto coincide con {{ datos.parcelas.length }} parcelas, posiblemente por un límite compartido o superposición. Revisá sus nomenclaturas.</p>
+      <section class="territorial-parcel" *ngFor="let parcela of datos.parcelas">
+        <span class="territorial-tag">CATASTRO MUNICIPAL</span><h3>Parcela identificada</h3>
+        <div class="nomenclatura"><small>Nomenclatura catastral</small><strong>{{ valorParcela(parcela, 'nomenclatu') }}</strong></div>
+        <dl>
+          <div><dt>Zonificación publicada</dt><dd>{{ valorParcela(parcela, 'zonificaci') }}</dd></div>
+          <div><dt>Código de zona</dt><dd>{{ valorParcela(parcela, 'codigo') }}</dd></div>
+          <div><dt>Superficie publicada (m²)</dt><dd>{{ valorParcela(parcela, 'suptotal') }}</dd></div>
+          <div><dt>Frente publicado (m)</dt><dd>{{ valorParcela(parcela, 'frenmetros') }}</dd></div>
+          <div><dt>Posición en manzana</dt><dd>{{ valorParcela(parcela, 'tipo_lote') }}</dd></div>
+          <div><dt>FOS máximo publicado</dt><dd>{{ valorParcela(parcela, 'fos_max') }}</dd></div>
+          <div><dt>Ordenanza de referencia</dt><dd>{{ valorParcela(parcela, 'ordenanza') }}</dd></div>
+        </dl><p class="territorial-note">La fuente no informa titularidad ni carácter fiscal o privado de esta parcela.</p>
+        <app-acciones-parcela [parcela]="parcela" [consulta]="datos" (areaSolicitada)="areaSolicitada.emit()"></app-acciones-parcela>
+      </section>
+      <p class="territorial-overlap" *ngIf="datos.hayMasParcelas">Hay más de cinco parcelas coincidentes. Seleccioná un punto más preciso.</p>
+      <section class="territorial-service"><header><span class="service-icon water" aria-hidden="true">≈</span><div><small>AYSAM</small><h3>Área de servicio de agua</h3></div></header>
+        <strong class="service-status" [class.inside]="datos.dentroRadioAgua">{{ datos.dentroRadioAgua ? 'Dentro del radio publicado' : 'Fuera del radio publicado' }}</strong>
+        <p>Es el radio general de AYSAM, no la ubicación de las cañerías. {{ datos.dentroRadioAgua ? 'La conexión en este terreno debe confirmarse con el operador.' : 'Puede haber otros prestadores; consultá la disponibilidad local.' }}</p>
+      </section>
+      <section class="territorial-service"><header><span class="service-icon electric" aria-hidden="true">ϟ</span><div><small>EDEMSA</small><h3>Infraestructura eléctrica cercana</h3></div></header>
+        <div class="electric-distance" *ngIf="datos.electricidad.distanciaMetros !== null"><strong>{{ datos.electricidad.distanciaMetros | number:'1.0-1' }}<small> m</small></strong><span>al tramo publicado más cercano<br>{{ datos.electricidad.tipo }}</span></div>
+        <strong class="service-status" *ngIf="datos.electricidad.distanciaMetros === null">Sin tramos publicados a menos de {{ datos.electricidad.radioBusquedaMetros }} m</strong>
+        <p>{{ datos.electricidad.alcance }}</p>
+      </section>
+      <details class="territorial-sources"><summary>Fuentes y calidad de los datos</summary><article *ngFor="let fuente of datos.fuentes"><strong>{{ fuente.fuente }}</strong><small>{{ fuente.registros | number }} registros · Importación local: {{ fuente.importadoEn }}</small><small *ngIf="fuente.invalidos || fuente.sinGeometria">{{ fuente.sinGeometria }} sin geometría y {{ fuente.invalidos }} con geometría inválida; excluidos de la identificación por punto.</small><a [href]="fuente.url" target="_blank" rel="noopener noreferrer">Ver organismo de origen ↗</a></article></details>
+      <p class="territorial-disclaimer">{{ datos.advertencia }}</p>
+    </ng-container>
+  </section>
+</ng-container>
+
+<ng-container *ngIf="(territorial$ | async)?.estado === 'vacio'">
 <ng-container *ngIf="estado$ | async as estado">
 <ng-container *ngIf="ficha$ | async as ficha; else noFicha">
 
@@ -193,3 +233,5 @@
   </ng-container>
 </div>
 </ng-template>
+
+</ng-container>

@@ -1,3 +1,4 @@
+import { TerritorioService } from './territorio.service';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Subscription } from 'rxjs';
@@ -7,7 +8,7 @@ import { ApiService } from './api.service';
 export class LoteService {
   codigoErrorHttp: number | null = null;
   revisionConsulta = 0;
-  private http=inject(HttpClient);private api=inject(ApiService);private request?:Subscription;
+  private territorio=inject(TerritorioService);private http=inject(HttpClient);private api=inject(ApiService);private request?:Subscription;
   private fichaSubject=new BehaviorSubject<FichaLoteResponse|null>(null);
   private opcionesSubject=new BehaviorSubject<BusquedaDireccionResponse|null>(null);
   private estadoSubject=new BehaviorSubject<EstadoConsulta>('vacio');
@@ -36,7 +37,7 @@ export class LoteService {
       error:(e:HttpErrorResponse)=>this.registrarError(e)
     });
   }
-  private iniciarConsulta(){this.codigoErrorHttp=null;this.request?.unsubscribe();this.fichaSubject.next(null);this.opcionesSubject.next(null);this.errorSubject.next(null);this.estadoSubject.next('cargando');}
+  private iniciarConsulta(){this.territorio.limpiar();this.codigoErrorHttp=null;this.request?.unsubscribe();this.fichaSubject.next(null);this.opcionesSubject.next(null);this.errorSubject.next(null);this.estadoSubject.next('cargando');}
   private registrarError(e:HttpErrorResponse){this.codigoErrorHttp=e.status;this.errorSubject.next(this.api.error(e));this.estadoSubject.next(e.status===404?'sin-resultados':'error');}
-  limpiar(){this.revisionConsulta++;this.codigoErrorHttp=null;this.request?.unsubscribe();this.fichaSubject.next(null);this.opcionesSubject.next(null);this.estadoSubject.next('vacio');this.errorSubject.next(null);}
+  limpiar(){this.territorio.limpiar();this.revisionConsulta++;this.codigoErrorHttp=null;this.request?.unsubscribe();this.fichaSubject.next(null);this.opcionesSubject.next(null);this.estadoSubject.next('vacio');this.errorSubject.next(null);}
 }

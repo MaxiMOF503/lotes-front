@@ -1,6 +1,6 @@
 <section class="admin-shell">
   <div class="admin-heading">
-    <div class="heading-copy"><span class="eyebrow">CENTRO DE OPERACIONES</span><h2>Gestión territorial</h2><p>Administrá lotes, procedencia y actividad desde un único espacio seguro.</p><div class="heading-meta"><span><i></i>Datos trazables</span><span><i></i>Control por roles</span><span><i></i>Actualización directa</span></div></div>
+    <div class="heading-copy"><span class="eyebrow">CENTRO DE OPERACIONES</span><h2>{{sesion && !esAdmin?'Mi espacio':'Gestión territorial'}}</h2><p>{{sesion && !esAdmin?'Tus parcelas, historial e informes para consultar con más contexto.':'Parcelas reales, información relevada y procedencia en un mismo lugar.'}}</p><div class="heading-meta"><span><i></i>Datos trazables</span><span><i></i>Control por roles</span><span><i></i>Actualización directa</span></div></div>
     <div class="admin-visual" aria-hidden="true"><span class="visual-label">LUJÁN DE CUYO · MENDOZA</span><div class="admin-pin"><div class="admin-pin-face"><i></i></div></div><div class="admin-pin-shadow"></div></div>
   </div>
   <div class="notice loading" *ngIf="iniciando" role="status"><span class="mini-spinner"></span>Comprobando tu sesión…</div>
@@ -20,7 +20,7 @@
   <form *ngIf="!sesion && !iniciando && modoAcceso==='registro'" (ngSubmit)="registrar()" #registroForm="ngForm" class="login-card registration-card">
     <button type="button" class="registration-back" (click)="mostrarIngreso()" [disabled]="ocupado" aria-label="Volver al inicio de sesión"><span aria-hidden="true">←</span> Volver al ingreso</button>
     <div class="login-copy"><span class="login-icon" aria-hidden="true">＋</span><div><span class="eyebrow">NUEVA CUENTA</span><h3>Creá tu usuario</h3></div></div>
-    <p>Tu cuenta tendrá acceso de consulta. La edición de lotes queda reservada para administradores.</p>
+    <p>Tu cuenta permite guardar parcelas reales y volver a consultarlas. La edición territorial queda reservada para administradores.</p>
     <label>Nombre completo<input name="registroNombre" [(ngModel)]="registroNombre" required minlength="2" maxlength="150" autocomplete="name" placeholder="Tu nombre"></label>
     <label>Correo electrónico<input type="email" name="registroEmail" [(ngModel)]="registroEmail" required email maxlength="150" autocomplete="email" placeholder="nombre@correo.com"></label>
     <label>Contraseña<input type="password" name="registroPassword" [(ngModel)]="registroPassword" required minlength="12" maxlength="72" autocomplete="new-password" placeholder="Al menos 12 caracteres"></label>
@@ -35,14 +35,23 @@
     <div class="session-bar">
       <div class="avatar">{{actual.nombre.charAt(0) || actual.email.charAt(0)}}</div>
       <div class="identity"><small>SESIÓN ACTIVA</small><strong>{{actual.nombre}}</strong><span>{{actual.email}}</span></div>
-      <span class="role" [class.role-admin]="esAdmin">{{esAdmin?'Administrador':'Solo lectura'}}</span>
+      <span class="role" [class.role-admin]="esAdmin">{{esAdmin?'Administrador':'Usuario'}}</span>
       <button class="ghost" (click)="salir()" [disabled]="ocupado">Cerrar sesión</button>
     </div>
-    <div class="role-note" *ngIf="!esAdmin"><span>◉</span><div><strong>Acceso de consulta</strong><p>Podés revisar lotes y departamentos. La edición y las estadísticas están reservadas para administradores.</p></div></div>
+    <div class="role-note" *ngIf="!esAdmin"><span>◉</span><div><strong>Tu espacio personal</strong><p>Guardá parcelas, comparalas y descargá informes. Las consultas del mapa con sesión iniciada se conservan en tu historial privado.</p></div></div>
     <nav class="admin-tabs" aria-label="Área interna">
-      <button (click)="cambiarTab('lotes')" [attr.aria-pressed]="tab==='lotes'"><span>▦</span>{{esAdmin?'Mantenedor':'Lotes'}}</button>
+      <button *ngIf="esAdmin" (click)="cambiarTab('parcelas')" [attr.aria-pressed]="tab==='parcelas'"><span>⌖</span>Parcelas reales</button>
+      <button (click)="cambiarTab('guardadas')" [attr.aria-pressed]="tab==='guardadas'"><span>☆</span>Consultas guardadas</button>
+      <button (click)="cambiarTab('historial')" [attr.aria-pressed]="tab==='historial'"><span>◷</span>Historial</button>
+      <button (click)="cambiarTab('comparar')" [attr.aria-pressed]="tab==='comparar'"><span>⇄</span>Comparar parcelas</button>
+      <button (click)="cambiarTab('lotes')" [attr.aria-pressed]="tab==='lotes'"><span>▤</span>Registros anteriores</button>
       <button *ngIf="esAdmin" (click)="cambiarTab('estadisticas')" [attr.aria-pressed]="tab==='estadisticas'"><span>↗</span>Estadísticas</button>
     </nav>
+    <app-gestion-parcelas *ngIf="tab==='parcelas' && esAdmin" modo="gestion" (mapaSolicitado)="abrirMapa($event)"></app-gestion-parcelas>
+    <app-gestion-parcelas *ngIf="tab==='guardadas'" modo="guardadas" (mapaSolicitado)="abrirMapa($event)"></app-gestion-parcelas>
+    <app-actividad-parcelas *ngIf="tab==='historial'" modo="historial" (mapaSolicitado)="abrirMapa($event)"></app-actividad-parcelas>
+    <app-actividad-parcelas *ngIf="tab==='comparar'" modo="comparar" (mapaSolicitado)="abrirMapa($event)"></app-actividad-parcelas>
+    <div class="role-note" *ngIf="tab==='lotes'"><span>▤</span><div><strong>Registros independientes del catastro</strong><p>Se conservan los lotes cargados anteriormente. Los ejemplos mantienen su procedencia simulada. La nueva gestión de parcelas reales está en su propia sección.</p></div></div>
 
     <section *ngIf="tab==='lotes'" class="workspace">
       <aside class="lot-list">
@@ -108,7 +117,7 @@
   </ng-container>
   <div class="discard-overlay" *ngIf="accionPendiente" role="presentation">
     <div class="discard-dialog" role="alertdialog" aria-modal="true" aria-labelledby="discard-title" aria-describedby="discard-description">
-      <span class="discard-icon" aria-hidden="true">!</span><h3 id="discard-title">¿Descartar cambios?</h3><p id="discard-description">Hay datos del lote que todavía no guardaste. Si continuás, esos cambios se perderán.</p>
+      <span class="discard-icon" aria-hidden="true">!</span><h3 id="discard-title">¿Descartar cambios?</h3><p id="discard-description">Hay cambios de la ficha o del lote que todavía no guardaste. Si continuás, esos cambios se perderán.</p>
       <div class="discard-actions"><button type="button" class="ghost" (click)="cancelarDescarte()">Seguir editando</button><button type="button" class="discard-confirm" (click)="confirmarDescarte()">Descartar cambios</button></div>
     </div>
   </div>
