@@ -57,7 +57,13 @@
       <aside class="lot-list">
         <div class="section-head"><div><span class="eyebrow">INVENTARIO</span><h3>Lotes registrados</h3></div><span class="count">{{pagina.total}}</span></div>
         <button *ngIf="esAdmin" class="primary new-lot" (click)="nuevo()" [disabled]="ocupado"><span>＋</span> Nuevo lote</button>
-        <div class="empty-list" *ngIf="!pagina.items.length">No hay lotes en esta página.</div>
+        <div class="lot-filters" role="search">
+          <label>Identificador<input type="search" name="filtroIdentificador" [(ngModel)]="filtroIdentificador" (ngModelChange)="alCambiarFiltroTexto()" [disabled]="ocupado" placeholder="Buscar por identificador" autocomplete="off"></label>
+          <label>Dirección<input type="search" name="filtroDireccion" [(ngModel)]="filtroDireccion" (ngModelChange)="alCambiarFiltroTexto()" [disabled]="ocupado" placeholder="Buscar por dirección" autocomplete="off"></label>
+          <label>Departamento<select name="filtroDepartamentoId" [(ngModel)]="filtroDepartamentoId" (ngModelChange)="alCambiarFiltroDepartamento()" [disabled]="ocupado"><option [ngValue]="null">Todos</option><option *ngFor="let depto of departamentos" [ngValue]="depto.id">{{depto.nombre}}</option></select></label>
+          <button type="button" class="ghost clear-filters" (click)="limpiarFiltros()" [disabled]="ocupado || !hayFiltrosActivos">Limpiar filtros</button>
+        </div>
+        <div class="empty-list" *ngIf="!pagina.items.length">{{hayFiltrosActivos ? 'No hay lotes que coincidan con el filtro.' : 'No hay lotes en esta página.'}}</div>
         <button class="lot-card" *ngFor="let lote of pagina.items" (click)="editar(lote.id)" [class.selected]="id===lote.id" [disabled]="ocupado">
           <span class="lot-dot"></span><span><strong>{{lote.identificador}}</strong><small>{{lote.direccionAproximada || 'Sin dirección registrada'}}</small></span><span class="chevron">›</span>
         </button>

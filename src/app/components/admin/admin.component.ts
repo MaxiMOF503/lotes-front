@@ -6,6 +6,8 @@ import { Component, OnInit, inject, ChangeDetectorRef, HostListener, ViewChild }
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { ApiService } from '../../services/api.service';
 import { SesionService } from '../../services/sesion.service';
 import { LoteEdicion,LoteDetalle,PaginaLotes,Estadisticas,SesionUsuario,nuevoLote } from '../../models/admin.model';
@@ -26,6 +28,8 @@ export class AdminComponent implements OnInit {
   private datosGuardados=JSON.stringify(nuevoLote());
   tab:'parcelas'|'guardadas'|'historial'|'comparar'|'lotes'|'estadisticas'='parcelas';id:number|null=null;datos:LoteEdicion=nuevoLote();
   departamentos:{id:number;nombre:string}[]=[];pagina:PaginaLotes={items:[],pagina:0,totalPaginas:0,total:0};
+  filtroIdentificador='';filtroDireccion='';filtroDepartamentoId:number|null=null;
+  private filtroInput$=new Subject<void>();
   desde=new Date(Date.now()-6*86400000).toLocaleDateString('en-CA');hasta=new Date().toLocaleDateString('en-CA');
   estadisticas:Estadisticas|null=null;
   secciones=[{key:'procedenciaLote' as const,label:'Datos del lote'},{key:'procedenciaZonificacion' as const,label:'Zonificación'},
@@ -38,6 +42,7 @@ export class AdminComponent implements OnInit {
   cerrarConfirmacionConEscape(){if(this.loteAEliminar)this.cancelarEliminacion();else if(this.accionPendiente)this.cancelarDescarte();}
   ngOnInit(){
     this.sesionService.sesion$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(s => { this.sesion=s; this.cd.markForCheck(); });
+    this.filtroInput$.pipe(debounceTime(300),takeUntilDestroyed(this.destroyRef)).subscribe(() => { void this.operar(() => this.cargar(0)); });
     this.inicializar();
   }
   private async inicializar(){
@@ -68,9 +73,17 @@ export class AdminComponent implements OnInit {
   }
   salir(){this.solicitarDescarte(()=>{void this.operar(async()=>{await this.sesionService.salir();this.tab='parcelas';this.reiniciarEditor();this.estadisticas=null;});});}
   async cargar(pagina=0){
-    [this.pagina,this.departamentos]=await Promise.all([this.api.get<PaginaLotes>('/admin/lotes?pagina='+pagina),this.api.get<{id:number;nombre:string}[]>('/admin/departamentos')]);
+    const params=new URLSearchParams({pagina:String(pagina)});
+    if(this.filtroIdentificador.trim())params.set('identificador',this.filtroIdentificador.trim());
+    if(this.filtroDireccion.trim())params.set('direccion',this.filtroDireccion.trim());
+    if(this.filtroDepartamentoId!==null)params.set('departamentoId',String(this.filtroDepartamentoId));
+    [this.pagina,this.departamentos]=await Promise.all([this.api.get<PaginaLotes>('/admin/lotes?'+params.toString()),this.api.get<{id:number;nombre:string}[]>('/admin/departamentos')]);
   }
   async cambiarPagina(pagina:number){await this.operar(()=>this.cargar(pagina));}
+  alCambiarFiltroTexto(){this.filtroInput$.next();}
+  async alCambiarFiltroDepartamento(){await this.operar(()=>this.cargar(0));}
+  get hayFiltrosActivos(){return !!this.filtroIdentificador.trim() || !!this.filtroDireccion.trim() || this.filtroDepartamentoId!==null;}
+  async limpiarFiltros(){if(!this.hayFiltrosActivos)return;this.filtroIdentificador='';this.filtroDireccion='';this.filtroDepartamentoId=null;await this.operar(()=>this.cargar(0));}
   nuevo(){if(!this.esAdmin)return;this.solicitarDescarte(()=>this.reiniciarEditor());}
   editar(id:number){if(id===this.id)return;this.solicitarDescarte(()=>{void this.operar(async()=>{const lote=await this.api.get<LoteDetalle>('/admin/lotes/'+id);this.id=lote.id;this.datos=lote.datos;this.marcarGuardado();this.limpiarEstadoEditor();});});}
   cambiarTab(tab:'parcelas'|'guardadas'|'historial'|'comparar'|'lotes'|'estadisticas'){if(!this.esAdmin && (tab==='parcelas'||tab==='estadisticas'))return;if(tab===this.tab)return;this.solicitarDescarte(()=>{if(tab==='estadisticas' && this.hayCambios)this.reiniciarEditor();this.tab=tab;if(tab==='lotes')void this.operar(()=>this.cargar());});}
