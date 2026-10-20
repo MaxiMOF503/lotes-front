@@ -20,8 +20,8 @@ const PASOS: PasoIntro[] = [
     circular: true
   },
   {
-    titulo: 'Buscá por identificador o coordenadas',
-    texto: 'Escribí acá el identificador del lote, o elegí buscar por coordenadas exactas.',
+    titulo: 'Buscá por nomenclatura o dirección',
+    texto: 'Escribí acá la nomenclatura catastral de la parcela, o elegí buscar por dirección.',
     selector: '.buscador'
   },
   {

@@ -1,6 +1,7 @@
 import { AccionesParcelaComponent } from '../acciones-parcela/acciones-parcela.component';
 import { TerritorioService } from '../../services/territorio.service';
-import { ElementoTerritorial } from '../../models/territorio.model';
+import { ConsultaTerritorial, ElementoTerritorial, OrigenConsulta } from '../../models/territorio.model';
+import { ProcedenciaResponse } from '../../models/ficha-lote.model';
 import { Component, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoteService } from '../../services/lote.service';
@@ -8,7 +9,7 @@ import { BadgeProcedenciaComponent } from '../badge-procedencia/badge-procedenci
 
 /**
  * Panel lateral de consulta de lotes registrados y parcelas reales.
- * Se suscribe al LoteService vía observables y usa el pipe async.
+ * Se suscribe al LoteService y al TerritorioService vía observables y usa el pipe async.
  */
 @Component({
   selector: 'app-ficha-lote',
@@ -22,10 +23,25 @@ export class FichaLoteComponent {
   private loteService = inject(LoteService);
   private territorio = inject(TerritorioService);
   readonly territorial$ = this.territorio.estado$;
+  readonly busquedaParcelas$ = this.territorio.busqueda$;
+  readonly origen$ = this.territorio.origen$;
   reintentarTerritorio(): void { this.territorio.reintentar(); }
+  abrirParcela(parcela: ElementoTerritorial): void { this.territorio.abrirParcela(parcela); }
   valorParcela(parcela: ElementoTerritorial, campo: string): string {
     const valor = parcela.properties?.[campo];
     return valor === null || valor === undefined || String(valor).trim() === '' ? 'Sin información' : String(valor);
+  }
+  conUnidad(parcela: ElementoTerritorial, campo: string, unidad: string): string {
+    const valor = this.valorParcela(parcela, campo);
+    return valor === 'Sin información' ? valor : valor + ' ' + unidad;
+  }
+  criterio(origen: OrigenConsulta, datos: ConsultaTerritorial): string {
+    return origen.tipo === 'nomenclatura' ? 'Nomenclatura ' + origen.nomenclatura
+      : `Punto del mapa (${datos.latitud.toFixed(5)}, ${datos.longitud.toFixed(5)})`;
+  }
+  /** Las capas territoriales son publicaciones oficiales; la fuente sale de la importación consultada. */
+  procedencia(datos: ConsultaTerritorial, capa: string): ProcedenciaResponse {
+    return { tipo: 'OFICIAL', fuente: datos.fuentes.find(f => f.capa === capa)?.fuente ?? null, oficial: true };
   }
 
   readonly ficha$ = this.loteService.ficha$;

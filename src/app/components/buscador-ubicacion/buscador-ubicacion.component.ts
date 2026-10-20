@@ -5,11 +5,12 @@ import { Subject, Subscription, combineLatest, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { LoteService } from '../../services/lote.service';
 import { AsistenteService } from '../../services/asistente.service';
+import { TerritorioService } from '../../services/territorio.service';
 import { OpcionDireccion } from '../../models/ficha-lote.model';
 
 /**
- * Buscador público por identificador o dirección. El mapa conserva la consulta por coordenadas.
- * Llama directamente al LoteService para realizar la consulta.
+ * Buscador público por nomenclatura catastral (parcelas reales) o por dirección (lotes registrados).
+ * El mapa conserva la consulta por coordenadas.
  */
 @Component({
   selector: 'app-buscador-ubicacion',
@@ -21,8 +22,8 @@ import { OpcionDireccion } from '../../models/ficha-lote.model';
 export class BuscadorUbicacionComponent implements OnDestroy {
   private elementRef = inject(ElementRef);
 
-  modoBusqueda: 'identificador' | 'direccion' = 'identificador';
-  identificador = '';
+  modoBusqueda: 'nomenclatura' | 'direccion' = 'nomenclatura';
+  nomenclatura = '';
   direccion = '';
   aviso: string | null = null;
   entradaInvalida = false;
@@ -38,7 +39,7 @@ export class BuscadorUbicacionComponent implements OnDestroy {
   private direccionInput$ = new Subject<string>();
   private suscripcion: Subscription;
 
-  constructor(private loteService: LoteService, private asistente: AsistenteService) {
+  constructor(private loteService: LoteService, private asistente: AsistenteService, private territorio: TerritorioService) {
     this.suscripcion = this.direccionInput$.pipe(
       debounceTime(300),
       distinctUntilChanged(),
@@ -66,6 +67,14 @@ export class BuscadorUbicacionComponent implements OnDestroy {
       } else if (estado === 'error') {
         this.entradaInvalida = this.loteService.codigoErrorHttp === 400;
         this.aviso = this.entradaInvalida && error ? error : 'No se pudo realizar la búsqueda. Intentá nuevamente';
+      }
+    }));
+    this.suscripcion.add(this.territorio.busqueda$.subscribe(busqueda => {
+      if (!this.consultaDelCampo || this.modoBusqueda !== 'nomenclatura') return;
+      if (busqueda.estado === 'sin-resultados') {
+        this.aviso = 'No se encontraron parcelas con esa nomenclatura';
+      } else if (busqueda.estado === 'error') {
+        this.aviso = busqueda.error || 'No se pudo realizar la búsqueda. Intentá nuevamente';
       }
     }));
   }
@@ -127,17 +136,19 @@ export class BuscadorUbicacionComponent implements OnDestroy {
   buscar(): void {
     this.onCampoEditado();
     this.cerrarSugerencias();
-    if (this.modoBusqueda === 'identificador') {
-      const id = this.identificador.trim();
-      if (id) {
-        this.consultaDelCampo = true;
-        this.revisionConsultaDelCampo = this.loteService.revisionConsulta + 1;
-        this.loteService.consultarPorIdentificador(id);
-        this.asistente.activarBusqueda();
-      } else {
-        this.aviso = 'Ingresá un identificador del lote';
+    if (this.modoBusqueda === 'nomenclatura') {
+      // Se aceptan espacios, puntos o guiones al pegarla; el catastro la publica solo con dígitos.
+      const digitos = this.nomenclatura.replace(/[\s.\-]/g, '');
+      if (!/^[0-9]{3,30}$/.test(digitos)) {
+        this.aviso = digitos ? 'La nomenclatura lleva solo números: ingresá entre 3 y 30 dígitos' : 'Ingresá la nomenclatura catastral';
         this.entradaInvalida = true;
+        return;
       }
+      this.nomenclatura = digitos;
+      this.loteService.limpiar();
+      this.consultaDelCampo = true;
+      this.territorio.buscarPorNomenclatura(digitos);
+      this.asistente.activarBusqueda();
     } else if (this.direccion.trim().length >= 3) {
       this.consultaDelCampo = true;
       this.revisionConsultaDelCampo = this.loteService.revisionConsulta + 1;
@@ -155,7 +166,7 @@ export class BuscadorUbicacionComponent implements OnDestroy {
     this.consultaDelCampo = false;
   }
 
-  cambiarModo(modo: 'identificador' | 'direccion'): void {
+  cambiarModo(modo: 'nomenclatura' | 'direccion'): void {
     this.onCampoEditado();
     this.cerrarSugerencias();
     this.modoBusqueda = modo;
@@ -163,7 +174,7 @@ export class BuscadorUbicacionComponent implements OnDestroy {
 
   limpiar(): void {
     this.onCampoEditado();
-    this.identificador = '';
+    this.nomenclatura = '';
     this.direccion = '';
     this.cerrarSugerencias();
     this.loteService.limpiar();
