@@ -55,6 +55,9 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
           style: { color: '#17674c', weight: 3, fillColor: '#36a77d', fillOpacity: 0.2 }
         }).addTo(this.map);
         if (this.map.getZoom() < 15) this.map.setView([estado.datos.latitud, estado.datos.longitud], 17);
+        // Una parcela buscada por nomenclatura puede estar fuera de la vista actual: llevar el mapa hasta ella.
+        else if (!this.map.getBounds().contains(this.seleccionParcela.getBounds()))
+          this.map.fitBounds(this.seleccionParcela.getBounds(), { maxZoom: 18, padding: [40, 40] });
       }
     });
     this.bloqueoSuscripcion = this.asistente.bloqueoInteracciones$.subscribe(bloquear => {
