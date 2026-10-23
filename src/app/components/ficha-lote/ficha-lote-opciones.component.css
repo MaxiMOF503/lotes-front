@@ -10,3 +10,4 @@
 .opcion-lote small { margin-top: 4px; color: var(--muted); font-size: .68rem; }
 .opcion-lote em { display: inline-block; margin-top: 7px; padding: 3px 7px; border-radius: 5px; background: #fff2d6; color: #76521a; font-size: .62rem; font-style: normal; font-weight: 700; }
 .estado-opciones .mas-opciones { margin-top: 13px; font-size: .68rem; }
+.estado-opciones .aviso-aproximado { padding: 10px 12px; border-left: 3px solid var(--gold); border-radius: 8px; background: #fff6dc; color: #76500e; }

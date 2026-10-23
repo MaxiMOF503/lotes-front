@@ -27,7 +27,9 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
   ];
   private map!: L.Map;
   private seleccionParcela?: L.GeoJSON;
+  private candidatas?: L.LayerGroup;
   private consultaSuscripcion?: Subscription;
+  private busquedaSuscripcion?: Subscription;
   private fuentesSuscripcion?: Subscription;
   private refresco?: ReturnType<typeof setTimeout>;
   private marcadorSeleccion: L.Marker | null = null;
@@ -60,6 +62,20 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
           this.map.fitBounds(this.seleccionParcela.getBounds(), { maxZoom: 18, padding: [40, 40] });
       }
     });
+    // Búsqueda por dirección: el punto aproximado de Georef y las parcelas cercanas para elegir, con borde punteado.
+    this.busquedaSuscripcion = this.territorio.busqueda$.subscribe(busqueda => {
+      if (this.candidatas) { this.map.removeLayer(this.candidatas); this.candidatas = undefined; }
+      if (busqueda.estado !== 'opciones' || busqueda.tipo !== 'direccion' || !busqueda.punto) return;
+      const parcelas = L.geoJSON(busqueda.items, {
+        pane: 'parcela-seleccionada', interactive: false,
+        style: { color: '#c47f00', weight: 2.5, dashArray: '6 5', fillColor: '#f5b700', fillOpacity: 0.12 }
+      });
+      const punto = L.circleMarker([busqueda.punto.latitud, busqueda.punto.longitud], {
+        pane: 'parcela-seleccionada', radius: 7, color: '#ffffff', weight: 2, fillColor: '#c47f00', fillOpacity: 1
+      }).bindTooltip(busqueda.texto + ' (aproximada)', { direction: 'top', offset: [0, -8] });
+      this.candidatas = L.layerGroup([parcelas, punto]).addTo(this.map);
+      this.map.fitBounds(parcelas.getBounds().extend(punto.getLatLng()), { maxZoom: 19, padding: [40, 40] });
+    });
     this.bloqueoSuscripcion = this.asistente.bloqueoInteracciones$.subscribe(bloquear => {
       if (bloquear && !this.interaccionesPrevias) {
         const handlers = [this.map.dragging, this.map.scrollWheelZoom, this.map.touchZoom,
@@ -74,6 +90,7 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.bloqueoSuscripcion?.unsubscribe();
     this.consultaSuscripcion?.unsubscribe();
+    this.busquedaSuscripcion?.unsubscribe();
     this.fuentesSuscripcion?.unsubscribe();
     this.capas.forEach(c => c.request?.unsubscribe());
     if (this.refresco) clearTimeout(this.refresco);

@@ -1,6 +1,6 @@
 import { AccionesParcelaComponent } from '../acciones-parcela/acciones-parcela.component';
 import { TerritorioService } from '../../services/territorio.service';
-import { ConsultaTerritorial, ElementoTerritorial, OrigenConsulta } from '../../models/territorio.model';
+import { ConsultaTerritorial, DireccionOficial, ElementoTerritorial, EstadoBusquedaParcelas, OrigenConsulta } from '../../models/territorio.model';
 import { ProcedenciaResponse } from '../../models/ficha-lote.model';
 import { Component, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -26,7 +26,10 @@ export class FichaLoteComponent {
   readonly busquedaParcelas$ = this.territorio.busqueda$;
   readonly origen$ = this.territorio.origen$;
   reintentarTerritorio(): void { this.territorio.reintentar(); }
-  abrirParcela(parcela: ElementoTerritorial): void { this.territorio.abrirParcela(parcela); }
+  abrirParcela(parcela: ElementoTerritorial, busqueda?: EstadoBusquedaParcelas): void {
+    this.territorio.abrirParcela(parcela, busqueda?.tipo === 'direccion' ? { tipo: 'direccion', texto: busqueda.texto } : undefined);
+  }
+  elegirDireccion(direccion: DireccionOficial, advertencia: string | null): void { this.territorio.elegirDireccion(direccion, advertencia); }
   valorParcela(parcela: ElementoTerritorial, campo: string): string {
     const valor = parcela.properties?.[campo];
     return valor === null || valor === undefined || String(valor).trim() === '' ? 'Sin información' : String(valor);
@@ -36,8 +39,9 @@ export class FichaLoteComponent {
     return valor === 'Sin información' ? valor : valor + ' ' + unidad;
   }
   criterio(origen: OrigenConsulta, datos: ConsultaTerritorial): string {
-    return origen.tipo === 'nomenclatura' ? 'Nomenclatura ' + origen.nomenclatura
-      : `Punto del mapa (${datos.latitud.toFixed(5)}, ${datos.longitud.toFixed(5)})`;
+    if (origen.tipo === 'nomenclatura') return 'Nomenclatura ' + origen.nomenclatura;
+    if (origen.tipo === 'direccion') return origen.texto + ' (ubicación aproximada)';
+    return `Punto del mapa (${datos.latitud.toFixed(5)}, ${datos.longitud.toFixed(5)})`;
   }
   /** Las capas territoriales son publicaciones oficiales; la fuente sale de la importación consultada. */
   procedencia(datos: ConsultaTerritorial, capa: string): ProcedenciaResponse {
