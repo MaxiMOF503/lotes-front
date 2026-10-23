@@ -1,15 +1,15 @@
 import { Component, ElementRef, HostListener, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Subject, Subscription, combineLatest, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
+import { Subject, Subscription, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, catchError, map } from 'rxjs/operators';
 import { LoteService } from '../../services/lote.service';
 import { AsistenteService } from '../../services/asistente.service';
 import { TerritorioService } from '../../services/territorio.service';
-import { OpcionDireccion } from '../../models/ficha-lote.model';
+import { DireccionOficial } from '../../models/territorio.model';
 
 /**
- * Buscador público por nomenclatura catastral (parcelas reales) o por dirección (lotes registrados).
+ * Buscador público de parcelas reales: por nomenclatura catastral o por dirección (Georef y direcciones relevadas).
  * El mapa conserva la consulta por coordenadas.
  */
 @Component({
@@ -28,10 +28,9 @@ export class BuscadorUbicacionComponent implements OnDestroy {
   aviso: string | null = null;
   entradaInvalida = false;
   private consultaDelCampo = false;
-  private revisionConsultaDelCampo = 0;
 
-  sugerencias: OpcionDireccion[] = [];
-  hayMasSugerencias = false;
+  sugerencias: DireccionOficial[] = [];
+  private advertenciaSugerencias: string | null = null;
   mostrarSugerencias = false;
   indiceActivo = -1;
   buscandoSugerencias = false;
@@ -40,39 +39,30 @@ export class BuscadorUbicacionComponent implements OnDestroy {
   private suscripcion: Subscription;
 
   constructor(private loteService: LoteService, private asistente: AsistenteService, private territorio: TerritorioService) {
+    // Cada sugerencia consulta Georef: se espera a que la persona deje de escribir.
     this.suscripcion = this.direccionInput$.pipe(
-      debounceTime(300),
+      debounceTime(350),
       distinctUntilChanged(),
       switchMap(texto => {
         this.buscandoSugerencias = true;
-        return this.loteService.sugerirDirecciones(texto).pipe(
-          catchError(() => of({ opciones: [], hayMas: false }))
+        return this.territorio.sugerirDirecciones(texto).pipe(
+          map(r => ({ resultados: r.resultados, advertencia: r.advertencia as string | null })),
+          catchError(() => of({ resultados: [] as DireccionOficial[], advertencia: null }))
         );
       })
     ).subscribe(resultado => {
       this.buscandoSugerencias = false;
-      this.sugerencias = resultado.opciones;
-      this.hayMasSugerencias = resultado.hayMas;
+      this.sugerencias = resultado.resultados;
+      this.advertenciaSugerencias = resultado.advertencia;
       this.indiceActivo = -1;
       this.mostrarSugerencias = this.sugerencias.length > 0;
     });
-    this.suscripcion.add(combineLatest([this.loteService.estado$, this.loteService.error$]).subscribe(([estado, error]) => {
-      if (estado === 'cargando' || estado === 'cargado' || estado === 'opciones' || estado === 'vacio') {
-        this.aviso = null;
-        this.entradaInvalida = false;
-      }
-      if (!this.consultaDelCampo || this.revisionConsultaDelCampo !== this.loteService.revisionConsulta) return;
-      if (estado === 'sin-resultados') {
-        this.aviso = 'No se encontraron lotes para esta búsqueda';
-      } else if (estado === 'error') {
-        this.entradaInvalida = this.loteService.codigoErrorHttp === 400;
-        this.aviso = this.entradaInvalida && error ? error : 'No se pudo realizar la búsqueda. Intentá nuevamente';
-      }
-    }));
     this.suscripcion.add(this.territorio.busqueda$.subscribe(busqueda => {
-      if (!this.consultaDelCampo || this.modoBusqueda !== 'nomenclatura') return;
+      if (!this.consultaDelCampo || busqueda.tipo !== this.modoBusqueda) return;
       if (busqueda.estado === 'sin-resultados') {
-        this.aviso = 'No se encontraron parcelas con esa nomenclatura';
+        this.aviso = busqueda.tipo === 'nomenclatura' ? 'No se encontraron parcelas con esa nomenclatura'
+          : busqueda.punto ? 'No hay parcelas del catastro cerca de esa dirección'
+          : 'No encontramos esa dirección en Luján de Cuyo';
       } else if (busqueda.estado === 'error') {
         this.aviso = busqueda.error || 'No se pudo realizar la búsqueda. Intentá nuevamente';
       }
@@ -111,13 +101,13 @@ export class BuscadorUbicacionComponent implements OnDestroy {
     }
   }
 
-  elegirSugerencia(opcion: OpcionDireccion): void {
+  elegirSugerencia(opcion: DireccionOficial): void {
     this.onCampoEditado();
-    this.direccion = opcion.direccionAproximada || this.direccion;
+    this.direccion = opcion.texto || this.direccion;
     this.cerrarSugerencias();
+    this.loteService.limpiar();
     this.consultaDelCampo = true;
-    this.revisionConsultaDelCampo = this.loteService.revisionConsulta + 1;
-    this.loteService.seleccionarOpcion(opcion.identificador);
+    this.territorio.elegirDireccion(opcion, this.advertenciaSugerencias);
     this.asistente.activarBusqueda();
   }
 
@@ -150,9 +140,9 @@ export class BuscadorUbicacionComponent implements OnDestroy {
       this.territorio.buscarPorNomenclatura(digitos);
       this.asistente.activarBusqueda();
     } else if (this.direccion.trim().length >= 3) {
+      this.loteService.limpiar();
       this.consultaDelCampo = true;
-      this.revisionConsultaDelCampo = this.loteService.revisionConsulta + 1;
-      this.loteService.consultarPorDireccion(this.direccion.trim());
+      this.territorio.buscarPorDireccion(this.direccion.trim());
       this.asistente.activarBusqueda();
     } else {
       this.aviso = 'Ingresá al menos 3 caracteres para buscar por dirección';
