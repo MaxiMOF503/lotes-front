@@ -4,12 +4,11 @@ import { ConsultaTerritorial, DireccionOficial, ElementoTerritorial, EstadoBusqu
 import { ProcedenciaResponse } from '../../models/ficha-lote.model';
 import { Component, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LoteService } from '../../services/lote.service';
 import { BadgeProcedenciaComponent } from '../badge-procedencia/badge-procedencia.component';
 
 /**
- * Panel lateral de consulta de lotes registrados y parcelas reales.
- * Se suscribe al LoteService y al TerritorioService vía observables y usa el pipe async.
+ * Panel lateral de consulta de parcelas reales del catastro.
+ * Se suscribe al TerritorioService vía observables y usa el pipe async.
  */
 @Component({
   selector: 'app-ficha-lote',
@@ -20,7 +19,6 @@ import { BadgeProcedenciaComponent } from '../badge-procedencia/badge-procedenci
 })
 export class FichaLoteComponent {
   @Output() areaSolicitada = new EventEmitter<void>();
-  private loteService = inject(LoteService);
   private territorio = inject(TerritorioService);
   readonly territorial$ = this.territorio.estado$;
   readonly busquedaParcelas$ = this.territorio.busqueda$;
@@ -46,14 +44,5 @@ export class FichaLoteComponent {
   /** Las capas territoriales son publicaciones oficiales; la fuente sale de la importación consultada. */
   procedencia(datos: ConsultaTerritorial, capa: string): ProcedenciaResponse {
     return { tipo: 'OFICIAL', fuente: datos.fuentes.find(f => f.capa === capa)?.fuente ?? null, oficial: true };
-  }
-
-  readonly ficha$ = this.loteService.ficha$;
-  readonly opciones$ = this.loteService.opciones$;
-  readonly estado$ = this.loteService.estado$;
-  readonly error$ = this.loteService.error$;
-
-  seleccionarOpcion(identificador: string): void {
-    this.loteService.seleccionarOpcion(identificador);
   }
 }

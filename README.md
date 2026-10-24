@@ -2,7 +2,7 @@
 
 [![Frontend CI](https://github.com/MaxiMOF503/lotes-front/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/MaxiMOF503/lotes-front/actions/workflows/frontend-ci.yml)
 
-Angular 19 con Leaflet, conectado al backend lotes-back. Conserva consulta pública, registro, sesiones, permisos, mantenedor y estadísticas, y agrega consulta de las capas territoriales reales desde el mapa existente.
+Angular 19 con Leaflet, conectado al backend lotes-back. Ofrece consulta pública de parcelas reales del catastro, registro, sesiones, permisos y estadísticas.
 
 ## Instalar en otra PC
 
@@ -24,18 +24,17 @@ proxy.conf.json envía /api a http://127.0.0.1:8080. Si cambia el puerto del bac
 
 ## Funcionalidades
 
-El área interna abre Mi espacio para usuarios (consultas guardadas en su cuenta) y Parcelas reales para administradores (búsqueda por nomenclatura y fichas complementarias con fuente, referencia y control de versión). Registros anteriores conserva el mantenedor original. La documentación del backend en docs/area-interna-real.md explica los contratos.
+El área interna abre Mi espacio para usuarios (consultas guardadas en su cuenta) y Parcelas reales para administradores (búsqueda por nomenclatura y fichas complementarias con fuente, referencia y control de versión). Ya no existe el mantenedor de lotes de demostración: la aplicación trabaja solo con datos oficiales importados. La documentación del backend en docs/area-interna-real.md explica los contratos.
 
-- Consulta pública por identificador o dirección de lotes registrados.
+- Consulta pública por nomenclatura catastral o por dirección (calles de Georef, con parcelas cercanas para elegir).
 - Selección de parcelas reales en el mapa, con nomenclatura y atributos publicados, radio general de AYSAM y cercanía de tramos eléctricos.
 - Capas reales de catastro, electricidad y agua, limitadas a la ventana visible. Catastro requiere zoom 15 y electricidad zoom 12. Si falta información o hay demasiados elementos, la interfaz lo indica.
 - Procedencia y límites visibles: el radio de agua y una línea eléctrica próxima no confirman conexión ni factibilidad; los datos catastrales no acreditan titularidad.
 - Registro de usuarios normales, inicio/cierre de sesión y lectura interna según rol.
-- Administración: listado paginado, alta, edición y eliminación/desactivación según el contrato existente, departamentos y procedencia documental.
-- Validaciones y errores del servidor, incluidos identificadores repetidos.
+- Administración de fichas complementarias de parcelas reales, con fuente, referencia documental y control de versión.
 - Estadísticas por fechas, totales y detalle diario de visitas y consultas.
 
-El mapa trabaja con la captura importada en la base local. El buscador por dirección y el mantenedor trabajan con lotes registrados; las parcelas no contienen domicilios fiables ni se convierten automáticamente en registros del mantenedor. Una instalación nueva puede tener el mantenedor vacío y las capas reales completas.
+El mapa trabaja con la captura importada en la base local. Las parcelas del catastro no contienen domicilios fiables: por eso la búsqueda por dirección usa Georef y muestra las parcelas cercanas al punto aproximado para que el usuario elija la suya.
 
 Las estadísticas no identifican personas ni representan visitantes únicos. Una visita corresponde a cargar la aplicación; las consultas territoriales cuentan como consultas por coordenadas. Mover el mapa o activar capas no aumenta las consultas.
 
