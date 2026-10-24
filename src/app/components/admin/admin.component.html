@@ -44,72 +44,12 @@
       <button (click)="cambiarTab('guardadas')" [attr.aria-pressed]="tab==='guardadas'"><span>☆</span>Consultas guardadas</button>
       <button (click)="cambiarTab('historial')" [attr.aria-pressed]="tab==='historial'"><span>◷</span>Historial</button>
       <button (click)="cambiarTab('comparar')" [attr.aria-pressed]="tab==='comparar'"><span>⇄</span>Comparar parcelas</button>
-      <button (click)="cambiarTab('lotes')" [attr.aria-pressed]="tab==='lotes'"><span>▤</span>Registros anteriores</button>
       <button *ngIf="esAdmin" (click)="cambiarTab('estadisticas')" [attr.aria-pressed]="tab==='estadisticas'"><span>↗</span>Estadísticas</button>
     </nav>
     <app-gestion-parcelas *ngIf="tab==='parcelas' && esAdmin" modo="gestion" (mapaSolicitado)="abrirMapa($event)"></app-gestion-parcelas>
     <app-gestion-parcelas *ngIf="tab==='guardadas'" modo="guardadas" (mapaSolicitado)="abrirMapa($event)"></app-gestion-parcelas>
     <app-actividad-parcelas *ngIf="tab==='historial'" modo="historial" (mapaSolicitado)="abrirMapa($event)"></app-actividad-parcelas>
     <app-actividad-parcelas *ngIf="tab==='comparar'" modo="comparar" (mapaSolicitado)="abrirMapa($event)"></app-actividad-parcelas>
-    <div class="role-note" *ngIf="tab==='lotes'"><span>▤</span><div><strong>Registros independientes del catastro</strong><p>Se conservan los lotes cargados anteriormente. Los ejemplos mantienen su procedencia simulada. La nueva gestión de parcelas reales está en su propia sección.</p></div></div>
-
-    <section *ngIf="tab==='lotes'" class="workspace">
-      <aside class="lot-list">
-        <div class="section-head"><div><span class="eyebrow">INVENTARIO</span><h3>Lotes registrados</h3></div><span class="count">{{pagina.total}}</span></div>
-        <button *ngIf="esAdmin" class="primary new-lot" (click)="nuevo()" [disabled]="ocupado"><span>＋</span> Nuevo lote</button>
-        <div class="lot-filters" role="search">
-          <label>Identificador<input type="search" name="filtroIdentificador" [(ngModel)]="filtroIdentificador" (ngModelChange)="alCambiarFiltroTexto()" [disabled]="ocupado" placeholder="Buscar por identificador" autocomplete="off"></label>
-          <label>Dirección<input type="search" name="filtroDireccion" [(ngModel)]="filtroDireccion" (ngModelChange)="alCambiarFiltroTexto()" [disabled]="ocupado" placeholder="Buscar por dirección" autocomplete="off"></label>
-          <label>Departamento<select name="filtroDepartamentoId" [(ngModel)]="filtroDepartamentoId" (ngModelChange)="alCambiarFiltroDepartamento()" [disabled]="ocupado"><option [ngValue]="null">Todos</option><option *ngFor="let depto of departamentos" [ngValue]="depto.id">{{depto.nombre}}</option></select></label>
-          <button type="button" class="ghost clear-filters" (click)="limpiarFiltros()" [disabled]="ocupado || !hayFiltrosActivos">Limpiar filtros</button>
-        </div>
-        <div class="empty-list" *ngIf="!pagina.items.length">{{hayFiltrosActivos ? 'No hay lotes que coincidan con el filtro.' : 'No hay lotes en esta página.'}}</div>
-        <button class="lot-card" *ngFor="let lote of pagina.items" (click)="editar(lote.id)" [class.selected]="id===lote.id" [disabled]="ocupado">
-          <span class="lot-dot"></span><span><strong>{{lote.identificador}}</strong><small>{{lote.direccionAproximada || 'Sin dirección registrada'}}</small></span><span class="chevron">›</span>
-        </button>
-        <div class="pagination"><span>Página {{pagina.pagina+1}} de {{pagina.totalPaginas || 1}}</span><div><button aria-label="Página anterior" (click)="cambiarPagina(pagina.pagina-1)" [disabled]="ocupado || pagina.pagina===0">←</button><button aria-label="Página siguiente" (click)="cambiarPagina(pagina.pagina+1)" [disabled]="ocupado || pagina.pagina+1>=pagina.totalPaginas">→</button></div></div>
-      </aside>
-
-      <form class="editor" (ngSubmit)="guardar(form)" (input)="alEditar()" (change)="alEditar()" #form="ngForm" novalidate>
-        <div class="editor-head"><div><span class="eyebrow">{{esAdmin?'EDICIÓN':'DETALLE'}}</span><h3>{{id===null?(esAdmin?'Crear lote':'Seleccioná un lote'):(esAdmin?'Editar lote':'Ficha interna')}}</h3><p class="editor-intro" *ngIf="esAdmin">Completá los campos marcados como obligatorios. Los demás pueden quedar vacíos si aún no tenés el dato.</p></div><span class="status-chip" *ngIf="id!==null">ID interno {{id}}</span></div>
-        <p class="editor-feedback success" *ngIf="mensaje && esAdmin" role="status">✓ {{mensaje}}</p>
-        <p class="editor-feedback error" *ngIf="guardarError" role="alert">{{guardarError}}</p>
-        <p class="editor-dirty" *ngIf="hayCambios && esAdmin">● Hay cambios sin guardar</p>
-        <fieldset [disabled]="ocupado || !esAdmin"><legend>Identificación y ubicación</legend>
-          <p class="section-help">Identificá el lote y ubicá un punto de referencia en el mapa.</p>
-          <div class="form-grid">
-            <label class="span-2">Identificador <span class="required-badge">Obligatorio</span><input name="identificador" [(ngModel)]="datos.identificador" #identificadorCtrl="ngModel" (ngModelChange)="limpiarErrorCampo('identificador')" required maxlength="100" placeholder="Ej. LOT-2026-001" [attr.aria-invalid]="!!mensajeCampo('identificador',identificadorCtrl)"><small class="field-validation" *ngIf="mensajeCampo('identificador',identificadorCtrl)">{{mensajeCampo('identificador',identificadorCtrl)}}</small></label>
-            <label>Departamento<select name="departamento" [(ngModel)]="datos.departamentoId" (ngModelChange)="limpiarErrorCampo('departamentoId')"><option [ngValue]="null">Sin departamento</option><option *ngFor="let d of departamentos" [ngValue]="d.id">{{d.nombre}}</option></select><small class="field-hint">Elegí uno si conocés la ubicación administrativa.</small><small class="field-validation" *ngIf="erroresCampo['departamentoId']">{{erroresCampo['departamentoId']}}</small></label>
-            <label>Dirección aproximada<input name="direccion" [(ngModel)]="datos.direccionAproximada" #direccionCtrl="ngModel" (ngModelChange)="limpiarErrorCampo('direccionAproximada')" maxlength="255" placeholder="Calle, barrio o referencia cercana"><small class="field-validation" *ngIf="mensajeCampo('direccionAproximada',direccionCtrl)">{{mensajeCampo('direccionAproximada',direccionCtrl)}}</small></label>
-            <label>Latitud <span class="required-badge">Obligatorio</span><input type="number" name="latitud" [(ngModel)]="datos.latitud" #latitudCtrl="ngModel" (ngModelChange)="limpiarErrorCampo('latitud')" required min="-90" max="90" step="any" placeholder="Entre -90 y 90" [attr.aria-invalid]="!!mensajeCampo('latitud',latitudCtrl)"><small class="field-validation" *ngIf="mensajeCampo('latitud',latitudCtrl)">{{mensajeCampo('latitud',latitudCtrl)}}</small></label>
-            <label>Longitud <span class="required-badge">Obligatorio</span><input type="number" name="longitud" [(ngModel)]="datos.longitud" #longitudCtrl="ngModel" (ngModelChange)="limpiarErrorCampo('longitud')" required min="-180" max="180" step="any" placeholder="Entre -180 y 180" [attr.aria-invalid]="!!mensajeCampo('longitud',longitudCtrl)"><small class="field-validation" *ngIf="mensajeCampo('longitud',longitudCtrl)">{{mensajeCampo('longitud',longitudCtrl)}}</small></label>
-          </div>
-        </fieldset>
-        <fieldset [disabled]="ocupado || !esAdmin"><legend>Zonificación y servicios</legend>
-          <p class="section-help">Registrá el uso del suelo y la disponibilidad de servicios, incluso si todavía no están verificados.</p>
-          <div class="form-grid">
-            <label class="span-2">Zonificación<input name="zonificacion" [(ngModel)]="datos.zonificacion" #zonificacionCtrl="ngModel" (ngModelChange)="limpiarErrorCampo('zonificacion')" [required]="datos.zonificacionVerificada" maxlength="255" placeholder="Descripción de zonificación, si se conoce"><small class="field-validation" *ngIf="mensajeCampo('zonificacion',zonificacionCtrl)">{{mensajeCampo('zonificacion',zonificacionCtrl)}}</small></label>
-            <label>Distancia a red eléctrica (m)<input type="number" name="distancia" [(ngModel)]="datos.distanciaRedElectricaMts" #distanciaCtrl="ngModel" (ngModelChange)="limpiarErrorCampo('distanciaRedElectricaMts')" min="0" step="any" placeholder="Distancia estimada, si se conoce"><small class="field-validation" *ngIf="mensajeCampo('distanciaRedElectricaMts',distanciaCtrl)">{{mensajeCampo('distanciaRedElectricaMts',distanciaCtrl)}}</small></label>
-            <div class="toggles" role="group" aria-label="Estado de servicios y zonificación">
-              <label class="toggle"><input type="checkbox" name="verificada" [(ngModel)]="datos.zonificacionVerificada" (ngModelChange)="limpiarErrorCampo('zonificacionVerificada')"><span></span>Zonificación verificada</label>
-              <label class="toggle"><input type="checkbox" name="electricidad" [(ngModel)]="datos.tieneAccesoElectricidad"><span></span>Acceso a electricidad</label>
-              <label class="toggle"><input type="checkbox" name="agua" [(ngModel)]="datos.tieneCoberturaAgua"><span></span>Cobertura de agua</label>
-            </div>
-          </div>
-          <p class="field-validation" *ngIf="erroresCampo['zonificacionVerificada']">{{erroresCampo['zonificacionVerificada']}}</p>
-        </fieldset>
-        <div class="provenance-heading"><h4>Fuentes y procedencia</h4><p>Para cada dato, indicá de dónde proviene. Una fuente oficial necesita referencia documental.</p></div>
-        <div class="provenance-grid">
-          <fieldset *ngFor="let seccion of secciones" [disabled]="ocupado || !esAdmin"><legend>{{seccion.label}}</legend>
-            <label>Procedencia<select [name]="seccion.key+'tipo'" [(ngModel)]="datos[seccion.key].tipo" (ngModelChange)="limpiarErrorCampo(seccion.key+'.tipo')"><option value="NO_VERIFICADO">No verificado</option><option value="SIMULADO">Simulado</option><option value="OFICIAL">Oficial</option></select><small class="field-validation" *ngIf="erroresCampo[seccion.key+'.tipo']">{{erroresCampo[seccion.key+'.tipo']}}</small></label>
-            <label>Fuente <span class="required-badge">Obligatorio</span><input [name]="seccion.key+'fuente'" [(ngModel)]="datos[seccion.key].fuente" #fuenteCtrl="ngModel" (ngModelChange)="limpiarErrorCampo(seccion.key+'.fuente')" required maxlength="255" placeholder="Organismo, documento u origen del dato"><small class="field-validation" *ngIf="mensajeCampo(seccion.key+'.fuente',fuenteCtrl)">{{mensajeCampo(seccion.key+'.fuente',fuenteCtrl)}}</small></label>
-            <label>Referencia <span class="required-badge" *ngIf="datos[seccion.key].tipo==='OFICIAL'">Obligatoria si es oficial</span><textarea [name]="seccion.key+'referencia'" [(ngModel)]="datos[seccion.key].referencia" #referenciaCtrl="ngModel" (ngModelChange)="limpiarErrorCampo(seccion.key+'.referencia')" [required]="datos[seccion.key].tipo==='OFICIAL'" maxlength="1000" placeholder="Enlace, expediente o referencia verificable"></textarea><small class="field-validation" *ngIf="mensajeCampo(seccion.key+'.referencia',referenciaCtrl)">{{mensajeCampo(seccion.key+'.referencia',referenciaCtrl)}}</small></label>
-          </fieldset>
-        </div>
-        <div class="editor-footer" *ngIf="esAdmin"><p>Los datos oficiales requieren una referencia documental. Lo escrito permanece aquí si falla el guardado.</p><div class="editor-actions"><button type="button" class="delete-lot" *ngIf="id!==null" (click)="abrirEliminacion()" [disabled]="ocupado">Eliminar lote</button><button class="primary" [disabled]="ocupado">{{ocupado?'Guardando…':id===null?'Crear lote':'Guardar cambios'}} <span>✓</span></button></div></div>
-      </form>
-    </section>
-
     <section *ngIf="tab==='estadisticas' && esAdmin" class="analytics">
       <div class="analytics-head"><div><span class="eyebrow">ANÁLISIS DE ACTIVIDAD</span><h3>Uso de la consulta pública</h3><p>Métricas agregadas y anónimas. Una visita representa una carga de página.</p></div>
         <form class="date-filter" (ngSubmit)="consultarEstadisticas()" #filtro="ngForm"><label>Desde<input type="date" name="desde" [(ngModel)]="desde" required></label><label>Hasta<input type="date" name="hasta" [(ngModel)]="hasta" required></label><button class="primary" [disabled]="ocupado || filtro.invalid">{{ocupado?'Consultando…':'Actualizar'}}</button></form>
@@ -123,16 +63,8 @@
   </ng-container>
   <div class="discard-overlay" *ngIf="accionPendiente" role="presentation">
     <div class="discard-dialog" role="alertdialog" aria-modal="true" aria-labelledby="discard-title" aria-describedby="discard-description">
-      <span class="discard-icon" aria-hidden="true">!</span><h3 id="discard-title">¿Descartar cambios?</h3><p id="discard-description">Hay cambios de la ficha o del lote que todavía no guardaste. Si continuás, esos cambios se perderán.</p>
+      <span class="discard-icon" aria-hidden="true">!</span><h3 id="discard-title">¿Descartar cambios?</h3><p id="discard-description">Hay cambios de la ficha que todavía no guardaste. Si continuás, esos cambios se perderán.</p>
       <div class="discard-actions"><button type="button" class="ghost" (click)="cancelarDescarte()">Seguir editando</button><button type="button" class="discard-confirm" (click)="confirmarDescarte()">Descartar cambios</button></div>
-    </div>
-  </div>
-  <div class="discard-overlay" *ngIf="loteAEliminar as lote" role="presentation">
-    <div class="discard-dialog delete-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-title" aria-describedby="delete-description">
-      <span class="discard-icon" aria-hidden="true">!</span><h3 id="delete-title">¿Eliminar este lote?</h3><p id="delete-description"><strong>{{lote.identificador}}</strong> dejará de aparecer en el mantenedor y en la consulta pública. No podrás restaurarlo desde esta página.</p>
-      <p *ngIf="hayCambios" class="delete-unsaved">Los cambios que todavía no guardaste también se perderán.</p>
-      <p *ngIf="eliminarError" class="editor-feedback error" role="alert">{{eliminarError}}</p>
-      <div class="discard-actions"><button type="button" class="ghost" (click)="cancelarEliminacion()" [disabled]="ocupado">Cancelar</button><button type="button" class="discard-confirm" (click)="confirmarEliminacion()" [disabled]="ocupado">{{ocupado?'Eliminando…':'Sí, eliminar lote'}}</button></div>
     </div>
   </div>
 </section>

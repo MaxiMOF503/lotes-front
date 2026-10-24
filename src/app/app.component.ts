@@ -9,7 +9,6 @@ import { SplashScreenComponent } from './components/splash-screen/splash-screen.
 import { AsistenteComponent } from './components/asistente/asistente.component';
 import { AsistenteService } from './services/asistente.service';
 import { TerritorioService } from './services/territorio.service';
-import { LoteService } from './services/lote.service';
 import { SesionService } from './services/sesion.service';
 import { SesionUsuario } from './models/admin.model';
 
@@ -30,7 +29,7 @@ export class AppComponent implements OnInit {
   menuAbierto=false;
   sesion: SesionUsuario | null = null;
 
-  constructor(private loteService: LoteService,private api:ApiService,private asistente:AsistenteService,private sesionService:SesionService, private territorio:TerritorioService) {
+  constructor(private api:ApiService,private asistente:AsistenteService,private sesionService:SesionService, private territorio:TerritorioService) {
     api.write('POST','/public/v1/visitas').catch(()=>{});
   }
 
@@ -77,13 +76,13 @@ export class AppComponent implements OnInit {
     this.puntoMapa=punto;
     this.administracion=false;
     if(punto){
-      this.loteService.limpiar();
+      this.territorio.limpiar();
       this.territorio.consultar(punto.latitud,punto.longitud);
     }
   }
 
   onUbicacionSeleccionada(coords: { lat: number; lng: number }): void {
-    this.loteService.limpiar();
+    this.territorio.limpiar();
     this.territorio.consultar(coords.lat, coords.lng);
   }
 

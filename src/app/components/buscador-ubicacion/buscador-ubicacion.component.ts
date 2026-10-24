@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, catchError, map } from 'rxjs/operators';
-import { LoteService } from '../../services/lote.service';
 import { AsistenteService } from '../../services/asistente.service';
 import { TerritorioService } from '../../services/territorio.service';
 import { DireccionOficial } from '../../models/territorio.model';
@@ -38,7 +37,7 @@ export class BuscadorUbicacionComponent implements OnDestroy {
   private direccionInput$ = new Subject<string>();
   private suscripcion: Subscription;
 
-  constructor(private loteService: LoteService, private asistente: AsistenteService, private territorio: TerritorioService) {
+  constructor(private asistente: AsistenteService, private territorio: TerritorioService) {
     // Cada sugerencia consulta Georef: se espera a que la persona deje de escribir.
     this.suscripcion = this.direccionInput$.pipe(
       debounceTime(350),
@@ -105,7 +104,7 @@ export class BuscadorUbicacionComponent implements OnDestroy {
     this.onCampoEditado();
     this.direccion = opcion.texto || this.direccion;
     this.cerrarSugerencias();
-    this.loteService.limpiar();
+    this.territorio.limpiar();
     this.consultaDelCampo = true;
     this.territorio.elegirDireccion(opcion, this.advertenciaSugerencias);
     this.asistente.activarBusqueda();
@@ -135,12 +134,12 @@ export class BuscadorUbicacionComponent implements OnDestroy {
         return;
       }
       this.nomenclatura = digitos;
-      this.loteService.limpiar();
+      this.territorio.limpiar();
       this.consultaDelCampo = true;
       this.territorio.buscarPorNomenclatura(digitos);
       this.asistente.activarBusqueda();
     } else if (this.direccion.trim().length >= 3) {
-      this.loteService.limpiar();
+      this.territorio.limpiar();
       this.consultaDelCampo = true;
       this.territorio.buscarPorDireccion(this.direccion.trim());
       this.asistente.activarBusqueda();
@@ -167,6 +166,6 @@ export class BuscadorUbicacionComponent implements OnDestroy {
     this.nomenclatura = '';
     this.direccion = '';
     this.cerrarSugerencias();
-    this.loteService.limpiar();
+    this.territorio.limpiar();
   }
 }
