@@ -1,5 +1,7 @@
 # LoteSeguro · frontend
 
+[![Frontend CI](https://github.com/MaxiMOF503/lotes-front/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/MaxiMOF503/lotes-front/actions/workflows/frontend-ci.yml)
+
 Angular 19 con Leaflet, conectado al backend lotes-back. Conserva consulta pública, registro, sesiones, permisos, mantenedor y estadísticas, y agrega consulta de las capas territoriales reales desde el mapa existente.
 
 ## Instalar en otra PC
@@ -49,7 +51,21 @@ Publicar dist/consulta-lotes-front/browser y enrutar /api al backend en el mismo
 
 ## Verificación
 
-La compilación de producción y la consulta territorial en navegador fueron verificadas. Leaflet conserva su advertencia CommonJS y el paquete inicial supera el umbral de advertencia de 500 kB; la compilación termina correctamente. No hay ejecutor de tests de frontend configurado. El backend incorpora pruebas unitarias, de contratos, permisos y consultas espaciales sobre MySQL.
+El workflow [Frontend CI](.github/workflows/frontend-ci.yml) ejecuta los mismos controles en cada Pull Request y push a `main`, con Node.js 22 y una instalación reproducible basada en `package-lock.json`. Para reproducirlos localmente:
+
+```powershell
+npm.cmd ci
+npm.cmd run verify
+```
+
+También se pueden ejecutar por separado:
+
+```powershell
+npm.cmd test
+npm.cmd run build
+```
+
+La prueba automatizada disponible valida el exportador de informes. Todavía no existe una suite Angular de componentes ni pruebas E2E; estas últimas se incorporarán al workflow cuando se complete la issue #35. Leaflet conserva su advertencia CommonJS y el paquete inicial supera el umbral de advertencia de 500 kB; la compilación termina correctamente.
 
 ### Historial, comparación e informes
 
