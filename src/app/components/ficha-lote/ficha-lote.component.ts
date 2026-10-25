@@ -19,7 +19,7 @@ import { EstadoOperacionComponent } from '../estado-operacion/estado-operacion.c
   styleUrls: ['./ficha-lote.component.css', './ficha-lote-opciones.component.css', './ficha-territorial.component.css']
 })
 export class FichaLoteComponent {
-  @Output() areaSolicitada = new EventEmitter<void>();
+  @Output() areaSolicitada = new EventEmitter<void|'reportes'>();
   private territorio = inject(TerritorioService);
   readonly territorial$ = this.territorio.estado$;
   readonly busquedaParcelas$ = this.territorio.busqueda$;

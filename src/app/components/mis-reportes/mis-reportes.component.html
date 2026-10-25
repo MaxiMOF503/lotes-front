@@ -1,0 +1,16 @@
+<section class="reports-shell">
+  <header><div><span class="eyebrow">PARTICIPACIÓN Y CALIDAD</span><h3>Mis reportes</h3><p>Seguí los datos que marcaste para revisión y las respuestas del equipo.</p></div><span class="total" *ngIf="pagina">{{pagina.total}} {{pagina.total===1?'reporte':'reportes'}}</span></header>
+  <app-estado-operacion *ngIf="cargando" tipo="cargando" titulo="Cargando tus reportes" mensaje="Estamos consultando el estado más reciente."></app-estado-operacion>
+  <app-estado-operacion *ngIf="error" tipo="error" titulo="No pudimos cargar tus reportes" [mensaje]="error" accion="Reintentar" (accionSolicitada)="cargar(pagina?.pagina || 0)"></app-estado-operacion>
+  <app-estado-operacion *ngIf="!cargando && !error && pagina && !pagina.items.length" tipo="vacio" titulo="Todavía no enviaste reportes" mensaje="Desde la ficha de una parcela podés avisar si encontrás un dato faltante o incorrecto."></app-estado-operacion>
+  <div class="report-list" *ngIf="!cargando && !error && pagina?.items?.length">
+    <article *ngFor="let reporte of pagina!.items">
+      <div class="report-top"><div><small>REPORTE #{{reporte.id}} · {{reporte.creadoEn | date:'dd/MM/yyyy HH:mm'}}</small><h4>{{reporte.nomenclatura || reporte.parcelaId}}</h4></div><span class="status" [attr.data-status]="reporte.estado" [class.descartado]="reporte.estado==='DESCARTADO'">{{estado(reporte.estado)}}</span></div>
+      <div class="tags"><span>{{seccion(reporte.seccion)}}</span><span>{{tipo(reporte.tipo)}}</span></div>
+      <p class="description">{{reporte.descripcion}}</p>
+      <div class="answer" *ngIf="reporte.respuesta; else waiting"><span>RESPUESTA DEL EQUIPO</span><p>{{reporte.respuesta}}</p><small *ngIf="reporte.respondidoEn">Respondido el {{reporte.respondidoEn | date:'dd/MM/yyyy HH:mm'}}</small></div>
+      <ng-template #waiting><div class="waiting"><i></i><span>{{reporte.estado==='EN_REVISION'?'El equipo está revisando este reporte.':'Te avisaremos acá cuando el equipo responda.'}}</span></div></ng-template>
+    </article>
+  </div>
+  <nav class="pagination" *ngIf="pagina && pagina.totalPaginas>1" aria-label="Páginas de reportes"><button type="button" (click)="cargar(pagina.pagina-1)" [disabled]="cargando || pagina.pagina===0">← Anterior</button><span>Página {{pagina.pagina+1}} de {{pagina.totalPaginas}}</span><button type="button" (click)="cargar(pagina.pagina+1)" [disabled]="cargando || pagina.pagina+1>=pagina.totalPaginas">Siguiente →</button></nav>
+</section>

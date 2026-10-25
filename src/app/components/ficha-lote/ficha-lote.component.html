@@ -37,7 +37,7 @@
           </div>
         </div>
         <p class="territorial-note">La fuente no informa titularidad ni carácter fiscal o privado de esta parcela.</p>
-        <app-acciones-parcela [parcela]="parcela" [consulta]="datos" (areaSolicitada)="areaSolicitada.emit()"></app-acciones-parcela>
+        <app-acciones-parcela [parcela]="parcela" [consulta]="datos" (areaSolicitada)="areaSolicitada.emit($event)"></app-acciones-parcela>
       </ng-container>
       <p class="territorial-overlap" *ngIf="datos.hayMasParcelas">Hay más de cinco parcelas coincidentes. Seleccioná un punto más preciso.</p>
 

@@ -17,3 +17,4 @@
 <ng-template #ingresar><div class="save-invite"><p>Guardá esta parcela para consultarla después.</p><button type="button" (click)="areaSolicitada.emit()">Ingresar para guardar →</button></div></ng-template>
 <app-estado-operacion *ngIf="mensaje" tipo="exito" titulo="Consulta guardada" [mensaje]="mensaje" [compacto]="true"></app-estado-operacion>
 <app-estado-operacion *ngIf="error" tipo="error" titulo="No pudimos guardar la consulta" [mensaje]="error" [compacto]="true"></app-estado-operacion>
+<app-reportar-dato [parcela]="parcela" (areaSolicitada)="areaSolicitada.emit($event)"></app-reportar-dato>
