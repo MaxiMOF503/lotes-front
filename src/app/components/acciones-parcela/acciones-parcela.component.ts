@@ -7,8 +7,9 @@ import {FichaPublica} from '../../models/espacio-territorial.model';
 import {EspacioTerritorialService} from '../../services/espacio-territorial.service';
 import {SesionService} from '../../services/sesion.service';
 import {ApiService} from '../../services/api.service';
+import {EstadoOperacionComponent} from '../estado-operacion/estado-operacion.component';
 
-@Component({selector:'app-acciones-parcela',standalone:true,imports:[CommonModule],
+@Component({selector:'app-acciones-parcela',standalone:true,imports:[CommonModule,EstadoOperacionComponent],
  templateUrl:'./acciones-parcela.component.html',styleUrl:'./acciones-parcela.component.css'})
 export class AccionesParcelaComponent implements OnChanges,OnDestroy {
  @Input({required:true}) parcela!:ElementoTerritorial;
@@ -21,10 +22,14 @@ export class AccionesParcelaComponent implements OnChanges,OnDestroy {
  private request?:Subscription;private revision=0;
  ngOnChanges(){
    this.revision++;this.mensaje='';this.error='';this.ficha=null;this.cargando=true;this.errorFicha='';
+   this.cargarFicha();
+ }
+ cargarFicha(){
+   this.cargando=true;this.errorFicha='';
    this.request?.unsubscribe();
    this.request=this.http.get<FichaPublica|null>('/api/public/v1/territorio/parcelas/'+encodeURIComponent(String(this.parcela.id))+'/ficha').subscribe({
      next:f=>{this.ficha=f;this.cargando=false;this.cd.markForCheck();},
-     error:()=>{this.errorFicha='No pudimos cargar los aportes del equipo.';this.cargando=false;this.cd.markForCheck();}
+     error:e=>{this.errorFicha=this.api.error(e);this.cargando=false;this.cd.markForCheck();}
    });
  }
  ngOnDestroy(){this.revision++;this.request?.unsubscribe();}

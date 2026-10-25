@@ -1,8 +1,8 @@
 <ng-container *ngIf="territorial$ | async as consulta">
   <section class="ficha-panel territorial-panel" *ngIf="consulta.estado !== 'vacio'" aria-live="polite" [attr.aria-busy]="consulta.estado === 'cargando'">
     <header class="territorial-heading"><span>LUJÁN DE CUYO · DATOS PUBLICADOS</span><h2>Tu consulta territorial</h2><p>La parcela y su entorno, desde las fuentes oficiales del proyecto.</p></header>
-    <div class="estado-cargando" *ngIf="consulta.estado === 'cargando'"><div class="spinner"></div><p>Buscando la parcela y cruzando los servicios…</p></div>
-    <div class="territorial-error" *ngIf="consulta.estado === 'error'"><h3>No pudimos consultar este punto</h3><p>{{ consulta.error }}</p><button type="button" (click)="reintentarTerritorio()">Reintentar consulta</button></div>
+    <app-estado-operacion *ngIf="consulta.estado === 'cargando'" tipo="cargando" titulo="Consultando el territorio" mensaje="Buscando la parcela y cruzando los servicios publicados."></app-estado-operacion>
+    <app-estado-operacion *ngIf="consulta.estado === 'error'" tipo="error" titulo="No pudimos consultar este punto" [mensaje]="consulta.error || 'No se pudo completar la consulta.'" accion="Reintentar consulta" (accionSolicitada)="reintentarTerritorio()"></app-estado-operacion>
     <ng-container *ngIf="consulta.datos as datos">
       <div class="advertencia">⚠️ {{ datos.advertencia }}</div>
       <div class="seccion criterio" *ngIf="origen$ | async as origen">
@@ -82,10 +82,7 @@
 <ng-container *ngIf="(territorial$ | async)?.estado === 'vacio'">
 <ng-container *ngIf="busquedaParcelas$ | async as busqueda">
 <div class="ficha-panel" *ngIf="busqueda.estado !== 'vacio'" aria-live="polite" [attr.aria-busy]="busqueda.estado === 'cargando'">
-  <div class="estado-cargando" *ngIf="busqueda.estado === 'cargando'">
-    <div class="spinner"></div>
-    <p>{{ busqueda.tipo === 'direccion' ? 'Buscando la dirección y las parcelas cercanas...' : 'Buscando parcelas en el catastro...' }}</p>
-  </div>
+  <app-estado-operacion *ngIf="busqueda.estado === 'cargando'" tipo="cargando" titulo="Buscando parcelas" [mensaje]="busqueda.tipo === 'direccion' ? 'Buscando la dirección y las parcelas cercanas.' : 'Consultando la nomenclatura en el catastro.'"></app-estado-operacion>
 
   <div class="estado-opciones" *ngIf="busqueda.estado === 'direcciones'">
     <span class="opciones-kicker">COINCIDENCIAS POR DIRECCIÓN</span>
@@ -120,27 +117,14 @@
     <p class="mas-opciones" *ngIf="busqueda.hayMas">Hay más coincidencias. Escribí más dígitos de la nomenclatura para acotar la búsqueda.</p>
   </div>
 
-  <div class="estado-sin-resultados" *ngIf="busqueda.estado === 'sin-resultados'">
-    <div class="icono-estado">🔍</div>
-    <h3>Sin resultados</h3>
-    <p *ngIf="busqueda.tipo === 'nomenclatura'">No encontramos parcelas cuya nomenclatura empiece con {{ busqueda.texto }}. Revisá los dígitos o hacé clic sobre la parcela en el mapa.</p>
-    <p *ngIf="busqueda.tipo === 'direccion' && !busqueda.punto">No encontramos "{{ busqueda.texto }}" en Luján de Cuyo. Probá con calle y número, o con "calle esquina calle".</p>
-    <p *ngIf="busqueda.tipo === 'direccion' && busqueda.punto">No hay parcelas del catastro a menos de {{ busqueda.radioMetros }} m de esa dirección. Acercá el mapa y hacé clic sobre tu parcela.</p>
-  </div>
+  <app-estado-operacion *ngIf="busqueda.estado === 'sin-resultados'" tipo="vacio" titulo="No encontramos coincidencias"
+    [mensaje]="busqueda.tipo === 'nomenclatura' ? 'Revisá los dígitos o hacé clic sobre la parcela en el mapa.' : (!busqueda.punto ? 'Probá con calle y número, o con calle esquina calle.' : 'Acercá el mapa y hacé clic dentro de tu parcela.')"></app-estado-operacion>
 
-  <div class="estado-error" *ngIf="busqueda.estado === 'error'">
-    <div class="icono-estado">❌</div>
-    <h3>{{ busqueda.tipo === 'direccion' ? 'No pudimos buscar la dirección' : 'No pudimos buscar la parcela' }}</h3>
-    <p>{{ busqueda.error }}</p>
-  </div>
+  <app-estado-operacion *ngIf="busqueda.estado === 'error'" tipo="error" [titulo]="busqueda.tipo === 'direccion' ? 'No pudimos buscar la dirección' : 'No pudimos buscar la parcela'" [mensaje]="busqueda.error || 'No se pudo completar la búsqueda.'"></app-estado-operacion>
 </div>
 
 <div class="ficha-panel" *ngIf="busqueda.estado === 'vacio'">
-  <div class="estado-vacio">
-    <div class="icono-estado">📍</div>
-    <h3>Seleccioná una ubicación</h3>
-    <p>Hacé click en el mapa o usá el buscador para consultar la ficha de una parcela.</p>
-  </div>
+  <app-estado-operacion tipo="vacio" titulo="Seleccioná una ubicación" mensaje="Hacé clic en el mapa o usá el buscador para consultar la ficha de una parcela."></app-estado-operacion>
 </div>
 
 </ng-container>

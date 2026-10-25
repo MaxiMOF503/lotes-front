@@ -1,0 +1,14 @@
+<section [class]="'estado estado--' + tipo" [class.estado--compacto]="compacto"
+  [attr.role]="rol" [attr.aria-live]="tipo === 'error' ? 'assertive' : 'polite'"
+  [attr.aria-busy]="tipo === 'cargando' ? 'true' : null">
+  <span class="estado__icono" aria-hidden="true">
+    <i *ngIf="tipo === 'cargando'" class="estado__spinner"></i>
+    <ng-container *ngIf="tipo !== 'cargando'">{{ icono }}</ng-container>
+  </span>
+  <div class="estado__contenido">
+    <strong *ngIf="titulo">{{ titulo }}</strong>
+    <p>{{ mensaje }}</p>
+    <small *ngIf="detalle">{{ detalle }}</small>
+  </div>
+  <button *ngIf="accion" type="button" (click)="accionSolicitada.emit()">{{ accion }}</button>
+</section>

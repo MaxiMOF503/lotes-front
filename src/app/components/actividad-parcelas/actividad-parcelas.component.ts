@@ -5,7 +5,8 @@ import {ApiService} from '../../services/api.service';
 import {Guardada,ConsultaHistorial,PaginaEspacio,InformeTerritorial} from '../../models/espacio-territorial.model';
 import {InformeParcelasComponent} from '../informe-parcelas/informe-parcelas.component';
 import {parcelasInforme} from '../informe-parcelas/informe-documento';
-@Component({selector:'app-actividad-parcelas',standalone:true,imports:[CommonModule,InformeParcelasComponent],templateUrl:'./actividad-parcelas.component.html',styleUrl:'./actividad-parcelas.component.css'})
+import {EstadoOperacionComponent} from '../estado-operacion/estado-operacion.component';
+@Component({selector:'app-actividad-parcelas',standalone:true,imports:[CommonModule,InformeParcelasComponent,EstadoOperacionComponent],templateUrl:'./actividad-parcelas.component.html',styleUrl:'./actividad-parcelas.component.css'})
 export class ActividadParcelasComponent implements OnInit,OnDestroy {
  @Input() modo:'historial'|'comparar'='historial';
  @Output() mapaSolicitado=new EventEmitter<{latitud:number;longitud:number}>();

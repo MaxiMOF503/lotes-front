@@ -3,9 +3,9 @@
     <div class="heading-copy"><span class="eyebrow">CENTRO DE OPERACIONES</span><h2>{{sesion && !esAdmin?'Mi espacio':'Gestión territorial'}}</h2><p>{{sesion && !esAdmin?'Tus parcelas, historial e informes para consultar con más contexto.':'Parcelas reales, información relevada y procedencia en un mismo lugar.'}}</p><div class="heading-meta"><span><i></i>Datos trazables</span><span><i></i>Control por roles</span><span><i></i>Actualización directa</span></div></div>
     <div class="admin-visual" aria-hidden="true"><span class="visual-label">LUJÁN DE CUYO · MENDOZA</span><div class="admin-pin"><div class="admin-pin-face"><i></i></div></div><div class="admin-pin-shadow"></div></div>
   </div>
-  <div class="notice loading" *ngIf="iniciando" role="status"><span class="mini-spinner"></span>Comprobando tu sesión…</div>
-  <div class="notice error" *ngIf="error" role="alert"><span>!</span>{{error}}</div>
-  <div class="notice success" *ngIf="mensaje" role="status"><span>✓</span>{{mensaje}}</div>
+  <app-estado-operacion *ngIf="iniciando" tipo="cargando" titulo="Comprobando tu sesión" mensaje="Estamos recuperando tu acceso y la sección en la que estabas."></app-estado-operacion>
+  <app-estado-operacion *ngIf="error" tipo="error" titulo="No pudimos completar la operación" [mensaje]="error"></app-estado-operacion>
+  <app-estado-operacion *ngIf="mensaje" tipo="exito" titulo="Operación completada" [mensaje]="mensaje" [compacto]="true"></app-estado-operacion>
 
   <form *ngIf="!sesion && !iniciando && modoAcceso==='ingreso'" (ngSubmit)="ingresar()" #login="ngForm" class="login-card">
     <div class="login-copy"><span class="login-icon" aria-hidden="true">↗</span><div><span class="eyebrow">ACCESO INTERNO</span><h3>Ingresá a tu cuenta</h3></div></div>

@@ -5,6 +5,7 @@ import { ProcedenciaResponse } from '../../models/ficha-lote.model';
 import { Component, inject, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BadgeProcedenciaComponent } from '../badge-procedencia/badge-procedencia.component';
+import { EstadoOperacionComponent } from '../estado-operacion/estado-operacion.component';
 
 /**
  * Panel lateral de consulta de parcelas reales del catastro.
@@ -13,7 +14,7 @@ import { BadgeProcedenciaComponent } from '../badge-procedencia/badge-procedenci
 @Component({
   selector: 'app-ficha-lote',
   standalone: true,
-  imports: [CommonModule, BadgeProcedenciaComponent, AccionesParcelaComponent],
+  imports: [CommonModule, BadgeProcedenciaComponent, AccionesParcelaComponent, EstadoOperacionComponent],
   templateUrl: './ficha-lote.component.html',
   styleUrls: ['./ficha-lote.component.css', './ficha-lote-opciones.component.css', './ficha-territorial.component.css']
 })

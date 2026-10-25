@@ -16,6 +16,10 @@ export class SesionService {
   readonly sesion$ = this.sesionSubject.asObservable();
   get actual():SesionUsuario|null { return this.sesionSubject.value; }
 
+  constructor() {
+    this.api.autenticacionRequerida$.subscribe(() => this.sesionSubject.next(null));
+  }
+
   async cargar(): Promise<SesionUsuario | null> {
     try {
       const sesion = await this.api.get<SesionUsuario>('/me');
