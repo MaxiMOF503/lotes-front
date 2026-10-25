@@ -1,6 +1,7 @@
 import {Component,Input,Output,EventEmitter,OnInit,OnDestroy,inject,ChangeDetectorRef,HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {InformeParcelasComponent} from '../informe-parcelas/informe-parcelas.component';
+import {EstadoOperacionComponent} from '../estado-operacion/estado-operacion.component';
 import {InformeTerritorial} from '../../models/espacio-territorial.model';
 import {FormsModule,NgForm} from '@angular/forms';
 import {Subscription} from 'rxjs';
@@ -9,7 +10,7 @@ import {ApiService} from '../../services/api.service';
 import {ElementoTerritorial} from '../../models/territorio.model';
 import {Guardada,FichaComplementaria,PaginaEspacio,SeleccionParcela} from '../../models/espacio-territorial.model';
 
-@Component({selector:'app-gestion-parcelas',standalone:true,imports:[CommonModule,FormsModule,InformeParcelasComponent],
+@Component({selector:'app-gestion-parcelas',standalone:true,imports:[CommonModule,FormsModule,InformeParcelasComponent,EstadoOperacionComponent],
  templateUrl:'./gestion-parcelas.component.html',styleUrl:'./gestion-parcelas.component.css'})
 export class GestionParcelasComponent implements OnInit,OnDestroy {
  @Input() modo:'gestion'|'guardadas'='gestion';

@@ -9,7 +9,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ApiService } from '../../services/api.service';
 import { SesionService } from '../../services/sesion.service';
 import { Estadisticas,SesionUsuario } from '../../models/admin.model';
-@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule,GestionParcelasComponent,ActividadParcelasComponent],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
+import { EstadoOperacionComponent } from '../estado-operacion/estado-operacion.component';
+@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule,GestionParcelasComponent,ActividadParcelasComponent,EstadoOperacionComponent],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
 export class AdminComponent implements OnInit {
   @Output() mapaSolicitado=new EventEmitter<{latitud:number;longitud:number}|null>();
   @ViewChild(GestionParcelasComponent) gestionParcelas?:GestionParcelasComponent;
@@ -20,6 +21,7 @@ export class AdminComponent implements OnInit {
   modoAcceso:'ingreso'|'registro'='ingreso';
   registroNombre='';registroEmail='';registroPassword='';registroConfirmacion='';
   accionPendiente:(()=>void)|null=null;
+  retornoTrasIngreso=false;
   tab:'parcelas'|'guardadas'|'historial'|'comparar'|'estadisticas'='parcelas';
   desde=new Date(Date.now()-6*86400000).toLocaleDateString('en-CA');hasta=new Date().toLocaleDateString('en-CA');
   estadisticas:Estadisticas|null=null;
@@ -30,7 +32,10 @@ export class AdminComponent implements OnInit {
   @HostListener('document:keydown.escape')
   cerrarConfirmacionConEscape(){if(this.accionPendiente)this.cancelarDescarte();}
   ngOnInit(){
-    this.sesionService.sesion$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(s => { this.sesion=s; this.cd.markForCheck(); });
+    this.sesionService.sesion$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(s => {
+      if(this.sesion && !s)this.retornoTrasIngreso=true;
+      this.sesion=s;this.cd.markForCheck();
+    });
     this.inicializar();
   }
   private async inicializar(){
@@ -44,7 +49,9 @@ export class AdminComponent implements OnInit {
       this.cd.markForCheck();
     }
   }
-  async ingresar(){await this.operar(async()=>{await this.sesionService.ingresar(this.email,this.password);this.password='';this.tab=this.esAdmin?'parcelas':'guardadas';});this.password='';}
+  async ingresar(){await this.operar(async()=>{await this.sesionService.ingresar(this.email,this.password);this.password='';
+    if(!this.retornoTrasIngreso || (!this.esAdmin && (this.tab==='parcelas'||this.tab==='estadisticas')))this.tab=this.esAdmin?'parcelas':'guardadas';
+    this.retornoTrasIngreso=false;});this.password='';}
   mostrarRegistro(){this.modoAcceso='registro';this.error='';this.mensaje='';this.password='';}
   mostrarIngreso(){this.modoAcceso='ingreso';this.error='';this.registroPassword='';this.registroConfirmacion='';}
   async registrar(){

@@ -1,5 +1,5 @@
-<div class="notice error" *ngIf="error" role="alert">{{error}}</div>
-<div class="notice success" *ngIf="mensaje" role="status">{{mensaje}}</div>
+<app-estado-operacion *ngIf="error" tipo="error" titulo="No pudimos completar la operación" [mensaje]="error"></app-estado-operacion>
+<app-estado-operacion *ngIf="mensaje" tipo="exito" titulo="Cambios guardados" [mensaje]="mensaje" [compacto]="true"></app-estado-operacion>
 <div class="workspace" *ngIf="modo==='gestion'; else espacioUsuario">
  <aside class="explorer">
   <span class="eyebrow">CATASTRO REAL</span><h3>Encontrá una parcela</h3>
@@ -12,8 +12,8 @@
    <div class="pagination"><button type="button" (click)="buscar(paginaBusqueda-1)" [disabled]="ocupado || !paginaBusqueda">← Anterior</button><span>{{paginaBusqueda+1}}</span><button type="button" (click)="buscar(paginaBusqueda+1)" [disabled]="ocupado || !hayMas">Siguiente →</button></div>
   </div>
   <div class="recent"><small class="list-caption">FICHAS COMPLEMENTARIAS · {{recientes.total}}</small>
-   <p class="empty" *ngIf="cargando">Cargando fichas…</p>
-   <p class="empty" *ngIf="!cargando && !recientes.items.length">Todavía no hay fichas trabajadas. Elegí una parcela real para comenzar.</p>
+   <app-estado-operacion *ngIf="cargando" tipo="cargando" titulo="Cargando fichas" mensaje="Consultando la información relevada por el equipo." [compacto]="true"></app-estado-operacion>
+   <app-estado-operacion *ngIf="!cargando && !recientes.items.length" tipo="vacio" titulo="Todavía no hay fichas trabajadas" mensaje="Elegí una parcela real para comenzar." [compacto]="true"></app-estado-operacion>
    <button type="button" class="result" *ngFor="let f of recientes.items" (click)="seleccionar(f.parcelaId)" [disabled]="ocupado"><span>▤</span><div><strong>{{f.direccion || f.nomenclatura}}</strong><small>{{f.actualizadoEn | date:'dd/MM/yyyy HH:mm'}}</small></div></button>
    <div class="pagination" *ngIf="recientes.totalPaginas>1"><button (click)="cargarLista(recientes.pagina-1)" [disabled]="cargando || !recientes.pagina">←</button><span>{{recientes.pagina+1}} / {{recientes.totalPaginas}}</span><button (click)="cargarLista(recientes.pagina+1)" [disabled]="cargando || recientes.pagina+1>=recientes.totalPaginas">→</button></div>
   </div>
@@ -41,7 +41,7 @@
 <ng-template #espacioUsuario>
  <section class="saved">
   <header class="saved-head"><div><span class="eyebrow">TU ESPACIO PERSONAL</span><h3>Consultas guardadas <span class="count">{{guardadas.total}}</span></h3><p>Volvé a las parcelas que te interesan. Guardarlas no indica propiedad ni reserva.</p></div><button type="button" class="primary" (click)="irAlMapa()">Explorar el mapa →</button></header>
-  <p class="empty" *ngIf="cargando" role="status">Cargando tus guardadas…</p>
+  <app-estado-operacion *ngIf="cargando" tipo="cargando" titulo="Cargando tus guardadas" mensaje="Conservamos la lista actual mientras buscamos cambios."></app-estado-operacion>
   <div class="saved-empty" *ngIf="!cargando && !guardadas.items.length"><span>☆</span><h4>Tu próxima consulta puede quedar acá</h4><p>Seleccioná una parcela real en el mapa y presioná “Guardar consulta”. Se conservará en tu cuenta aunque cierres el navegador.</p></div>
   <div class="saved-grid"><article *ngFor="let g of guardadas.items"><div class="saved-icon">⌖</div><small>PARCELA GUARDADA</small><h4>{{g.etiqueta || g.nomenclatura}}</h4><p>Nomenclatura {{g.nomenclatura}}</p><span>{{g.latitud | number:'1.5-5'}}, {{g.longitud | number:'1.5-5'}}</span><small>Guardada el {{g.creadaEn | date:'dd/MM/yyyy'}}</small><div class="saved-actions"><button type="button" (click)="abrirGuardada(g)">Consultar en mapa ↗</button><button type="button" (click)="abrirInforme(g)" [disabled]="ocupado">Ver informe</button><button type="button" class="remove" (click)="quitarPendiente=g" [disabled]="ocupado">Quitar</button></div></article></div>
   <div class="pagination" *ngIf="guardadas.totalPaginas>1"><button (click)="cargarLista(guardadas.pagina-1)" [disabled]="cargando || !guardadas.pagina">← Anterior</button><span>{{guardadas.pagina+1}} / {{guardadas.totalPaginas}}</span><button (click)="cargarLista(guardadas.pagina+1)" [disabled]="cargando || guardadas.pagina+1>=guardadas.totalPaginas">Siguiente →</button></div>

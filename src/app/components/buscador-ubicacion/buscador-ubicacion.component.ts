@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged, switchMap, catchError, map } from '
 import { AsistenteService } from '../../services/asistente.service';
 import { TerritorioService } from '../../services/territorio.service';
 import { DireccionOficial } from '../../models/territorio.model';
+import { ApiService } from '../../services/api.service';
 
 /**
  * Buscador público de parcelas reales: por nomenclatura catastral o por dirección (Georef y direcciones relevadas).
@@ -20,6 +21,7 @@ import { DireccionOficial } from '../../models/territorio.model';
 })
 export class BuscadorUbicacionComponent implements OnDestroy {
   private elementRef = inject(ElementRef);
+  private api = inject(ApiService);
 
   modoBusqueda: 'nomenclatura' | 'direccion' = 'nomenclatura';
   nomenclatura = '';
@@ -46,7 +48,11 @@ export class BuscadorUbicacionComponent implements OnDestroy {
         this.buscandoSugerencias = true;
         return this.territorio.sugerirDirecciones(texto).pipe(
           map(r => ({ resultados: r.resultados, advertencia: r.advertencia as string | null })),
-          catchError(() => of({ resultados: [] as DireccionOficial[], advertencia: null }))
+          catchError(error => {
+            const detalle = this.api.analizarError(error);
+            this.aviso = detalle.mensaje + (detalle.detalle ? ' ' + detalle.detalle : '');
+            return of({ resultados: [] as DireccionOficial[], advertencia: null });
+          })
         );
       })
     ).subscribe(resultado => {

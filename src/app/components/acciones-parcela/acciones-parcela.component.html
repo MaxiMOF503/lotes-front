@@ -6,8 +6,8 @@
  <div><dt>Fuente</dt><dd>{{f.fuente}}</dd></div><div><dt>Referencia documental</dt><dd class="multiline">{{f.referencia}}</dd></div></dl>
  <small>Actualizado: {{f.actualizadoEn | date:'dd/MM/yyyy HH:mm'}}. Aporte independiente de los atributos originales del catastro.</small>
 </section>
-<p class="feedback" *ngIf="cargando" role="status">Consultando información complementaria…</p>
-<p class="feedback error" *ngIf="errorFicha" role="status">{{errorFicha}}</p>
+<app-estado-operacion *ngIf="cargando" tipo="cargando" titulo="Información complementaria" mensaje="Consultando los aportes del equipo." [compacto]="true"></app-estado-operacion>
+<app-estado-operacion *ngIf="errorFicha" tipo="error" titulo="No pudimos cargar los aportes" [mensaje]="errorFicha" accion="Reintentar" (accionSolicitada)="cargarFicha()" [compacto]="true"></app-estado-operacion>
 <div class="actions" *ngIf="sesion$ | async as usuario; else ingresar">
  <small class="history-hint">Al consultar el mapa con sesión iniciada, los resultados se conservan en tu historial privado.</small>
  <button type="button" class="save" (click)="guardar()" [disabled]="ocupado">{{ocupado?'Guardando…':'☆ Guardar consulta'}}</button>
@@ -15,5 +15,5 @@
  <button type="button" *ngIf="usuario.rol!=='ADMIN'" (click)="areaSolicitada.emit()">Mi espacio →</button>
 </div>
 <ng-template #ingresar><div class="save-invite"><p>Guardá esta parcela para consultarla después.</p><button type="button" (click)="areaSolicitada.emit()">Ingresar para guardar →</button></div></ng-template>
-<p class="feedback success" *ngIf="mensaje" role="status">{{mensaje}}</p>
-<p class="feedback error" *ngIf="error" role="alert">{{error}}</p>
+<app-estado-operacion *ngIf="mensaje" tipo="exito" titulo="Consulta guardada" [mensaje]="mensaje" [compacto]="true"></app-estado-operacion>
+<app-estado-operacion *ngIf="error" tipo="error" titulo="No pudimos guardar la consulta" [mensaje]="error" [compacto]="true"></app-estado-operacion>
