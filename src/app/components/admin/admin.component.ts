@@ -1,6 +1,6 @@
 import { GestionParcelasComponent } from '../gestion-parcelas/gestion-parcelas.component';
 import { ActividadParcelasComponent } from '../actividad-parcelas/actividad-parcelas.component';
-import { Output, EventEmitter, DestroyRef } from '@angular/core';
+import { Output, EventEmitter, DestroyRef, Input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Component, OnInit, inject, ChangeDetectorRef, HostListener, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -11,8 +11,11 @@ import { SesionService } from '../../services/sesion.service';
 import { Estadisticas,SesionUsuario } from '../../models/admin.model';
 import { EstadoOperacionComponent } from '../estado-operacion/estado-operacion.component';
 import { CalidadDatosComponent } from '../calidad-datos/calidad-datos.component';
-@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule,GestionParcelasComponent,ActividadParcelasComponent,EstadoOperacionComponent,CalidadDatosComponent],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
+import { MisReportesComponent } from '../mis-reportes/mis-reportes.component';
+export type TabAreaInterna='parcelas'|'guardadas'|'historial'|'comparar'|'reportes'|'calidad'|'estadisticas';
+@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule,GestionParcelasComponent,ActividadParcelasComponent,EstadoOperacionComponent,CalidadDatosComponent,MisReportesComponent],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
 export class AdminComponent implements OnInit {
+  @Input() tabInicial:TabAreaInterna|null=null;
   @Output() mapaSolicitado=new EventEmitter<{latitud:number;longitud:number}|null>();
   @ViewChild(GestionParcelasComponent) gestionParcelas?:GestionParcelasComponent;
   private destroyRef=inject(DestroyRef);
@@ -23,7 +26,7 @@ export class AdminComponent implements OnInit {
   registroNombre='';registroEmail='';registroPassword='';registroConfirmacion='';
   accionPendiente:(()=>void)|null=null;
   retornoTrasIngreso=false;
-  tab:'parcelas'|'guardadas'|'historial'|'comparar'|'calidad'|'estadisticas'='parcelas';
+  tab:TabAreaInterna='parcelas';
   desde=new Date(Date.now()-6*86400000).toLocaleDateString('en-CA');hasta=new Date().toLocaleDateString('en-CA');
   estadisticas:Estadisticas|null=null;
   get esAdmin(){return this.sesion?.rol==='ADMIN';}
@@ -42,7 +45,7 @@ export class AdminComponent implements OnInit {
   private async inicializar(){
     try {
       await this.sesionService.cargar();
-      if(this.sesion){this.tab=this.esAdmin?'parcelas':'guardadas';}
+      if(this.sesion){this.tab=this.tabPermitida(this.tabInicial) ? this.tabInicial! : (this.esAdmin?'parcelas':'guardadas');}
     } catch(e) {
       if (!(e instanceof HttpErrorResponse) || e.status!==401) this.error=this.api.error(e);
     } finally {
@@ -51,7 +54,8 @@ export class AdminComponent implements OnInit {
     }
   }
   async ingresar(){await this.operar(async()=>{await this.sesionService.ingresar(this.email,this.password);this.password='';
-    if(!this.retornoTrasIngreso || (!this.esAdmin && (this.tab==='parcelas'||this.tab==='calidad'||this.tab==='estadisticas')))this.tab=this.esAdmin?'parcelas':'guardadas';
+    if(this.tabPermitida(this.tabInicial))this.tab=this.tabInicial!;
+    else if(!this.retornoTrasIngreso || (!this.esAdmin && (this.tab==='parcelas'||this.tab==='calidad'||this.tab==='estadisticas')))this.tab=this.esAdmin?'parcelas':'guardadas';
     this.retornoTrasIngreso=false;});this.password='';}
   mostrarRegistro(){this.modoAcceso='registro';this.error='';this.mensaje='';this.password='';}
   mostrarIngreso(){this.modoAcceso='ingreso';this.error='';this.registroPassword='';this.registroConfirmacion='';}
@@ -68,7 +72,8 @@ export class AdminComponent implements OnInit {
     });
   }
   salir(){this.solicitarDescarte(()=>{void this.operar(async()=>{await this.sesionService.salir();this.tab='parcelas';this.estadisticas=null;});});}
-  cambiarTab(tab:'parcelas'|'guardadas'|'historial'|'comparar'|'calidad'|'estadisticas'){if(!this.esAdmin && (tab==='parcelas'||tab==='calidad'||tab==='estadisticas'))return;if(tab===this.tab)return;this.solicitarDescarte(()=>{this.tab=tab;});}
+  cambiarTab(tab:TabAreaInterna){if(!this.esAdmin && (tab==='parcelas'||tab==='calidad'||tab==='estadisticas'))return;if(tab===this.tab)return;this.solicitarDescarte(()=>{this.tab=tab;});}
+  private tabPermitida(tab:TabAreaInterna|null):boolean{return !!tab&&(this.esAdmin||!['parcelas','calidad','estadisticas'].includes(tab));}
   confirmarDescarte(){const accion=this.accionPendiente;this.accionPendiente=null;this.gestionParcelas?.descartarCambios();accion?.();}
   cancelarDescarte(){this.accionPendiente=null;}
   abrirMapa(punto:{latitud:number;longitud:number}|null){this.solicitarDescarte(()=>this.mapaSolicitado.emit(punto));}

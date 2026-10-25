@@ -8,13 +8,14 @@ import {EspacioTerritorialService} from '../../services/espacio-territorial.serv
 import {SesionService} from '../../services/sesion.service';
 import {ApiService} from '../../services/api.service';
 import {EstadoOperacionComponent} from '../estado-operacion/estado-operacion.component';
+import {ReportarDatoComponent} from '../reportar-dato/reportar-dato.component';
 
-@Component({selector:'app-acciones-parcela',standalone:true,imports:[CommonModule,EstadoOperacionComponent],
+@Component({selector:'app-acciones-parcela',standalone:true,imports:[CommonModule,EstadoOperacionComponent,ReportarDatoComponent],
  templateUrl:'./acciones-parcela.component.html',styleUrl:'./acciones-parcela.component.css'})
 export class AccionesParcelaComponent implements OnChanges,OnDestroy {
  @Input({required:true}) parcela!:ElementoTerritorial;
  @Input({required:true}) consulta!:ConsultaTerritorial;
- @Output() areaSolicitada=new EventEmitter<void>();
+ @Output() areaSolicitada=new EventEmitter<void|'reportes'>();
  private espacio=inject(EspacioTerritorialService); private sesion=inject(SesionService);
  private api=inject(ApiService);private http=inject(HttpClient);private cd=inject(ChangeDetectorRef);
  readonly sesion$=this.sesion.sesion$;

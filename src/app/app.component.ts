@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AdminComponent } from './components/admin/admin.component';
+import { AdminComponent, TabAreaInterna } from './components/admin/admin.component';
 import { ApiService } from './services/api.service';
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MapaLoteComponent } from './components/mapa-lote/mapa-lote.component';
@@ -26,6 +26,7 @@ export class AppComponent implements OnInit {
 
   puntoMapa:{latitud:number;longitud:number}|null=null;
   administracion=false;
+  tabAreaInterna:TabAreaInterna|null=null;
   menuAbierto=false;
   sesion: SesionUsuario | null = null;
 
@@ -61,8 +62,9 @@ export class AppComponent implements OnInit {
     else this.administracion=false;
   }
 
-  irAAreaInterna(): void {
+  irAAreaInterna(tab?:void|'reportes'): void {
     this.cerrarMenu();
+    this.tabAreaInterna=tab||null;
     this.administracion=true;
   }
 

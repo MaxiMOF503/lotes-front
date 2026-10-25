@@ -1,0 +1,18 @@
+<section class="report-box">
+  <ng-container *ngIf="sesion$ | async; else acceso">
+    <div class="report-intro" *ngIf="!abierto && !enviado"><div><span>¿ENCONTRASTE UN DATO A REVISAR?</span><p>Ayudanos a mantener clara y actualizada la información publicada.</p></div><button type="button" (click)="alternar()">Reportar un dato</button></div>
+    <form *ngIf="abierto" (ngSubmit)="enviar()" #form="ngForm" class="report-form">
+      <div class="form-heading"><div><span>REPORTE DE INFORMACIÓN</span><h4>¿Qué deberíamos revisar?</h4></div><button type="button" class="close" (click)="alternar()" aria-label="Cerrar formulario">✕</button></div>
+      <div class="fields">
+        <label>Sección<select name="seccion" [(ngModel)]="seccion" required><option *ngFor="let opcion of secciones" [ngValue]="opcion.valor">{{opcion.texto}}</option></select></label>
+        <label>Tipo<select name="tipo" [(ngModel)]="tipo" required><option value="INCORRECTO">El dato es incorrecto</option><option value="FALTANTE">Falta información</option></select></label>
+      </div>
+      <label>Descripción<textarea name="descripcion" [(ngModel)]="descripcion" required minlength="10" maxlength="1000" rows="5" placeholder="Contanos qué dato falta o qué información debería corregirse."></textarea></label>
+      <div class="counter" [class.invalid]="descripcion.length>0 && !descripcionValida"><span *ngIf="descripcion.length>0 && descripcionLimpia.length<10">Escribí al menos 10 caracteres.</span><span>{{descripcion.length}} / 1000</span></div>
+      <div class="form-actions"><button type="button" class="cancel" (click)="alternar()">Cancelar</button><button type="submit" class="submit" [disabled]="ocupado || form.invalid || !descripcionValida">{{ocupado?'Enviando…':'Enviar reporte'}}</button></div>
+    </form>
+    <div *ngIf="enviado" class="success-card" role="status"><span>✓</span><div><strong>Gracias, el equipo va a revisar tu reporte</strong><p>Podés seguir su estado y leer la respuesta desde Mi espacio.</p><div><button type="button" (click)="areaSolicitada.emit('reportes')">Ver mis reportes</button><button type="button" class="link" (click)="nuevo()">Enviar otro</button></div></div></div>
+  </ng-container>
+  <ng-template #acceso><div class="login-invite"><div><strong>¿Encontraste un dato incorrecto o faltante?</strong><p>Ingresá para informarlo y seguir la respuesta del equipo.</p></div><button type="button" (click)="ingresar()">Ingresar para reportar →</button></div></ng-template>
+  <app-estado-operacion *ngIf="error" tipo="error" titulo="No pudimos enviar el reporte" [mensaje]="error" [compacto]="true"></app-estado-operacion>
+</section>

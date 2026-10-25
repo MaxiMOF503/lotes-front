@@ -25,7 +25,19 @@ export class ApiService {
   async login(email:string,password:string) {
     const csrf=await this.get<{headerName:string;token:string}>('/csrf');
     const body=new URLSearchParams({username:email,password}).toString();
-    await firstValueFrom(this.http.post('/api/login',body,{headers:new HttpHeaders({[csrf.headerName]:csrf.token,'Content-Type':'application/x-www-form-urlencoded'}),responseType:'text'}));
+    try {
+      await firstValueFrom(this.http.post('/api/login',body,{headers:new HttpHeaders({[csrf.headerName]:csrf.token,'Content-Type':'application/x-www-form-urlencoded'}),responseType:'text'}));
+    } catch (error) {
+      // Un 401 durante el formulario de acceso significa credenciales inválidas,
+      // no una sesión vencida. Conservamos esa distinción para orientar al usuario.
+      if(error instanceof HttpErrorResponse && error.status===401){
+        throw new HttpErrorResponse({
+          error:{codigo:'CREDENCIALES_INVALIDAS'},headers:error.headers,status:error.status,
+          statusText:error.statusText,url:error.url??undefined
+        });
+      }
+      throw error;
+    }
     return this.get<SesionUsuario>('/me');
   }
   analizarError(error:unknown):ErrorAplicacion {
@@ -39,7 +51,7 @@ export class ApiService {
     const definidos:Record<string,Omit<ErrorAplicacion,'codigo'>>={
       SERVIDOR_NO_DISPONIBLE:{mensaje:'El servidor no está disponible.',detalle:'Comprobá que el backend esté iniciado y volvé a intentar.',accion:'reintentar',recuperable:true},
       AUTENTICACION_REQUERIDA:{mensaje:'Tu sesión terminó.',detalle:'Volvé a ingresar para continuar desde esta sección.',accion:'ingresar',recuperable:true},
-      CREDENCIALES_INVALIDAS:{mensaje:'No pudimos iniciar sesión.',detalle:'Revisá el correo y la contraseña.',accion:'corregir',recuperable:true},
+      CREDENCIALES_INVALIDAS:{mensaje:'Usuario o contraseña incorrectos.',detalle:'Revisá los datos ingresados e intentá nuevamente.',accion:'corregir',recuperable:true},
       ACCESO_DENEGADO:{mensaje:'Tu cuenta no tiene permiso para realizar esta acción.',detalle:'Ingresá con una cuenta que tenga el rol necesario.',accion:'ninguna',recuperable:false},
       CSRF_INVALIDO:{mensaje:'La sesión de seguridad venció.',detalle:'Recargá la página antes de volver a enviar la operación.',accion:'recargar',recuperable:true},
       DIRECCIONES_NO_DISPONIBLES:{mensaje:'La búsqueda por dirección no está disponible.',detalle:'Probá nuevamente o buscá por nomenclatura.',accion:'reintentar',recuperable:true},
