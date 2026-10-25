@@ -1,0 +1,74 @@
+<section class="quality" aria-labelledby="quality-title">
+  <header class="quality-head">
+    <div>
+      <span class="eyebrow">CONTROL DE IMPORTACIONES</span>
+      <h3 id="quality-title">Calidad de los datos oficiales</h3>
+      <p>Estado, vigencia y registros excluidos de cada fuente utilizada en las consultas.</p>
+    </div>
+    <button type="button" class="refresh" (click)="cargar()" [disabled]="cargando">
+      {{ cargando ? 'Actualizando…' : 'Actualizar estado' }} <span aria-hidden="true">↻</span>
+    </button>
+  </header>
+
+  <app-estado-operacion *ngIf="cargando && !fuentes.length" tipo="cargando" titulo="Consultando importaciones"
+    mensaje="Comprobando las capas disponibles y su fecha de actualización."></app-estado-operacion>
+  <app-estado-operacion *ngIf="error" tipo="error" titulo="No pudimos consultar la calidad de los datos"
+    [mensaje]="error" accion="Reintentar" (accionSolicitada)="cargar()"></app-estado-operacion>
+
+  <ng-container *ngIf="fuentes.length || (!cargando && !error)">
+    <div class="quality-summary" aria-label="Resumen de calidad de datos">
+      <article>
+        <span>CAPAS DISPONIBLES</span>
+        <strong>{{ disponibles }}<small>/ {{ capas.length }}</small></strong>
+        <p>{{ disponibles === capas.length ? 'Todas listas para consultar' : 'Hay importaciones pendientes' }}</p>
+      </article>
+      <article>
+        <span>REGISTROS PUBLICADOS</span>
+        <strong>{{ totalRegistros | number }}</strong>
+        <p>Suma de las importaciones activas</p>
+      </article>
+      <article [class.summary-warning]="totalExcluidos > 0">
+        <span>EXCLUIDOS DE CONSULTAS</span>
+        <strong>{{ totalExcluidos | number }}</strong>
+        <p>Sin geometría o con geometría inválida</p>
+      </article>
+    </div>
+
+    <div class="layer-grid">
+      <article class="layer-card" *ngFor="let capa of capas" [class.layer-missing]="!fuente(capa)">
+        <ng-container *ngIf="fuente(capa) as dato; else capaFaltante">
+          <header>
+            <span class="layer-icon" aria-hidden="true">{{ capa.icono }}</span>
+            <div><small>{{ capa.organismo }}</small><h4>{{ capa.nombre }}</h4></div>
+            <span class="status" [class.status-warning]="desactualizada(dato)">
+              <i aria-hidden="true"></i>{{ desactualizada(dato) ? 'Revisar vigencia' : 'Disponible' }}
+            </span>
+          </header>
+          <p class="description">{{ capa.descripcion }}</p>
+          <dl>
+            <div><dt>Registros</dt><dd>{{ dato.registros | number }}</dd></div>
+            <div><dt>Geometrías inválidas</dt><dd [class.metric-warning]="dato.invalidos">{{ dato.invalidos | number }}</dd></div>
+            <div><dt>Sin geometría</dt><dd [class.metric-warning]="dato.sinGeometria">{{ dato.sinGeometria | number }}</dd></div>
+          </dl>
+          <div class="freshness" [class.freshness-warning]="desactualizada(dato)">
+            <span>ÚLTIMA IMPORTACIÓN</span>
+            <strong *ngIf="fechaImportacion(dato) as fecha; else fechaInvalida">{{ fecha | date:'dd/MM/yyyy HH:mm' }}</strong>
+            <ng-template #fechaInvalida><strong>Fecha no disponible</strong></ng-template>
+            <small *ngIf="desactualizada(dato)">Supera los seis meses recomendados. Verificá la fuente antes de usarla.</small>
+          </div>
+          <footer>
+            <span title="Fuente informada por el backend">{{ dato.fuente }}</span>
+            <a *ngIf="enlaceSeguro(dato) as enlace" [href]="enlace" target="_blank" rel="noopener noreferrer">Ver organismo de origen ↗</a>
+          </footer>
+        </ng-container>
+        <ng-template #capaFaltante>
+          <header><span class="layer-icon missing-icon" aria-hidden="true">!</span><div><small>{{ capa.organismo }}</small><h4>{{ capa.nombre }}</h4></div><span class="status status-missing"><i></i>Sin importar</span></header>
+          <p class="description">Esta capa no figura entre las importaciones disponibles. Las consultas seguirán funcionando con información parcial.</p>
+          <div class="missing-help"><strong>Preparar los datos locales</strong><p>Desde la carpeta del backend ejecutá:</p><code>iniciar-local.cmd --preparar-solo</code></div>
+        </ng-template>
+      </article>
+    </div>
+
+    <aside class="quality-note"><span aria-hidden="true">i</span><p><strong>Cómo interpretar estos números</strong> Los registros inválidos o sin geometría se conservan en el control de importación, pero no se usan para identificar parcelas ni servicios sobre el mapa.</p></aside>
+  </ng-container>
+</section>
