@@ -64,8 +64,13 @@
             <span class="dato-label">Radio de servicio AYSAM</span>
             <span class="dato-valor" [class.valor-si]="datos.dentroRadioAgua">{{ datos.dentroRadioAgua ? 'Dentro del radio publicado' : 'Fuera del radio publicado' }}</span>
           </div>
-          <p class="seccion-nota">Es el radio general de AYSAM, no la ubicación de las cañerías. {{ datos.dentroRadioAgua ? 'La conexión en este terreno debe confirmarse con el operador.' : 'Puede haber otros prestadores; consultá la disponibilidad local.' }}</p>
+          <div class="dato">
+            <span class="dato-label">Radio de servicio Aguas Luján</span>
+            <span class="dato-valor" [class.valor-si]="datos.dentroRadioAguasLujan === true">{{ datos.dentroRadioAguasLujan === true ? 'Dentro del radio publicado' : datos.dentroRadioAguasLujan === false ? 'Fuera del radio publicado' : 'Sin dato: capa no importada en esta base' }}</span>
+          </div>
+          <p class="seccion-nota">Son los radios generales de cada operador, no la ubicación de las cañerías. {{ (datos.dentroRadioAgua || datos.dentroRadioAguasLujan) ? 'La conexión en este terreno debe confirmarse con el operador.' : 'Puede haber otros prestadores; consultá la disponibilidad local.' }}</p>
           <app-badge-procedencia [procedencia]="procedencia(datos, 'aysam')"></app-badge-procedencia>
+          <app-badge-procedencia *ngIf="datos.dentroRadioAguasLujan !== null && datos.dentroRadioAguasLujan !== undefined" [procedencia]="procedencia(datos, 'aguas_lujan')"></app-badge-procedencia>
         </div>
       </div>
 

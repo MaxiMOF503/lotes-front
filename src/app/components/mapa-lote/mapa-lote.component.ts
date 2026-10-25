@@ -20,7 +20,8 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
     { id: 'zonificacion', nombre: 'Zonificación', detalle: '143 zonas urbanísticas', archivo: 'assets/datasets/zonificacion.geojson', color: '#f5b700', estado: 'idle', disponible: true },
     { id: 'loteos', nombre: 'Loteos y barrios', detalle: '731 polígonos registrados', archivo: 'assets/datasets/loteos.geojson', color: '#ff7a18', estado: 'idle', disponible: true },
     { id: 'renabap', nombre: 'Barrios populares', detalle: '33 registros RENABAP', archivo: 'assets/datasets/renabap.geojson', color: '#e5484d', estado: 'idle', disponible: true },
-    { id: 'aysam', nombre: 'Cobertura de agua', detalle: 'Radio general aproximado', remota: true, color: '#1677ff', estado: 'idle', disponible: true, nota: 'No representa cañerías calle por calle.' },
+    { id: 'aysam', nombre: 'Agua · AySAM', detalle: 'Radio general aproximado', remota: true, color: '#1677ff', estado: 'idle', disponible: true, nota: 'No representa cañerías calle por calle.' },
+    { id: 'aguas_lujan', nombre: 'Agua · Aguas Luján', detalle: 'Radio general aproximado', remota: true, color: '#0b9aa8', estado: 'idle', disponible: true, nota: 'Operador municipal. No representa cañerías calle por calle.' },
     { id: 'pluvial', nombre: 'Zonas pluviales', detalle: '84 polígonos territoriales', archivo: 'assets/datasets/pluvial.geojson', color: '#7259d6', estado: 'idle', disponible: true, nota: 'Se muestra la geometría; el nivel de riesgo no está clasificado.' },
     { id: 'catastro', nombre: 'Parcelas catastrales', detalle: '65.756 parcelas', color: '#25856a', estado: 'idle', disponible: true, remota: true, nota: 'Catastro municipal. Acercá el mapa para ver las parcelas.' },
     { id: 'electricidad', nombre: 'Líneas eléctricas', detalle: '13.494 tramos EDEMSA', color: '#263238', estado: 'idle', disponible: true, remota: true, nota: 'Tramos publicados por EDEMSA. No confirman una conexión.' }
@@ -163,9 +164,9 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
         if (!capa.seleccionada) return;
         capa.aviso = datos.acercar || datos.hayMas ? datos.mensaje : undefined;
         capa.layer = L.geoJSON(datos, {
-          pane: capa.id === 'aysam' ? 'agua-real' : 'territorio-real',
+          pane: this.esCapaDeAgua(capa.id) ? 'agua-real' : 'territorio-real',
           style: { color: capa.color, weight: capa.id === 'electricidad' ? 2.3 : 1.2,
-            fillColor: capa.color, fillOpacity: capa.id === 'aysam' ? 0.12 : 0.05 },
+            fillColor: capa.color, fillOpacity: this.esCapaDeAgua(capa.id) ? 0.12 : 0.05 },
           onEachFeature: (feature, layer) => layer.bindPopup(this.construirDetalle(capa.id, feature.properties ?? {}))
         }).addTo(this.map);
         capa.estado = 'active';
@@ -203,9 +204,11 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
       : tipo === 'loteos' ? [['Barrio', p['nom_barrio']], ['Tipo', p['tipo']], ['Dominio', p['caracteris']], ['Distrito', p['distritos']], ['Ordenanza', p['ordenanza']]]
       : tipo === 'renabap' ? [['Barrio popular', p['nombreBarr']], ['Localidad', p['localidad']], ['Registro RENABAP', p['idrenabap']]]
       : tipo === 'aysam' ? [['Operador', p['operador'] || 'AySAM'], ['Cobertura', 'Área aproximada de servicio']]
+      : tipo === 'aguas_lujan' ? [['Operador', 'Aguas Luján'], ['Zona', p['zona']], ['Cobertura', 'Área aproximada de servicio']]
       : [['Capa', 'Zona pluvial'], ['Referencia', p['name'] || p['id']]];
     const contenido = filas.filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== '').map(([e, v]) => `<div><span>${this.escapar(e)}</span><strong>${this.escapar(String(v))}</strong></div>`).join('');
     return `<section class="map-detail">${contenido}</section>`;
   }
+  private esCapaDeAgua(id: string): boolean { return id === 'aysam' || id === 'aguas_lujan'; }
   private escapar(valor: string): string { return valor.replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c] ?? c)); }
 }
