@@ -12,6 +12,8 @@ export interface CapaResponse {
 export interface ConsultaTerritorial {
   latitud: number; longitud: number; parcelas: ElementoTerritorial[]; hayMasParcelas: boolean;
   dentroRadioAgua: boolean;
+  /** Radio de Aguas Luján; falta (undefined/null) en copias antiguas o si la capa no está importada. */
+  dentroRadioAguasLujan?: boolean | null;
   electricidad: { distanciaMetros: number | null; tipo: string | null; radioBusquedaMetros: number; alcance: string };
   fuentes: FuenteTerritorial[]; advertencia: string;
 }
