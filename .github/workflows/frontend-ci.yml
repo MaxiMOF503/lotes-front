@@ -58,7 +58,8 @@ jobs:
 
   e2e:
     name: Pruebas E2E en navegador
-    runs-on: ubuntu-latest
+    # Playwright 1.56 todavía no soporta el Ubuntu más nuevo de ubuntu-latest: se fija una versión compatible.
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
 
     steps:
