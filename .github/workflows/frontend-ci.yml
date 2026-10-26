@@ -55,3 +55,39 @@ jobs:
           path: reports/
           if-no-files-found: ignore
           retention-days: 7
+
+  e2e:
+    name: Pruebas E2E en navegador
+    # Playwright 1.56 todavía no soporta el Ubuntu más nuevo de ubuntu-latest: se fija una versión compatible.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Ejecutar recorridos críticos
+        run: npm run e2e
+
+      - name: Guardar capturas y trazas de fallos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-fallos
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
