@@ -45,6 +45,7 @@
       <button (click)="cambiarTab('historial')" [attr.aria-pressed]="tab==='historial'"><span>◷</span>Historial</button>
       <button (click)="cambiarTab('comparar')" [attr.aria-pressed]="tab==='comparar'"><span>⇄</span>Comparar parcelas</button>
       <button (click)="cambiarTab('reportes')" [attr.aria-pressed]="tab==='reportes'"><span>!</span>Mis reportes</button>
+      <button *ngIf="esAdmin" (click)="cambiarTab('bandeja')" [attr.aria-pressed]="tab==='bandeja'"><span>✉</span>Reportes<b class="tab-count" *ngIf="pendientes" [attr.aria-label]="pendientes+' pendientes'">{{pendientes>99?'99+':pendientes}}</b></button>
       <button *ngIf="esAdmin" (click)="cambiarTab('calidad')" [attr.aria-pressed]="tab==='calidad'"><span>◎</span>Calidad de datos</button>
       <button *ngIf="esAdmin" (click)="cambiarTab('estadisticas')" [attr.aria-pressed]="tab==='estadisticas'"><span>↗</span>Estadísticas</button>
     </nav>
@@ -53,6 +54,7 @@
     <app-actividad-parcelas *ngIf="tab==='historial'" modo="historial" (mapaSolicitado)="abrirMapa($event)"></app-actividad-parcelas>
     <app-actividad-parcelas *ngIf="tab==='comparar'" modo="comparar" (mapaSolicitado)="abrirMapa($event)"></app-actividad-parcelas>
     <app-mis-reportes *ngIf="tab==='reportes'"></app-mis-reportes>
+    <app-bandeja-reportes *ngIf="tab==='bandeja' && esAdmin" (verParcela)="abrirMapa($event)" (corregirFicha)="corregirFicha($event)"></app-bandeja-reportes>
     <app-calidad-datos *ngIf="tab==='calidad' && esAdmin"></app-calidad-datos>
     <section *ngIf="tab==='estadisticas' && esAdmin" class="analytics">
       <div class="analytics-head"><div><span class="eyebrow">ANÁLISIS DE ACTIVIDAD</span><h3>Uso de la consulta pública</h3><p>Métricas agregadas y anónimas. Una visita representa una carga de página.</p></div>

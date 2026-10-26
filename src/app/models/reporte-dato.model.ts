@@ -7,5 +7,7 @@ export interface ReporteDato {
   id:number; parcelaId:string; nomenclatura:string; seccion:SeccionReporte; tipo:TipoReporte;
   descripcion:string; estado:EstadoReporte; respuesta:string|null; creadoPor:{nombre:string;email:string};
   respondidoPor:{nombre:string;email:string}|null; creadoEn:string; actualizadoEn:string; respondidoEn:string|null;
+  parcelaIdCanonico?:string|null;
 }
+export interface ActualizarReporteDato { estado:EstadoReporte; respuesta:string|null; }
 export interface Pagina<T> { items:T[]; pagina:number; totalPaginas:number; total:number; }

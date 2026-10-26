@@ -1,0 +1,65 @@
+<section class="inbox" aria-labelledby="bandeja-titulo">
+  <header>
+    <div>
+      <span class="eyebrow">PARTICIPACIÓN Y CALIDAD</span>
+      <h3 id="bandeja-titulo">Reportes de datos</h3>
+      <p>Revisá lo que marcaron las personas, corregí la información relevada y respondé.</p>
+    </div>
+    <span class="total" *ngIf="pagina">{{pagina.total}} {{pagina.total===1?'reporte':'reportes'}}</span>
+  </header>
+  <p class="note">Los datos oficiales del catastro no se editan desde acá. Si el error está en la fuente, marcá el reporte como resuelto o descartado y explicá el motivo en la respuesta.</p>
+
+  <div class="filters" role="group" aria-label="Filtrar por estado">
+    <button type="button" *ngFor="let f of filtros" (click)="elegirFiltro(f.valor)" [attr.aria-pressed]="f.valor===filtro" [disabled]="cargando||guardando">{{f.texto}}</button>
+  </div>
+
+  <app-estado-operacion *ngIf="mensaje" tipo="exito" titulo="Listo" [mensaje]="mensaje" [compacto]="true"></app-estado-operacion>
+  <app-estado-operacion *ngIf="errorParcela" tipo="error" titulo="No pudimos abrir la parcela" [mensaje]="errorParcela" [compacto]="true"></app-estado-operacion>
+  <app-estado-operacion *ngIf="cargando" tipo="cargando" titulo="Cargando reportes" mensaje="Estamos consultando la bandeja."></app-estado-operacion>
+  <app-estado-operacion *ngIf="error" tipo="error" titulo="No pudimos cargar la bandeja" [mensaje]="error" accion="Reintentar" (accionSolicitada)="cargar(pagina?.pagina || 0)"></app-estado-operacion>
+  <app-estado-operacion *ngIf="!cargando && !error && pagina && !pagina.items.length" tipo="vacio" titulo="Sin reportes" [mensaje]="vacio"></app-estado-operacion>
+
+  <div class="list" *ngIf="!error && pagina?.items?.length" [attr.aria-busy]="cargando">
+    <article *ngFor="let r of pagina!.items" [class.open]="abierto===r.id">
+      <div class="top">
+        <div>
+          <small>REPORTE #{{r.id}} · {{r.creadoEn | date:'dd/MM/yyyy HH:mm'}}</small>
+          <h4>{{r.nomenclatura || r.parcelaId}}</h4>
+        </div>
+        <span class="status" [attr.data-status]="r.estado">{{estado(r.estado)}}</span>
+      </div>
+      <div class="tags"><span>{{seccion(r.seccion)}}</span><span>{{tipo(r.tipo)}}</span></div>
+      <p class="description">{{r.descripcion}}</p>
+      <p class="author">Enviado por <strong>{{r.creadoPor.nombre || r.creadoPor.email}}</strong> · {{r.creadoPor.email}}</p>
+      <div class="answer" *ngIf="r.respuesta">
+        <span>RESPUESTA</span><p>{{r.respuesta}}</p>
+        <small *ngIf="r.respondidoPor">{{r.respondidoPor.nombre || r.respondidoPor.email}}<ng-container *ngIf="r.respondidoEn"> · {{r.respondidoEn | date:'dd/MM/yyyy HH:mm'}}</ng-container></small>
+      </div>
+      <div class="actions">
+        <button type="button" (click)="verEnMapa(r)" [disabled]="buscandoParcela!==null">{{buscandoParcela===r.id?'Abriendo…':'Ver parcela ↗'}}</button>
+        <button type="button" (click)="corregir(r)">Corregir información relevada</button>
+        <button type="button" class="primary" (click)="abrir(r)" [attr.aria-expanded]="abierto===r.id" [attr.aria-controls]="'responder-'+r.id" [disabled]="guardando">{{abierto===r.id?'Cerrar':(r.respuesta?'Editar respuesta':'Responder')}}</button>
+      </div>
+      <form class="reply" *ngIf="abierto===r.id" [id]="'responder-'+r.id" (ngSubmit)="guardar(r)" novalidate>
+        <fieldset [disabled]="guardando">
+          <legend>Estado del reporte</legend>
+          <label *ngFor="let o of opciones" class="radio"><input type="radio" name="estado-{{r.id}}" [value]="o.valor" [(ngModel)]="estadoNuevo"> {{o.texto}}</label>
+        </fieldset>
+        <label class="field" [for]="'respuesta-'+r.id">Respuesta para quien lo envió <span>{{requiereRespuesta?'Obligatoria (mínimo 10 caracteres)':'Opcional'}}</span></label>
+        <textarea [id]="'respuesta-'+r.id" name="respuesta-{{r.id}}" rows="4" maxlength="1000" [(ngModel)]="respuesta" [disabled]="guardando" [attr.aria-invalid]="errorRespuesta?'true':null" [attr.aria-describedby]="errorRespuesta?'error-'+r.id:null" placeholder="Explicá qué se verificó o por qué no corresponde cambiar el dato."></textarea>
+        <small class="counter">{{respuesta.length}} / 1000</small>
+        <app-estado-operacion *ngIf="errorRespuesta" [id]="'error-'+r.id" tipo="error" titulo="No se pudo guardar" [mensaje]="errorRespuesta" [compacto]="true"></app-estado-operacion>
+        <div class="reply-actions">
+          <button type="button" (click)="cerrar()" [disabled]="guardando">Cancelar</button>
+          <button type="submit" class="primary" [disabled]="guardando">{{guardando?'Guardando…':'Guardar'}}</button>
+        </div>
+      </form>
+    </article>
+  </div>
+
+  <nav class="pagination" *ngIf="pagina && pagina.totalPaginas>1" aria-label="Páginas de reportes">
+    <button type="button" (click)="cargar(pagina.pagina-1)" [disabled]="cargando||guardando||pagina.pagina===0">← Anterior</button>
+    <span>Página {{pagina.pagina+1}} de {{pagina.totalPaginas}}</span>
+    <button type="button" (click)="cargar(pagina.pagina+1)" [disabled]="cargando||guardando||pagina.pagina+1>=pagina.totalPaginas">Siguiente →</button>
+  </nav>
+</section>
