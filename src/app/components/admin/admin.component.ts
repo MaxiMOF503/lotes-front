@@ -12,15 +12,19 @@ import { Estadisticas,SesionUsuario } from '../../models/admin.model';
 import { EstadoOperacionComponent } from '../estado-operacion/estado-operacion.component';
 import { CalidadDatosComponent } from '../calidad-datos/calidad-datos.component';
 import { MisReportesComponent } from '../mis-reportes/mis-reportes.component';
-export type TabAreaInterna='parcelas'|'guardadas'|'historial'|'comparar'|'reportes'|'calidad'|'estadisticas';
-@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule,GestionParcelasComponent,ActividadParcelasComponent,EstadoOperacionComponent,CalidadDatosComponent,MisReportesComponent],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
+import { BandejaReportesComponent } from '../bandeja-reportes/bandeja-reportes.component';
+import { ReportesDatosService } from '../../services/reportes-datos.service';
+import { EspacioTerritorialService } from '../../services/espacio-territorial.service';
+export type TabAreaInterna='parcelas'|'guardadas'|'historial'|'comparar'|'reportes'|'bandeja'|'calidad'|'estadisticas';
+@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule,GestionParcelasComponent,ActividadParcelasComponent,EstadoOperacionComponent,CalidadDatosComponent,MisReportesComponent,BandejaReportesComponent],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
 export class AdminComponent implements OnInit {
   @Input() tabInicial:TabAreaInterna|null=null;
   @Output() mapaSolicitado=new EventEmitter<{latitud:number;longitud:number}|null>();
   @ViewChild(GestionParcelasComponent) gestionParcelas?:GestionParcelasComponent;
   private destroyRef=inject(DestroyRef);
 
-  private api=inject(ApiService);private cd=inject(ChangeDetectorRef);private sesionService=inject(SesionService);
+  private api=inject(ApiService);private cd=inject(ChangeDetectorRef);private sesionService=inject(SesionService);private reportes=inject(ReportesDatosService);private espacio=inject(EspacioTerritorialService);
+  pendientes:number|null=null;
   sesion:SesionUsuario|null=null;email='';password='';error='';mensaje='';ocupado=false;iniciando=true;
   modoAcceso:'ingreso'|'registro'='ingreso';
   registroNombre='';registroEmail='';registroPassword='';registroConfirmacion='';
@@ -38,8 +42,11 @@ export class AdminComponent implements OnInit {
   ngOnInit(){
     this.sesionService.sesion$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(s => {
       if(this.sesion && !s)this.retornoTrasIngreso=true;
-      this.sesion=s;this.cd.markForCheck();
+      this.sesion=s;
+      if(s?.rol==='ADMIN')void this.reportes.refrescarPendientes();else this.reportes.limpiarPendientes();
+      this.cd.markForCheck();
     });
+    this.reportes.pendientes$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(n => { this.pendientes=n; this.cd.markForCheck(); });
     this.inicializar();
   }
   private async inicializar(){
@@ -55,7 +62,7 @@ export class AdminComponent implements OnInit {
   }
   async ingresar(){await this.operar(async()=>{await this.sesionService.ingresar(this.email,this.password);this.password='';
     if(this.tabPermitida(this.tabInicial))this.tab=this.tabInicial!;
-    else if(!this.retornoTrasIngreso || (!this.esAdmin && (this.tab==='parcelas'||this.tab==='calidad'||this.tab==='estadisticas')))this.tab=this.esAdmin?'parcelas':'guardadas';
+    else if(!this.retornoTrasIngreso || (!this.esAdmin && (this.tab==='parcelas'||this.tab==='bandeja'||this.tab==='calidad'||this.tab==='estadisticas')))this.tab=this.esAdmin?'parcelas':'guardadas';
     this.retornoTrasIngreso=false;});this.password='';}
   mostrarRegistro(){this.modoAcceso='registro';this.error='';this.mensaje='';this.password='';}
   mostrarIngreso(){this.modoAcceso='ingreso';this.error='';this.registroPassword='';this.registroConfirmacion='';}
@@ -72,10 +79,12 @@ export class AdminComponent implements OnInit {
     });
   }
   salir(){this.solicitarDescarte(()=>{void this.operar(async()=>{await this.sesionService.salir();this.tab='parcelas';this.estadisticas=null;});});}
-  cambiarTab(tab:TabAreaInterna){if(!this.esAdmin && (tab==='parcelas'||tab==='calidad'||tab==='estadisticas'))return;if(tab===this.tab)return;this.solicitarDescarte(()=>{this.tab=tab;});}
-  private tabPermitida(tab:TabAreaInterna|null):boolean{return !!tab&&(this.esAdmin||!['parcelas','calidad','estadisticas'].includes(tab));}
+  cambiarTab(tab:TabAreaInterna){if(!this.esAdmin && (tab==='parcelas'||tab==='bandeja'||tab==='calidad'||tab==='estadisticas'))return;if(tab===this.tab)return;this.solicitarDescarte(()=>{this.tab=tab;});}
+  private tabPermitida(tab:TabAreaInterna|null):boolean{return !!tab&&(this.esAdmin||!['parcelas','bandeja','calidad','estadisticas'].includes(tab));}
   confirmarDescarte(){const accion=this.accionPendiente;this.accionPendiente=null;this.gestionParcelas?.descartarCambios();accion?.();}
   cancelarDescarte(){this.accionPendiente=null;}
+  /** Desde la bandeja de reportes: abre la ficha complementaria de la parcela en "Parcelas reales". */
+  corregirFicha(parcelaId:string){this.espacio.seleccion.next({id:parcelaId});this.cambiarTab('parcelas');}
   abrirMapa(punto:{latitud:number;longitud:number}|null){this.solicitarDescarte(()=>this.mapaSolicitado.emit(punto));}
   confirmarNavegacion(accion:()=>void){this.solicitarDescarte(accion);}
   private solicitarDescarte(accion:()=>void){if(this.ocupado)return;if(this.hayCambios){this.accionPendiente=accion;return;}accion();}

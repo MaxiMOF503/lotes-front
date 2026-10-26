@@ -71,3 +71,7 @@ La prueba automatizada disponible valida el exportador de informes. Todavía no 
 Las consultas del mapa con sesión iniciada generan un historial privado en MySQL. Mi espacio permite revisar copias históricas, comparar dos o tres parcelas guardadas con fuentes actuales y exportar informes HTML/JSON o imprimirlos como PDF desde el navegador. Las guardadas incluyen Ver informe. Las consultas anónimas siguen disponibles sin registro personal. No se modifican datos catastrales ni registros anteriores.
 
 Validar exportación: `node --test scripts/test-informe.cjs`. Compilar: `npm.cmd run build`.
+
+### Reportes de datos
+
+Cualquier cuenta puede marcar un dato incorrecto o faltante desde la ficha de una parcela y seguir sus reportes en **Mis reportes**. La cuenta ADMIN dispone además de la pestaña **Reportes** (con el contador de pendientes): filtra por estado (por defecto, pendientes), abre la parcela en el mapa, abre su ficha complementaria en **Parcelas reales** y cambia el estado con una respuesta para quien lo envió. Resolver o descartar exige una respuesta de al menos 10 caracteres. Los datos oficiales del catastro no se editan desde la aplicación. Contrato del backend: `docs/reportes-datos.md` de lotes-back.
