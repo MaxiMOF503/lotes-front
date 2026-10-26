@@ -12,11 +12,12 @@ import { Estadisticas,SesionUsuario } from '../../models/admin.model';
 import { EstadoOperacionComponent } from '../estado-operacion/estado-operacion.component';
 import { CalidadDatosComponent } from '../calidad-datos/calidad-datos.component';
 import { MisReportesComponent } from '../mis-reportes/mis-reportes.component';
+import { FocoModalDirective } from '../../directives/foco-modal.directive';
 import { BandejaReportesComponent } from '../bandeja-reportes/bandeja-reportes.component';
 import { ReportesDatosService } from '../../services/reportes-datos.service';
 import { EspacioTerritorialService } from '../../services/espacio-territorial.service';
 export type TabAreaInterna='parcelas'|'guardadas'|'historial'|'comparar'|'reportes'|'bandeja'|'calidad'|'estadisticas';
-@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule,GestionParcelasComponent,ActividadParcelasComponent,EstadoOperacionComponent,CalidadDatosComponent,MisReportesComponent,BandejaReportesComponent],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
+@Component({selector:'app-admin',standalone:true,imports:[CommonModule,FormsModule,GestionParcelasComponent,ActividadParcelasComponent,EstadoOperacionComponent,CalidadDatosComponent,MisReportesComponent,BandejaReportesComponent,FocoModalDirective],templateUrl:'./admin.component.html',styleUrls:['./admin.component.css','./admin-modern.component.css']})
 export class AdminComponent implements OnInit {
   @Input() tabInicial:TabAreaInterna|null=null;
   @Output() mapaSolicitado=new EventEmitter<{latitud:number;longitud:number}|null>();

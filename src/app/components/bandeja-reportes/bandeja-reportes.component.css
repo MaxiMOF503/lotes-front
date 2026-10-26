@@ -14,7 +14,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 article{padding:20px;border:1px solid #dfe5e1;border-radius:14px;background:#fbfcfa}
 article.open{border-color:#e4b516;background:#fffdf5}
 .top{display:flex;justify-content:space-between;gap:14px}
-.top small{color:#6f7c7f;font-size:.7rem;font-weight:800;letter-spacing:.06em}
+.top small{color:#677376;font-size:.7rem;font-weight:800;letter-spacing:.06em}
 .top h4{margin:5px 0 0;color:#17292e;font-size:1rem;overflow-wrap:anywhere}
 .status{align-self:start;padding:6px 9px;border-radius:999px;background:#fff2c8;color:#785500;font-size:.7rem;font-weight:900;white-space:nowrap}
 .status[data-status=EN_REVISION]{background:#dceff4;color:#225a69}
@@ -36,10 +36,10 @@ legend{margin-bottom:6px;color:#24383d;font-size:.82rem;font-weight:850}
 .radio{display:inline-flex;align-items:center;gap:7px;min-height:40px;margin:0 14px 0 0;color:#2c4046;font-size:.84rem}
 .radio input{width:18px;height:18px}
 .field{display:block;margin-bottom:6px;color:#24383d;font-size:.82rem;font-weight:850}
-.field span{margin-left:6px;color:#6f7c7f;font-weight:600}
+.field span{margin-left:6px;color:#677376;font-weight:600}
 textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cfd7d2;border-radius:9px;font:inherit;font-size:.9rem;resize:vertical}
 textarea[aria-invalid=true]{border-color:#a63832}
-.counter{display:block;margin-top:3px;color:#7d898b;text-align:right}
+.counter{display:block;margin-top:3px;color:#697375;text-align:right}
 .reply-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
 .pagination{display:flex;justify-content:center;align-items:center;gap:13px;margin-top:20px}
 .pagination span{color:#69777a;font-size:.78rem}

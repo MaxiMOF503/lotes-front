@@ -26,7 +26,7 @@ test.describe('Ingreso, salida y permisos por rol', () => {
     await test.step('no ve las pestañas de administración', async () => {
       for (const nombre of [/Parcelas reales/, /Calidad de datos/, /Estadísticas/])
         await expect(pestana(page, nombre)).toHaveCount(0);
-      await expect(pestana(page, /^✉/)).toHaveCount(0);
+      await expect(pestana(page, /^Reportes/)).toHaveCount(0);
     });
     await page.getByRole('button', { name: 'Cerrar sesión' }).click();
     await expect(page.getByRole('heading', { name: 'Ingresá a tu cuenta' })).toBeVisible();

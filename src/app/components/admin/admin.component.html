@@ -40,14 +40,14 @@
     </div>
     <div class="role-note" *ngIf="!esAdmin"><span>◉</span><div><strong>Tu espacio personal</strong><p>Guardá parcelas, comparalas y descargá informes. Las consultas del mapa con sesión iniciada se conservan en tu historial privado.</p></div></div>
     <nav class="admin-tabs" aria-label="Área interna">
-      <button *ngIf="esAdmin" (click)="cambiarTab('parcelas')" [attr.aria-pressed]="tab==='parcelas'"><span>⌖</span>Parcelas reales</button>
-      <button (click)="cambiarTab('guardadas')" [attr.aria-pressed]="tab==='guardadas'"><span>☆</span>Consultas guardadas</button>
-      <button (click)="cambiarTab('historial')" [attr.aria-pressed]="tab==='historial'"><span>◷</span>Historial</button>
-      <button (click)="cambiarTab('comparar')" [attr.aria-pressed]="tab==='comparar'"><span>⇄</span>Comparar parcelas</button>
-      <button (click)="cambiarTab('reportes')" [attr.aria-pressed]="tab==='reportes'"><span>!</span>Mis reportes</button>
-      <button *ngIf="esAdmin" (click)="cambiarTab('bandeja')" [attr.aria-pressed]="tab==='bandeja'"><span>✉</span>Reportes<b class="tab-count" *ngIf="pendientes" [attr.aria-label]="pendientes+' pendientes'">{{pendientes>99?'99+':pendientes}}</b></button>
-      <button *ngIf="esAdmin" (click)="cambiarTab('calidad')" [attr.aria-pressed]="tab==='calidad'"><span>◎</span>Calidad de datos</button>
-      <button *ngIf="esAdmin" (click)="cambiarTab('estadisticas')" [attr.aria-pressed]="tab==='estadisticas'"><span>↗</span>Estadísticas</button>
+      <button *ngIf="esAdmin" (click)="cambiarTab('parcelas')" [attr.aria-pressed]="tab==='parcelas'"><span aria-hidden="true">⌖</span>Parcelas reales</button>
+      <button (click)="cambiarTab('guardadas')" [attr.aria-pressed]="tab==='guardadas'"><span aria-hidden="true">☆</span>Consultas guardadas</button>
+      <button (click)="cambiarTab('historial')" [attr.aria-pressed]="tab==='historial'"><span aria-hidden="true">◷</span>Historial</button>
+      <button (click)="cambiarTab('comparar')" [attr.aria-pressed]="tab==='comparar'"><span aria-hidden="true">⇄</span>Comparar parcelas</button>
+      <button (click)="cambiarTab('reportes')" [attr.aria-pressed]="tab==='reportes'"><span aria-hidden="true">!</span>Mis reportes</button>
+      <button *ngIf="esAdmin" (click)="cambiarTab('bandeja')" [attr.aria-pressed]="tab==='bandeja'"><span aria-hidden="true">✉</span>Reportes<b class="tab-count" *ngIf="pendientes" [attr.aria-label]="pendientes+' pendientes'">{{pendientes>99?'99+':pendientes}}</b></button>
+      <button *ngIf="esAdmin" (click)="cambiarTab('calidad')" [attr.aria-pressed]="tab==='calidad'"><span aria-hidden="true">◎</span>Calidad de datos</button>
+      <button *ngIf="esAdmin" (click)="cambiarTab('estadisticas')" [attr.aria-pressed]="tab==='estadisticas'"><span aria-hidden="true">↗</span>Estadísticas</button>
     </nav>
     <app-gestion-parcelas *ngIf="tab==='parcelas' && esAdmin" modo="gestion" (mapaSolicitado)="abrirMapa($event)"></app-gestion-parcelas>
     <app-gestion-parcelas *ngIf="tab==='guardadas'" modo="guardadas" (mapaSolicitado)="abrirMapa($event)"></app-gestion-parcelas>
@@ -68,7 +68,7 @@
     </section>
   </ng-container>
   <div class="discard-overlay" *ngIf="accionPendiente" role="presentation">
-    <div class="discard-dialog" role="alertdialog" aria-modal="true" aria-labelledby="discard-title" aria-describedby="discard-description">
+    <div class="discard-dialog" appFocoModal role="alertdialog" aria-modal="true" aria-labelledby="discard-title" aria-describedby="discard-description">
       <span class="discard-icon" aria-hidden="true">!</span><h3 id="discard-title">¿Descartar cambios?</h3><p id="discard-description">Hay cambios de la ficha que todavía no guardaste. Si continuás, esos cambios se perderán.</p>
       <div class="discard-actions"><button type="button" class="ghost" (click)="cancelarDescarte()">Seguir editando</button><button type="button" class="discard-confirm" (click)="confirmarDescarte()">Descartar cambios</button></div>
     </div>
