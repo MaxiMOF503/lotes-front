@@ -193,7 +193,7 @@ export class MapaLoteComponent implements AfterViewInit, OnDestroy {
 
   private colocarMarcadorSeleccion(lat: number, lng: number): void {
     if (this.marcadorSeleccion) this.marcadorSeleccion.setLatLng([lat, lng]);
-    else this.marcadorSeleccion = L.marker([lat, lng], { icon: iconSeleccion }).addTo(this.map).bindTooltip('Punto consultado', { direction: 'top', offset: [0, -48] });
+    else this.marcadorSeleccion = L.marker([lat, lng], { icon: iconSeleccion, keyboard: false }).addTo(this.map).bindTooltip('Punto consultado', { direction: 'top', offset: [0, -48] });
   }
 
   private construirDetalle(tipo: string, p: Record<string, unknown>): string {

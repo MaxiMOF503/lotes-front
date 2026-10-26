@@ -18,5 +18,5 @@
   </section>
  </ng-container>
 </section>
-<app-informe-parcelas *ngIf="informes as lista" [informes]="lista" (cerrar)="informes=null"></app-informe-parcelas>
-<div class="overlay" *ngIf="quitar as h"><section class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="history-remove"><h3 id="history-remove">¿Quitar esta consulta del historial?</h3><p>Se eliminará su copia histórica. Tus guardadas y los datos territoriales se conservan.</p><p class="error" role="alert" *ngIf="error">{{error}}</p><div class="actions"><button (click)="quitar=null" [disabled]="ocupado">Cancelar</button><button class="primary" (click)="confirmarQuitar()" [disabled]="ocupado">Quitar del historial</button></div></section></div>
+<app-informe-parcelas *ngIf="informes as lista" [informes]="lista" (cerrar)="cerrarInforme()"></app-informe-parcelas>
+<div class="overlay" *ngIf="quitar as h"><section class="dialog" appFocoModal role="alertdialog" aria-modal="true" aria-labelledby="history-remove"><h3 id="history-remove">¿Quitar esta consulta del historial?</h3><p>Se eliminará su copia histórica. Tus guardadas y los datos territoriales se conservan.</p><p class="error" role="alert" *ngIf="error">{{error}}</p><div class="actions"><button (click)="quitar=null" [disabled]="ocupado">Cancelar</button><button class="primary" (click)="confirmarQuitar()" [disabled]="ocupado">Quitar del historial</button></div></section></div>

@@ -4,12 +4,12 @@
     <button
       [class.activo]="modoBusqueda === 'nomenclatura'"
       (click)="cambiarModo('nomenclatura')">
-      <span>▤</span> Por nomenclatura
+      <span aria-hidden="true">▤</span> Por nomenclatura
     </button>
     <button
       [class.activo]="modoBusqueda === 'direccion'"
       (click)="cambiarModo('direccion')">
-      <span>⌖</span> Por dirección
+      <span aria-hidden="true">⌖</span> Por dirección
     </button>
   </div>
 

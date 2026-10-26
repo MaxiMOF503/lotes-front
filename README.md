@@ -90,3 +90,19 @@ npm.cmd run e2e:ui                     # modo interactivo para depurar
 ```
 
 Para ver el informe de un fallo: `npx.cmd playwright show-trace test-results/<carpeta>/trace.zip`. Si cambia el contrato del backend (campos o códigos de error), actualizá también la API falsa. En CI se ejecutan en el job "Pruebas E2E en navegador" y, si fallan, se sube un artefacto con capturas y trazas.
+
+### Accesibilidad
+
+La interfaz se audita contra WCAG 2.2 nivel AA. Las comprobaciones automáticas están en `e2e/accesibilidad.spec.ts` y se ejecutan con el resto de las pruebas E2E (`npm run e2e`, y en CI):
+
+- **axe-core** sobre las pantallas de consulta pública, ingreso, espacio personal, administración, informes, diálogos y estados de error. Cualquier violación hace fallar la prueba y señala la regla y el elemento.
+- **Teclado:** buscar, consultar e ingresar sin mouse; los diálogos (informe, confirmaciones y descartar cambios) llevan el foco adentro, no lo dejan escapar con Tab, se cierran con Escape y devuelven el foco al control que los abrió (`src/app/directives/foco-modal.directive.ts`).
+- **Foco visible** en cada control del recorrido principal: anillo oscuro con halo claro definido en `src/styles.css`.
+- **Errores:** se anuncian como alerta, mantienen lo escrito y los campos inválidos quedan asociados a su mensaje (`aria-invalid` y `aria-describedby`).
+- **Responsive:** sin desplazamiento horizontal ni controles menores a 24×24 px a 360, 768, 1024 y 1440 px.
+- **Movimiento:** se respeta `prefers-reduced-motion`.
+- **Mapa:** quien no pueda usarlo tiene la misma consulta por nomenclatura o dirección; la región del mapa lo indica en su descripción accesible.
+
+**Revisión manual pendiente con tecnología de asistencia** (las herramientas automáticas no la reemplazan). Antes de la entrega final, una persona debería recorrer con NVDA o Narrador en Windows y con VoiceOver o TalkBack en celular: (1) consulta por nomenclatura y por dirección, (2) ingreso y cierre de sesión, (3) guardar una parcela y abrir su informe, (4) enviar un reporte, (5) un error de conexión. Además, comprobar con zoom al 200 % y al 400 %, y con el contraste forzado de Windows. Registrar acá la fecha, el lector usado y lo encontrado.
+
+Para sumar una pantalla nueva a la auditoría, agregá un paso `sinViolaciones(page, 'nombre')` en `e2e/accesibilidad.spec.ts`.

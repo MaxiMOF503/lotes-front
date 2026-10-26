@@ -1,9 +1,9 @@
 <app-splash-screen (finalizado)="onSplashFinalizado()"></app-splash-screen>
 <app-asistente *ngIf="!administracion"></app-asistente>
 <header class="topbar">
-  <a class="brand" href="#" (click)="irAConsultaPublica(); $event.preventDefault()" aria-label="Ir a consulta pública">
+  <a class="brand" href="#" (click)="irAConsultaPublica(); $event.preventDefault()">
     <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><b>+</b></span>
-    <span><strong>LoteSeguro</strong><small>Orientación territorial</small></span>
+    <span><strong>LoteSeguro</strong><small>Orientación territorial</small><span class="solo-lectores"> · ir a la consulta pública</span></span>
   </a>
   <button type="button" class="menu-toggle" (click)="alternarMenu()" [attr.aria-expanded]="menuAbierto" aria-controls="menu-principal" aria-label="Abrir menú de navegación">
     <span></span><span></span><span></span>
@@ -11,8 +11,8 @@
   <div class="menu-overlay" *ngIf="menuAbierto" (click)="cerrarMenu()" aria-hidden="true"></div>
   <nav id="menu-principal" aria-label="Navegación principal" [class.abierto]="menuAbierto">
     <button type="button" class="menu-close" (click)="cerrarMenu()" aria-label="Cerrar menú de navegación">✕</button>
-    <button (click)="irAConsultaPublica()" [attr.aria-current]="!administracion?'page':null"><span>⌖</span>Consulta pública</button>
-    <button (click)="irAAreaInterna()" [attr.aria-current]="administracion?'page':null"><span>▦</span>{{sesion ? (esAdmin?'Gestión territorial':'Mi espacio') : 'Área interna'}}</button>
+    <button (click)="irAConsultaPublica()" [attr.aria-current]="!administracion?'page':null"><span aria-hidden="true">⌖</span>Consulta pública</button>
+    <button (click)="irAAreaInterna()" [attr.aria-current]="administracion?'page':null"><span aria-hidden="true">▦</span>{{sesion ? (esAdmin?'Gestión territorial':'Mi espacio') : 'Área interna'}}</button>
     <div class="nav-perfil" *ngIf="sesion && !administracion">
       <span class="nav-avatar">{{sesion.nombre.charAt(0) || sesion.email.charAt(0)}}</span>
       <span class="nav-identidad"><strong>{{sesion.nombre}}</strong><small [class.rol-admin]="esAdmin">{{esAdmin?'Administrador':'Usuario'}}</small></span>
@@ -43,7 +43,8 @@
   <section class="content-shell">
     <div class="map-column">
       <app-buscador-ubicacion></app-buscador-ubicacion>
-      <div class="map-frame" role="region" aria-label="Mapa interactivo para seleccionar un punto">
+      <div class="map-frame" role="region" aria-label="Mapa interactivo para seleccionar un punto" aria-describedby="ayuda-mapa">
+        <p id="ayuda-mapa" class="solo-lectores">Alternativa sin mapa: usá el buscador de arriba para consultar una parcela por nomenclatura o por dirección.</p>
         <app-mapa-lote [puntoInicial]="puntoMapa" (ubicacionSeleccionada)="onUbicacionSeleccionada($event)"></app-mapa-lote>
       </div>
     </div>

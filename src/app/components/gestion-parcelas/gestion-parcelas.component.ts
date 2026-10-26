@@ -1,6 +1,7 @@
 import {Component,Input,Output,EventEmitter,OnInit,OnDestroy,inject,ChangeDetectorRef,HostListener} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {InformeParcelasComponent} from '../informe-parcelas/informe-parcelas.component';
+import {FocoModalDirective} from '../../directives/foco-modal.directive';
 import {EstadoOperacionComponent} from '../estado-operacion/estado-operacion.component';
 import {InformeTerritorial} from '../../models/espacio-territorial.model';
 import {FormsModule,NgForm} from '@angular/forms';
@@ -10,7 +11,7 @@ import {ApiService} from '../../services/api.service';
 import {ElementoTerritorial} from '../../models/territorio.model';
 import {Guardada,FichaComplementaria,PaginaEspacio,SeleccionParcela} from '../../models/espacio-territorial.model';
 
-@Component({selector:'app-gestion-parcelas',standalone:true,imports:[CommonModule,FormsModule,InformeParcelasComponent,EstadoOperacionComponent],
+@Component({selector:'app-gestion-parcelas',standalone:true,imports:[CommonModule,FormsModule,InformeParcelasComponent,EstadoOperacionComponent,FocoModalDirective],
  templateUrl:'./gestion-parcelas.component.html',styleUrl:'./gestion-parcelas.component.css'})
 export class GestionParcelasComponent implements OnInit,OnDestroy {
  @Input() modo:'gestion'|'guardadas'='gestion';
@@ -23,7 +24,9 @@ export class GestionParcelasComponent implements OnInit,OnDestroy {
  ocupado=false;cargando=true;error='';mensaje='';etiqueta='';
  pendiente:(()=>void)|null=null;quitarPendiente:Guardada|null=null;
  informes:InformeTerritorial[]|null=null;
- async abrirInforme(g:Guardada){if(this.ocupado)return;this.ocupado=true;this.error='';try{this.informes=[await this.espacio.informeGuardada(g.id)];}catch(e){this.error=this.api.error(e);}finally{this.ocupado=false;if(!this.destruido)this.cd.markForCheck();}}
+ private origenInforme:HTMLElement|null=null;
+ cerrarInforme(){this.informes=null;const o=this.origenInforme;this.origenInforme=null;setTimeout(()=>{if(o?.isConnected)o.focus();});}
+ async abrirInforme(g:Guardada){if(this.ocupado)return;this.origenInforme=document.activeElement as HTMLElement|null;this.ocupado=true;this.error='';try{this.informes=[await this.espacio.informeGuardada(g.id)];}catch(e){this.error=this.api.error(e);}finally{this.ocupado=false;if(!this.destruido)this.cd.markForCheck();}}
  private original='';private subscription?:Subscription;private destruido=false;
  @HostListener('document:keydown.escape') cancelarDialogo(){if(!this.ocupado){this.pendiente=null;this.quitarPendiente=null;}}
  get hayCambios(){return this.modo==='gestion' && !!this.ficha && JSON.stringify(this.ficha)!==this.original;}

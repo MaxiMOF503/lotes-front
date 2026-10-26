@@ -66,7 +66,7 @@ test.describe('Gestión de fichas y reportes de datos', () => {
     });
     await test.step('ADMIN ve el reporte pendiente y lo resuelve con respuesta', async () => {
       await ingresarComo(page, CUENTAS.admin);
-      await pestana(page, /^✉/).click();
+      await pestana(page, /^Reportes/).click();
       const tarjeta = page.getByRole('article').filter({ hasText: NOM_1 });
       await expect(tarjeta).toContainText('Falta indicar el prestador');
       await tarjeta.getByRole('button', { name: 'Responder' }).click();
