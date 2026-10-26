@@ -26,3 +26,7 @@ npm-debug.log*
 
 .work/
 install.log
+
+# Pruebas E2E (Playwright)
+test-results/
+playwright-report/

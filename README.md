@@ -64,7 +64,7 @@ npm.cmd test
 npm.cmd run build
 ```
 
-La prueba automatizada disponible valida el exportador de informes. Todavía no existe una suite Angular de componentes ni pruebas E2E; estas últimas se incorporarán al workflow cuando se complete la issue #35. Leaflet conserva su advertencia CommonJS y el paquete inicial supera el umbral de advertencia de 500 kB; la compilación termina correctamente.
+La prueba unitaria disponible valida el exportador de informes. Los recorridos críticos se prueban en un navegador real con Playwright (ver [Pruebas E2E](#pruebas-e2e)); todavía no existe una suite Angular de componentes. Leaflet conserva su advertencia CommonJS y el paquete inicial supera el umbral de advertencia de 500 kB; la compilación termina correctamente.
 
 ### Historial, comparación e informes
 
@@ -75,3 +75,18 @@ Validar exportación: `node --test scripts/test-informe.cjs`. Compilar: `npm.cmd
 ### Reportes de datos
 
 Cualquier cuenta puede marcar un dato incorrecto o faltante desde la ficha de una parcela y seguir sus reportes en **Mis reportes**. La cuenta ADMIN dispone además de la pestaña **Reportes** (con el contador de pendientes): filtra por estado (por defecto, pendientes), abre la parcela en el mapa, abre su ficha complementaria en **Parcelas reales** y cambia el estado con una respuesta para quien lo envió. Resolver o descartar exige una respuesta de al menos 10 caracteres. Los datos oficiales del catastro no se editan desde la aplicación. Contrato del backend: `docs/reportes-datos.md` de lotes-back.
+
+### Pruebas E2E
+
+Recorren la aplicación en Chromium: consulta pública por mapa, nomenclatura y dirección; ingreso y salida de ADMIN y USUARIO; permisos por rol; guardar y quitar una parcela; historial, informe y comparación; ficha complementaria del administrador (incluido el conflicto de edición); ciclo completo de reportes; sesión vencida, servidor caído, error interno y capa sin importar.
+
+No necesitan backend ni MySQL: cada prueba instala una API falsa en memoria (`e2e/api-falsa.ts`) con parcelas sintéticas `E2E.*` (nomenclaturas `99000…`), cuentas `@e2e.test` y claves que solo existen ahí. Por eso son independientes entre sí, no dependen del orden y no tocan datos personales ni las bases locales. Los selectores son roles y etiquetas accesibles, y cada recorrido está dividido en pasos con nombre: un fallo indica el recorrido y el paso afectados. Las capturas y trazas solo se guardan cuando una prueba falla (`test-results/`).
+
+```powershell
+npm.cmd ci
+npx.cmd playwright install chromium   # una sola vez por computadora
+npm.cmd run e2e                        # inicia la app en el puerto 4300 y ejecuta todo
+npm.cmd run e2e:ui                     # modo interactivo para depurar
+```
+
+Para ver el informe de un fallo: `npx.cmd playwright show-trace test-results/<carpeta>/trace.zip`. Si cambia el contrato del backend (campos o códigos de error), actualizá también la API falsa. En CI se ejecutan en el job "Pruebas E2E en navegador" y, si fallan, se sube un artefacto con capturas y trazas.
