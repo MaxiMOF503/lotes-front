@@ -250,6 +250,9 @@ test.describe('Responsive sin desplazamiento horizontal ni controles diminutos',
       await medir('ficha');
       await abrirMenu();
       await ingresar(page, CUENTAS.usuario, 'x');
+      // La pantalla limpia la contraseña al terminar el intento fallido: hay que esperar la respuesta
+      // antes de escribir la correcta, o el borrado llega después y deja el botón deshabilitado.
+      await expect(page.getByText(/Usuario o contraseña incorrectos/)).toBeVisible();
       await medir('ingreso con error');
       await page.getByLabel('Contraseña').fill(CUENTAS.usuario.password);
       await page.getByRole('button', { name: /Ingresar al sistema/ }).click();
