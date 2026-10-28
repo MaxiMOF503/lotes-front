@@ -27,7 +27,12 @@ test.describe('Estadísticas', () => {
     await test.step('entran las 10 columnas sin desplazamiento horizontal', async () => {
       const medidas = await page.locator('.table-scroll').evaluate(e => ({ visible: e.clientWidth, total: e.scrollWidth }));
       expect(medidas.total, 'la tabla es más ancha que su tarjeta').toBeLessThanOrEqual(medidas.visible);
-      await expect(page.locator('.table-scroll th', { hasText: 'Error técnico' })).toBeInViewport({ ratio: 1 });
+      // La última columna termina dentro de su tarjeta (se compara a lo ancho; a lo alto puede estar bajo el pliegue).
+      const dentro = await page.locator('.table-scroll').evaluate(e => {
+        const th = Array.from(e.querySelectorAll('th')).find(x => x.textContent?.includes('Error técnico'))!;
+        return th.getBoundingClientRect().right <= e.getBoundingClientRect().right + 1;
+      });
+      expect(dentro, 'la columna «Error técnico» queda cortada').toBe(true);
     });
   });
 });
