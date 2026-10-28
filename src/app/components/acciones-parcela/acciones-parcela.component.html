@@ -1,3 +1,4 @@
+<ng-container *ngIf="parte !== 'acciones'">
 <section class="aportes" *ngIf="ficha as f">
  <span class="tag">INFORMACIÓN COMPLEMENTARIA · EQUIPO</span>
  <h4>Datos relevados</h4>
@@ -8,6 +9,8 @@
 </section>
 <app-estado-operacion *ngIf="cargando" tipo="cargando" titulo="Información complementaria" mensaje="Consultando los aportes del equipo." [compacto]="true"></app-estado-operacion>
 <app-estado-operacion *ngIf="errorFicha" tipo="error" titulo="No pudimos cargar los aportes" [mensaje]="errorFicha" accion="Reintentar" (accionSolicitada)="cargarFicha()" [compacto]="true"></app-estado-operacion>
+</ng-container>
+<ng-container *ngIf="parte !== 'aportes'">
 <div class="actions" *ngIf="sesion$ | async as usuario; else ingresar">
  <small class="history-hint">Al consultar el mapa con sesión iniciada, los resultados se conservan en tu historial privado.</small>
  <button type="button" class="save" (click)="guardar()" [disabled]="ocupado">{{ocupado?'Guardando…':'☆ Guardar consulta'}}</button>
@@ -18,3 +21,4 @@
 <app-estado-operacion *ngIf="mensaje" tipo="exito" titulo="Consulta guardada" [mensaje]="mensaje" [compacto]="true"></app-estado-operacion>
 <app-estado-operacion *ngIf="error" tipo="error" titulo="No pudimos guardar la consulta" [mensaje]="error" [compacto]="true"></app-estado-operacion>
 <app-reportar-dato [parcela]="parcela" (areaSolicitada)="areaSolicitada.emit($event)"></app-reportar-dato>
+</ng-container>

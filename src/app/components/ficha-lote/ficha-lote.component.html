@@ -36,8 +36,8 @@
             <app-badge-procedencia [procedencia]="procedencia(datos, 'catastro')"></app-badge-procedencia>
           </div>
         </div>
-        <p class="territorial-note">La fuente no informa titularidad ni carácter fiscal o privado de esta parcela.</p>
-        <app-acciones-parcela [parcela]="parcela" [consulta]="datos" (areaSolicitada)="areaSolicitada.emit($event)"></app-acciones-parcela>
+        <!-- Aportes del equipo para esta parcela (los datos); las acciones van al final de la ficha -->
+        <app-acciones-parcela parte="aportes" [parcela]="parcela" [consulta]="datos"></app-acciones-parcela>
       </ng-container>
       <p class="territorial-overlap" *ngIf="datos.hayMasParcelas">Hay más de cinco parcelas coincidentes. Seleccioná un punto más preciso.</p>
 
@@ -75,6 +75,13 @@
       </div>
 
       <details class="territorial-sources"><summary>Fuentes y calidad de los datos</summary><article *ngFor="let fuente of datos.fuentes"><strong>{{ fuente.fuente }}</strong><small>{{ fuente.registros | number }} registros · Importación local: {{ fuente.importadoEn }}</small><small *ngIf="fuente.invalidos || fuente.sinGeometria">{{ fuente.sinGeometria }} sin geometría y {{ fuente.invalidos }} con geometría inválida; excluidos de la identificación por punto.</small><a [href]="fuente.url" target="_blank" rel="noopener noreferrer">Ver organismo de origen ↗</a></article></details>
+
+      <!-- Al final de todo: aclaración sobre titularidad y acciones (guardar, gestionar, reportar) -->
+      <div class="territorial-acciones" *ngFor="let parcela of datos.parcelas">
+        <p class="territorial-parcela" *ngIf="datos.parcelas.length > 1">Parcela {{ valorParcela(parcela, 'nomenclatu') }}</p>
+        <p class="territorial-note">La fuente no informa titularidad ni carácter fiscal o privado de esta parcela.</p>
+        <app-acciones-parcela parte="acciones" [parcela]="parcela" [consulta]="datos" (areaSolicitada)="areaSolicitada.emit($event)"></app-acciones-parcela>
+      </div>
     </ng-container>
   </section>
 </ng-container>

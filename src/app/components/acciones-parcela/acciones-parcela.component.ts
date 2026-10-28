@@ -15,6 +15,8 @@ import {ReportarDatoComponent} from '../reportar-dato/reportar-dato.component';
 export class AccionesParcelaComponent implements OnChanges,OnDestroy {
  @Input({required:true}) parcela!:ElementoTerritorial;
  @Input({required:true}) consulta!:ConsultaTerritorial;
+ /** Se muestra todo junto, solo los aportes del equipo o solo las acciones (guardar, gestionar, reportar). */
+ @Input() parte:'todo'|'aportes'|'acciones'='todo';
  @Output() areaSolicitada=new EventEmitter<void|'reportes'>();
  private espacio=inject(EspacioTerritorialService); private sesion=inject(SesionService);
  private api=inject(ApiService);private http=inject(HttpClient);private cd=inject(ChangeDetectorRef);
@@ -23,7 +25,7 @@ export class AccionesParcelaComponent implements OnChanges,OnDestroy {
  private request?:Subscription;private revision=0;
  ngOnChanges(){
    this.revision++;this.mensaje='';this.error='';this.ficha=null;this.cargando=true;this.errorFicha='';
-   this.cargarFicha();
+   if(this.parte!=='acciones')this.cargarFicha();else this.cargando=false;
  }
  cargarFicha(){
    this.cargando=true;this.errorFicha='';
