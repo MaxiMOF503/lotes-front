@@ -15,7 +15,7 @@ test.describe('Gestión de fichas y reportes de datos', () => {
     await test.step('sin fuente ni referencia no se puede guardar', async () => {
       await page.getByLabel('Dirección relevada').fill('Calle de prueba 100');
       await page.getByRole('button', { name: 'Guardar ficha complementaria' }).click();
-      await expect(page.getByText('Indicá la fuente y la referencia documental del aporte.')).toBeVisible();
+      await expect(page.getByText(/Indicá la fuente y la referencia documental del aporte/)).toBeVisible();
     });
     await test.step('con fuente y referencia se guarda', async () => {
       await page.getByLabel(/Fuente del aporte/).fill('Relevamiento E2E');
@@ -28,6 +28,43 @@ test.describe('Gestión de fichas y reportes de datos', () => {
       await consultarPorNomenclatura(page, NOM_1);
       await expect(page.getByText('INFORMACIÓN COMPLEMENTARIA · EQUIPO')).toBeVisible();
       await expect(page.getByText('Calle de prueba 100')).toBeVisible();
+    });
+  });
+
+  test('los avisos al guardar la ficha salen debajo de los botones y a la vista', async ({ page }) => {
+    await abrirApp(page);
+    await ingresarComo(page, CUENTAS.admin);
+    await page.getByLabel('Nomenclatura catastral').fill('990000000000000000002');
+    await page.getByRole('button', { name: 'Buscar parcelas' }).click();
+    await page.getByRole('button', { name: /990000000000000000002/ }).click();
+    const guardar = page.getByRole('button', { name: 'Guardar ficha complementaria' });
+    const debajo = async (aviso: import('@playwright/test').Locator) => {
+      await expect(aviso).toBeInViewport({ ratio: 1 });
+      const [b, a] = [await guardar.boundingBox(), await aviso.boundingBox()];
+      expect(a!.y, 'el aviso debe estar debajo del botón').toBeGreaterThan(b!.y + b!.height - 1);
+    };
+    await test.step('faltan datos: el aviso aparece debajo del botón y marca los campos', async () => {
+      await page.getByLabel('Dirección relevada').fill('Calle de prueba 100');
+      await guardar.click();
+      const aviso = page.getByRole('alert').filter({ hasText: 'Falta completar la ficha' });
+      await expect(aviso).toBeVisible();
+      await debajo(aviso);
+      await expect(page.getByLabel(/Fuente del aporte/)).toHaveAttribute('aria-invalid', 'true');
+    });
+    await test.step('al completar los datos, el aviso de error desaparece', async () => {
+      await page.getByLabel(/Fuente del aporte/).fill('Relevamiento de prueba');
+      await page.getByLabel(/Referencia documental/).fill('Expediente 123/2026');
+      await expect(page.getByText('Falta completar la ficha')).toHaveCount(0);
+    });
+    await test.step('al guardar, la confirmación aparece debajo del botón', async () => {
+      await guardar.click();
+      const aviso = page.getByRole('status').filter({ hasText: 'Ficha guardada' });
+      await expect(aviso).toBeVisible();
+      await debajo(aviso);
+    });
+    await test.step('al volver a editar, la confirmación se retira', async () => {
+      await page.getByLabel('Dirección relevada').fill('Otra calle de prueba 200');
+      await expect(page.getByText('Ficha complementaria guardada.')).toHaveCount(0);
     });
   });
 

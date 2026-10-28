@@ -72,7 +72,7 @@ test.describe('Auditoría automática (axe, WCAG 2.2 AA)', () => {
     await expect(page.getByRole('heading', { name: 'Ficha complementaria' })).toBeVisible();
     await page.getByLabel('Dirección relevada').fill('Calle de prueba 1');
     await page.getByRole('button', { name: 'Guardar ficha complementaria' }).click();
-    await expect(page.getByText('Indicá la fuente y la referencia documental del aporte.')).toBeVisible();
+    await expect(page.getByText(/Indicá la fuente y la referencia documental del aporte/)).toBeVisible();
     await sinViolaciones(page, 'ficha complementaria con error');
   });
 
