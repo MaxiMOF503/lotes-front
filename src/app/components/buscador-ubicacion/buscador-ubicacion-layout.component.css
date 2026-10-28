@@ -20,14 +20,14 @@
 }
 
 .campo { min-width: 0; }
-.campo small { display: block; margin-top: 6px; color: var(--muted); font-size: .68rem; line-height: 1.4; }
+.campo small { display: block; margin-top: 6px; color: var(--muted); font-size: 0.8125rem; line-height: 1.4; }
 /* Los botones se alinean con el campo, no con la ayuda o el aviso que aparecen debajo. */
 .campo label { line-height: 1.5; }
 .acciones { align-self: start; margin-top: calc(.64rem * 1.5 + 4px); }
 
 .campo input.con-aviso { border-color: var(--gold-dark); }
 .campo input.con-aviso:focus { box-shadow: 0 0 0 4px rgba(217,164,65,.14); }
-.aviso-busqueda { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 0; color: var(--ink-soft); font-size: .72rem; line-height: 1.4; overflow-wrap: anywhere; }
+.aviso-busqueda { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 0; color: var(--ink-soft); font-size: 0.8125rem; line-height: 1.4; overflow-wrap: anywhere; }
 .aviso-busqueda span { flex-shrink: 0; color: var(--gold-dark); }
 
 @container (max-width: 620px) {
@@ -41,5 +41,5 @@
 }
 
 @container (max-width: 360px) {
-  .modo-toggle button { font-size: .68rem; }
+  .modo-toggle button { font-size: 0.8125rem; }
 }

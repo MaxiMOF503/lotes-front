@@ -31,15 +31,15 @@
 
 /* --- Tarjeta de introducción: se posiciona junto al elemento real de cada paso --- */
 .intro-tarjeta{pointer-events:auto;position:fixed;z-index:3000;display:flex;flex-direction:column;align-items:center;gap:6px;width:min(320px,calc(100vw - 44px));padding:18px 22px 20px;border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:var(--shadow-lg);animation:asistenteAparece .32s var(--ease,ease);text-align:center;transition:top .4s var(--ease,ease),left .4s var(--ease,ease)}
-.intro-texto h3{margin:4px 0 6px;font-size:1rem;letter-spacing:-.01em;color:var(--ink)}
-.intro-texto p{margin:0;color:var(--muted);font-size:.84rem;line-height:1.55}
+.intro-texto h3{margin:4px 0 6px;font-size:1.07rem;letter-spacing:-.01em;color:var(--ink)}
+.intro-texto p{margin:0;color:var(--muted);font-size:0.8988rem;line-height:1.55}
 .intro-pasos{display:flex;gap:5px;margin:12px 0 2px}
 .intro-pasos i{width:16px;height:3px;border-radius:2px;background:var(--line)}
 .intro-pasos i.on{background:var(--yellow)}
 .intro-acciones{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:10px}
-.btn-primario{padding:10px 16px;border:0;border-radius:10px;background:var(--yellow);color:var(--ink);font:inherit;font-size:.82rem;font-weight:800;cursor:pointer;transition:transform .18s var(--ease,ease),background .18s}
+.btn-primario{padding:10px 16px;border:0;border-radius:10px;background:var(--yellow);color:var(--ink);font:inherit;font-size:0.8774rem;font-weight:800;cursor:pointer;transition:transform .18s var(--ease,ease),background .18s}
 .btn-primario:hover{background:var(--yellow-dark);transform:translateY(-1px)}
-.btn-texto{padding:8px 4px;border:0;background:none;color:var(--muted);font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.btn-texto{padding:8px 4px;border:0;background:none;color:var(--muted);font:inherit;font-size:0.856rem;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .btn-texto:hover{color:var(--ink)}
 
 /* --- Pin fijo en la esquina --- */
@@ -49,7 +49,7 @@
 .pin-escala{transform:scale(.42);transform-origin:top left;transition:transform .3s var(--ease,ease)}
 .pin-fijo:hover .pin-escala,.pin-fijo:focus-visible .pin-escala{transform:scale(.44) translateY(-6px)}
 
-.globo{position:absolute;left:70px;bottom:28px;padding:7px 12px;border-radius:10px;background:var(--ink);color:#fff;font-size:.72rem;font-weight:700;white-space:nowrap;opacity:0;transform:translateX(-6px);transition:opacity .2s var(--ease,ease),transform .2s var(--ease,ease);pointer-events:none}
+.globo{position:absolute;left:70px;bottom:28px;padding:7px 12px;border-radius:10px;background:var(--ink);color:#fff;font-size:0.8125rem;font-weight:700;white-space:nowrap;opacity:0;transform:translateX(-6px);transition:opacity .2s var(--ease,ease),transform .2s var(--ease,ease);pointer-events:none}
 .globo::after{content:"";position:absolute;left:-5px;bottom:14px;width:9px;height:9px;background:var(--ink);transform:rotate(45deg)}
 .pin-fijo:hover .globo,.pin-fijo:focus-visible .globo{opacity:1;transform:translateX(0)}
 
