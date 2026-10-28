@@ -101,6 +101,7 @@ La interfaz se audita contra WCAG 2.2 nivel AA. Las comprobaciones automáticas 
 - **Errores:** se anuncian como alerta, mantienen lo escrito y los campos inválidos quedan asociados a su mensaje (`aria-invalid` y `aria-describedby`).
 - **Responsive:** sin desplazamiento horizontal ni controles menores a 24×24 px a 360, 768, 1024 y 1440 px.
 - **Movimiento:** se respeta `prefers-reduced-motion`.
+- **Legibilidad:** ningún texto baja de 13 px (antes había texto de 9 a 11 px), el resto es un 7 % más grande, y los grises de texto tienen un contraste de 7:1 o más sobre fondo blanco.
 - **Mapa:** quien no pueda usarlo tiene la misma consulta por nomenclatura o dirección; la región del mapa lo indica en su descripción accesible.
 
 **Revisión manual pendiente con tecnología de asistencia** (las herramientas automáticas no la reemplazan). Antes de la entrega final, una persona debería recorrer con NVDA o Narrador en Windows y con VoiceOver o TalkBack en celular: (1) consulta por nomenclatura y por dirección, (2) ingreso y cierre de sesión, (3) guardar una parcela y abrir su informe, (4) enviar un reporte, (5) un error de conexión. Además, comprobar con zoom al 200 % y al 400 %, y con el contraste forzado de Windows. Registrar acá la fecha, el lector usado y lo encontrado.
