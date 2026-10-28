@@ -16,6 +16,18 @@ test.describe('Consulta pública sin registro', () => {
     });
   });
 
+  test('la ficha ordena los datos primero y las acciones al final', async ({ page, api }) => {
+    api.sembrarFicha('E2E.1', { direccion: 'Calle E2E 1' });
+    await abrirApp(page);
+    await consultarPorNomenclatura(page, '990000000000000000001');
+    const texto = await page.locator('app-ficha-lote').innerText();
+    const orden = ['Datos de la parcela', 'Zonificación', 'INFORMACIÓN COMPLEMENTARIA', 'Infraestructura eléctrica', 'Cobertura de agua',
+      'Fuentes y calidad de los datos', 'La fuente no informa titularidad', 'Ingresar para guardar', '¿Encontraste un dato'];
+    const posiciones = orden.map(t => texto.indexOf(t));
+    expect(posiciones.every(p => p >= 0), 'faltan bloques en la ficha').toBe(true);
+    expect(posiciones, 'orden de los bloques de la ficha').toEqual([...posiciones].sort((a, b) => a - b));
+  });
+
   test('por nomenclatura parcial: elegir entre varias parcelas', async ({ page }) => {
     await abrirApp(page);
     await page.getByLabel('Nomenclatura catastral').fill('99000000000000000');
