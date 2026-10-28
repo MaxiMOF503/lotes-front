@@ -1,4 +1,6 @@
-# LoteSeguro · frontend
+<p align="center"><img src="docs/logo.png" alt="LoteoSeguro · Un lugar para construir tu futuro." width="420"></p>
+
+# LoteoSeguro · frontend
 
 [![Frontend CI](https://github.com/MaxiMOF503/lotes-front/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/MaxiMOF503/lotes-front/actions/workflows/frontend-ci.yml)
 
