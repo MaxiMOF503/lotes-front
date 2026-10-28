@@ -2,8 +2,8 @@
 <app-asistente *ngIf="!administracion"></app-asistente>
 <header class="topbar">
   <a class="brand" href="#" (click)="irAConsultaPublica(); $event.preventDefault()">
-    <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><b>+</b></span>
-    <span><strong>LoteSeguro</strong><small>Orientación territorial</small><span class="solo-lectores"> · ir a la consulta pública</span></span>
+    <img class="brand-logo" src="assets/logo-cabecera.png" alt="LoteoSeguro" width="145" height="56">
+    <small class="brand-lema">Orientación <br>territorial</small><span class="solo-lectores"> · ir a la consulta pública</span>
   </a>
   <button type="button" class="menu-toggle" (click)="alternarMenu()" [attr.aria-expanded]="menuAbierto" aria-controls="menu-principal" aria-label="Abrir menú de navegación">
     <span></span><span></span><span></span>
@@ -51,4 +51,4 @@
     <aside class="record-column"><app-ficha-lote (areaSolicitada)="irAAreaInterna()"></app-ficha-lote></aside>
   </section>
 </main>
-<footer><span><b>LoteSeguro</b> · Orientación territorial</span><span>La información es orientativa. Verificá los datos ante el organismo correspondiente.</span><span class="photo-credit">Fotos: Itsmemarttin / Steve Peck · Wikimedia Commons</span></footer>
+<footer><span>La información es orientativa. Verificá los datos ante el organismo correspondiente.</span><span class="photo-credit">Fotos: Itsmemarttin / Steve Peck · Wikimedia Commons</span><img class="footer-logo" src="assets/logo-pie.png" alt="LoteoSeguro · Orientación territorial" width="145" height="56"></footer>

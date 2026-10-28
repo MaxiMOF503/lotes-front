@@ -1,5 +1,5 @@
 <div class="overlay"><section #dialogo tabindex="-1" class="report" role="dialog" aria-modal="true" aria-labelledby="report-title">
- <header class="toolbar"><div><small>LOTESEGURO · ORIENTACIÓN TERRITORIAL</small><h3 id="report-title">{{informes.length>1?'Informe comparativo':'Informe de consulta'}}</h3></div><button type="button" (click)="cerrar.emit()" aria-label="Cerrar informe">✕</button></header>
+ <header class="toolbar"><div><small>LOTEOSEGURO · ORIENTACIÓN TERRITORIAL</small><h3 id="report-title">{{informes.length>1?'Informe comparativo':'Informe de consulta'}}</h3></div><button type="button" (click)="cerrar.emit()" aria-label="Cerrar informe">✕</button></header>
  <div class="exports"><button type="button" class="primary" (click)="imprimir()">Imprimir / guardar PDF</button><button type="button" (click)="descargar('html')">Descargar HTML</button><button type="button" (click)="descargar('json')">Descargar datos JSON</button></div>
  <p class="error" role="alert" *ngIf="error">{{error}}</p>
  <p class="disclaimer">Documento orientativo. No acredita dominio, habilitación ni factibilidad de servicios. Los informes históricos conservan los datos de aquella consulta.</p>
