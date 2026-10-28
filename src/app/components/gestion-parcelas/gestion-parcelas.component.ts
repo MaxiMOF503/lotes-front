@@ -22,6 +22,16 @@ export class GestionParcelasComponent implements OnInit,OnDestroy {
  recientes:PaginaEspacio<FichaComplementaria>={items:[],pagina:0,totalPaginas:0,total:0};
  parcela:ElementoTerritorial|null=null;ficha:FichaComplementaria|null=null;
  ocupado=false;cargando=true;error='';mensaje='';etiqueta='';
+ /** Resultado de guardar la ficha: se muestra debajo de los botones, donde la persona está mirando. */
+ avisoFicha:{tipo:'error'|'exito';titulo:string;mensaje:string}|null=null;
+ private avisar(tipo:'error'|'exito',titulo:string,mensaje:string){
+   this.avisoFicha={tipo,titulo,mensaje};
+   if(this.destruido)return;
+   this.cd.detectChanges();
+   const reducido=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   document.getElementById('aviso-ficha')?.scrollIntoView({block:'nearest',behavior:reducido?'auto':'smooth'});
+ }
+ alEditar(){this.avisoFicha=null;}
  pendiente:(()=>void)|null=null;quitarPendiente:Guardada|null=null;
  informes:InformeTerritorial[]|null=null;
  private origenInforme:HTMLElement|null=null;
@@ -61,7 +71,7 @@ export class GestionParcelasComponent implements OnInit,OnDestroy {
    this.continuar(()=>{void this.cargarParcela(id);});
  }
  private async cargarParcela(id:string){
-   this.ocupado=true;this.error='';this.mensaje='';
+   this.ocupado=true;this.error='';this.mensaje='';this.avisoFicha=null;
    try{const [parcela,ficha]=await Promise.all([this.espacio.parcela(id),this.espacio.ficha(id)]);
      if(this.destruido)return;
      this.parcela=parcela;this.ficha=ficha;this.original=JSON.stringify(ficha);}
@@ -71,12 +81,12 @@ export class GestionParcelasComponent implements OnInit,OnDestroy {
  async guardar(form:NgForm){
    if(this.ocupado || !this.ficha)return;
    if(form.invalid || !this.ficha.fuente?.trim() || !this.ficha.referencia?.trim()){
-     form.form.markAllAsTouched();this.error='Indicá la fuente y la referencia documental del aporte.';return;}
-   this.ocupado=true;this.error='';this.mensaje='';
+     form.form.markAllAsTouched();this.avisar('error','Falta completar la ficha','Indicá la fuente y la referencia documental del aporte para poder guardarla.');return;}
+   this.ocupado=true;this.error='';this.mensaje='';this.avisoFicha=null;
    try{this.ficha=await this.espacio.guardarFicha(this.ficha);this.original=JSON.stringify(this.ficha);
-     this.mensaje='Ficha complementaria guardada. Ya puede consultarse desde el mapa.';
-     await this.cargarLista(this.recientes.pagina);}
-   catch(e){this.error=this.api.error(e)+' Conservamos lo que escribiste.';}
+     await this.cargarLista(this.recientes.pagina);
+     this.avisar('exito','Ficha guardada','Ficha complementaria guardada. Ya puede consultarse desde el mapa.');}
+   catch(e){this.avisar('error','No pudimos guardar la ficha',this.api.error(e)+' Conservamos lo que escribiste.');}
    finally{this.ocupado=false;this.cd.markForCheck();}
  }
  recargarFicha(){if(this.parcela)this.continuar(()=>{void this.cargarParcela(String(this.parcela!.id));});}
